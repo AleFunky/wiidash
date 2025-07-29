@@ -8,7 +8,7 @@ LevelDefinition levels[] = {
         .data_ptr  = StereoMadness_gmd
     }, 
     {
-        .level_name = "Back on Track",
+        .level_name = "Back On Track",
         .data_ptr  = BackOnTrack_gmd
     }, 
     {
@@ -20,7 +20,7 @@ LevelDefinition levels[] = {
         .data_ptr  = DryOut_gmd
     }, 
     {
-        .level_name = "BASE AFTER BASE",
+        .level_name = "Base After Base",
         .data_ptr  = BaseAfterBase_gmd
     }, 
     {
@@ -48,7 +48,7 @@ LevelDefinition levels[] = {
         .data_ptr = Clutterfunk_gmd
     },
     {
-        .level_name = "Theory Of Everything",
+        .level_name = "Theory of Everything",
         .data_ptr = TheoryOfEverything_gmd
     },
     {
@@ -56,7 +56,7 @@ LevelDefinition levels[] = {
         .data_ptr  = LevelEasy_gmd
     },
     {
-        .level_name = "The Lightning Road",
+        .level_name = "THE LIGHTNING ROAD",
         .data_ptr  = TheLightningRoad_gmd
     },
     {
@@ -68,7 +68,7 @@ LevelDefinition levels[] = {
         .data_ptr  = DemonPark_gmd
     },
     {
-        .level_name = "Auto Jumper",
+        .level_name = "auto jumper",
         .data_ptr  = AutoJumper_gmd
     },
     {
