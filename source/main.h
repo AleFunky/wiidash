@@ -94,6 +94,8 @@ extern float player_draw_time;
 extern int number_of_collisions;
 extern int number_of_collisions_checks;
 
+extern char launch_dir[256];
+
 extern GameState state;
 
 extern GRRLIB_texImg *font;

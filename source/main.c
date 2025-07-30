@@ -74,6 +74,8 @@ float player_draw_time = 0;
 int number_of_collisions = 0;
 int number_of_collisions_checks = 0;
 
+char launch_dir[256] = SDCARD_FOLDER;
+
 
 void draw_game() {
     draw_background(state.background_x / 8, -(state.camera_y / 8) + 416);
@@ -193,7 +195,24 @@ void update_input() {
     state.input.holdDir =    ((WPAD_ButtonsHeld(WPAD_CHAN_0) & wpad_dir_mask) >> 8) | (PAD_ButtonsHeld(PAD_CHAN0) & pad_dir_mask);
 }
 
-int main() {
+void set_launch_dir(const char* path) {
+    if (!path) return;
+
+    const char *last_slash = strrchr(path, '/');
+    if (!last_slash) return;
+
+    size_t dir_len = last_slash - path;
+    if (dir_len >= 256) dir_len = 255;
+
+    strncpy(launch_dir, path, dir_len);
+    launch_dir[dir_len] = '\0';
+}
+
+int main(int argc, char **argv) {
+    if (argc > 0) {
+        set_launch_dir(argv[0]);
+    }
+
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
     GRRLIB_Init();
@@ -246,3 +265,4 @@ static void ExitGame(void) {
     // Exit application
     exit(0);
 }
+

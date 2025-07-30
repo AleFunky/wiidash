@@ -1277,6 +1277,6 @@ void calculate_lbg() {
 
 char *load_song(const char *file_name, size_t *out_size) {
     char full_path[256];
-    snprintf(full_path, sizeof(full_path), "%s/%s/%s/%s", SDCARD_FOLDER, RESOURCES_FOLDER, SONGS_FOLDER, file_name);
+    snprintf(full_path, sizeof(full_path), "%s/%s/%s/%s", launch_dir, RESOURCES_FOLDER, SONGS_FOLDER, file_name);
     return read_file(full_path, out_size);
 }

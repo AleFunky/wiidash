@@ -38,7 +38,7 @@ int menu_loop() {
 	struct dirent *pent;
 	struct stat statbuf;
     
-    DIR *pdir = opendir(SDCARD_FOLDER);
+    DIR *pdir = opendir(launch_dir);
 
 	if (!pdir){
 		game_folder_not_found();
@@ -46,7 +46,7 @@ int menu_loop() {
 	}
 
     char usr_lvl_dir[256];
-    snprintf(usr_lvl_dir, sizeof(usr_lvl_dir), "%s/%s", SDCARD_FOLDER, USER_LEVELS_FOLDER);
+    snprintf(usr_lvl_dir, sizeof(usr_lvl_dir), "%s/%s", launch_dir, USER_LEVELS_FOLDER);
 
     DIR *level_dir = opendir(usr_lvl_dir);
     
@@ -118,7 +118,7 @@ int menu_loop() {
 
 void game_folder_not_found() {
     char path[256];
-    snprintf(path, sizeof(path), "%s", SDCARD_FOLDER);
+    snprintf(path, sizeof(path), "%s", launch_dir);
 
     while (1) {
         update_input();
@@ -194,7 +194,7 @@ int sdcard_levels() {
         }
     } else {
         char path[512];
-        snprintf(path, sizeof(path), "%s/%s", SDCARD_FOLDER, USER_LEVELS_FOLDER);
+        snprintf(path, sizeof(path), "%s/%s", launch_dir, USER_LEVELS_FOLDER);
         GRRLIB_Printf(0, 20, font, RGBA(255,255,255,255), 0.75, "Put levels in:");
         GRRLIB_Printf(0, 45, font, RGBA(255,255,255,255), 0.75, path);
         GRRLIB_Printf(0, 70, font, RGBA(255,255,255,255), 0.75, "For getting levels, use the mod");
@@ -206,7 +206,7 @@ int sdcard_levels() {
 int main_levels() {
     GRRLIB_FillScreen(RGBA(0, 127, 255, 255));
             
-    GRRLIB_Printf(0, 400, font, RGBA(255,255,255,255), 0.75, "Press 1 to switch to SD card levels.");
+    GRRLIB_Printf(0, 400, font, RGBA(255,255,255,255), 0.75, "Press 1 to switch to custom levels.");
     
     char text[255];
     snprintf(text, 255, "%d - %s", level_id + 1, levels[level_id].level_name);
