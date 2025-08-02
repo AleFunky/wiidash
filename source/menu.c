@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include "filesystem.h"
+#include "math.h"
 
 #include "menu.h"
 
@@ -29,6 +30,28 @@ char current_level_name[255];
 int level_mode = 0;
 
 size_t outsize;
+
+#define NUM_LVL_COLORS 18
+const int default_lvl_colors[NUM_LVL_COLORS] = {
+  RGBA(0, 0, 232, 255), // Stereo Madness
+  RGBA(227, 0, 229, 255), // Back on Track
+  RGBA(233, 0, 115, 255), // Polargeist
+  RGBA(233, 0, 0, 255), // Dry Out
+  RGBA(231, 112, 0, 255), // Base After Base
+  RGBA(233, 232, 0, 255), // Cant Let Go
+  RGBA(0, 231, 0, 255), // Jumper
+  RGBA(0, 227, 228, 255), // Time Machine
+  RGBA(0, 112, 0xE5, 255), // Cycles
+  RGBA(0, 0, 0xE9, 255), // XStep
+  RGBA(0xE6, 0, 0xE8, 255), // Clutterfunk
+  RGBA(231, 0, 115, 255), // ToE
+  RGBA(231, 0, 0, 255), // EA
+  RGBA(231, 113, 0, 255), // Clubstep
+  RGBA(231, 231, 0, 255), // Electrodynamix
+  RGBA(0, 231, 0, 255), // HF
+  RGBA(0, 228, 228, 255), // BP
+  RGBA(0, 112, 231, 255), // ToE2
+};
 
 int menu_loop() {
     if (!fatInitDefault()) {
@@ -213,13 +236,24 @@ int sdcard_levels() {
 }
 
 int main_levels() {
-    GRRLIB_FillScreen(RGBA(0, 127, 255, 255));
+    if (level_id < NUM_LVL_COLORS) {
+        GRRLIB_FillScreen(default_lvl_colors[level_id]);
+    } else {
+        GRRLIB_FillScreen(RGBA(0, 127, 255, 255));
+    }
             
     GRRLIB_Printf(0, 400, font, RGBA(255,255,255,255), 0.75, "Press 1 to switch to custom levels.");
     
-    char text[255];
-    snprintf(text, 255, "%d - %s", level_id + 1, levels[level_id].level_name);
-    GRRLIB_Printf(0, 20, font, RGBA(255,255,255,255), 0.75, text);
+    custom_rectangle((screenWidth) / 2 - 200, 100, 400, 160, RGBA(0, 0, 0, 127), 1);
+    int textOffset = (strlen(levels[level_id].level_name) * 18) / 2;
+    GRRLIB_Printf(screenWidth/2 - textOffset, 160, font, RGBA(255,255,255,255), 0.75, levels[level_id].level_name);
+
+    int dotsStartX = (screenWidth / 2) - ((LEVEL_NUM * 16) / 2);
+    int selectedColor = RGBA(255, 255, 255, 255);
+    int otherColor = RGBA(127, 127, 127, 255);
+    for (int i = 0; i < LEVEL_NUM; i++) {
+        custom_circle(dotsStartX + i * 16, screenHeight - 32, 4, level_id == i?selectedColor:otherColor, 1);
+    }
 
     if (state.input.pressedDir & INPUT_LEFT) {
         level_id--;
