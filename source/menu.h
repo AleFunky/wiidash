@@ -10,6 +10,7 @@
 #include "gradient_png.h"
 #include "g_01_png.h"
 #include "font_bold_png.h"
+#include "ground_line_png.h"
 
 
 

@@ -26,6 +26,7 @@ GRRLIB_texImg *gradient_texture;
 // add ground
 GRRLIB_texImg *menu_ground;
 GRRLIB_texImg *font_bold;
+GRRLIB_texImg *ground_line_texture;
 
 
 
@@ -286,6 +287,7 @@ int menu_loop() {
     menu_corner_squares = GRRLIB_LoadTexturePNG(corner_squares_png);
     menu_arrow = GRRLIB_LoadTexturePNG(arrow_png);
     gradient_texture = GRRLIB_LoadTexturePNG(gradient_png);
+    ground_line_texture = GRRLIB_LoadTexturePNG(ground_line_png);
     menu_ground = GRRLIB_LoadTexturePNG(g_01_png); //groundgroundgroundgourng
 
     create_button((screenWidth) / 2 - 200, 100, 400, 160,false,menu_arrow,start_level,false,false); //main play button
@@ -446,7 +448,7 @@ int main_levels() {
             GRRLIB_DrawImg(i,screenHeight-64,menu_ground,0,1.5,1.5,RGBA(0, 127, 255, 255));//add ground 2: electric boogaloo
         }
     }
-
+    GRRLIB_DrawImg(screenWidth/2 - 444 * 1.5,screenHeight-64,ground_line_texture,0,1.5 * screen_factor_x,1.5,RGBA(255,255,255,255));//ground line
     
 
     
@@ -483,6 +485,8 @@ int main_levels() {
 
     GRRLIB_DrawImg(ir_x,ir_y, cursor,0,1,1,RGBA(255,255,255,255)); // draw cursor
 
+    SYS_STDIO_Report(true);
+    printf("ir x: %f, y: %f\n", ir_x, ir_y);
 
 
 
@@ -495,10 +499,12 @@ int main_levels() {
     }
     
     if (state.input.pressedA) {
-        // i can already feel ale beating the shit out of me for writing this atrocity of code
-        for (int i = 0; i <= button_count; i++){
-            if (GRRLIB_PtInRect(button_list[i].x,button_list[i].y,button_list[i].width,button_list[i].height,ir_x,ir_y)){
+        // ale is gonna kill me
+        if (!ir_x == 0 || !ir_y == 0){ // janky but it should work
+            for (int i = 0; i <= button_count; i++){
+                if (GRRLIB_PtInRect(button_list[i].x,button_list[i].y,button_list[i].width,button_list[i].height,ir_x,ir_y)){
                 button_list[i].func();
+                }
             }
         }
     }
