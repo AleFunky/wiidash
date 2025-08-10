@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<app version="1">
+		<name>Wii Dash</name>
+		<coder>AleFunky</coder>
+		<version>0.0.1</version>
+		<release_date>20250709000000</release_date>
+		<!--   // remove this line to enable arguments
+		<arguments>
+			<arg>ios=249</arg>
+			<arg>waitdir=sd:/apps/wiiflow/wait_imgs</arg>
+			<arg>waitloop</arg>
+			<arg>noflash</arg>
+		</arguments>
+		// remove this line to enable arguments -->
+		<short_description>Geometry Dash Clone for the Wii</short_description>
+		<long_description>Wii Dash is a port of the hit mobile / PC game under the same name, now available on your beloved Nintendo Wii! All game assets belong to RobTop Games.</long_description>
+		<no_ios_reload/>
+	</app>

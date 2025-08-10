@@ -501,7 +501,7 @@ int main_levels() {
     if (state.input.pressedA) {
         // ale is gonna kill me
         if (!ir_x == 0 || !ir_y == 0){ // janky but it should work
-            for (int i = 0; i <= button_count; i++){
+            for (int i = 0; i < button_count; i++){
                 if (GRRLIB_PtInRect(button_list[i].x,button_list[i].y,button_list[i].width,button_list[i].height,ir_x,ir_y)){
                 button_list[i].func();
                 }

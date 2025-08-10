@@ -1,0 +1,24 @@
+extern GRRLIB_texImg *cursor;
+
+extern float ir_x;
+extern float ir_y;
+
+
+
+
+
+
+float ir_x;
+float ir_y;
+
+
+
+
+WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+
+WPADData* data = WPAD_Data(0);
+ir_x = data->ir.x;
+ir_y = data->ir.y;
+//fix the thing
+ir_x = (ir_x - 64) * 1.3;
+ir_y = (ir_y - 64) * 1.3;
