@@ -349,7 +349,7 @@ void cube_gamemode(Player *player) {
         spawn_particle(CUBE_DRAG, getLeft(player) + 4, (player->upside_down ? getTop(player) - 2 : getBottom(player) + 2), NULL);
     }
 
-    if ((player->slope_data.slope || player->on_ground) && (state.input.holdA || state.input.hold2orY)) {
+    if ((player->slope_data.slope || player->on_ground) && (state.input.holdA || state.input.hold2orY || state.input.holdB)) {
         if (player->slope_data.slope) {
             int orient = grav_slope_orient(player->slope_data.slope, player);
             if (orient == 0 || orient == 3) {
@@ -394,7 +394,7 @@ void ship_particles(Player *player) {
         spawn_particle(SHIP_TRAIL, x, y, NULL);
         
         // Holding particles
-        if (state.input.holdA || state.input.hold2orY) {
+        if (state.input.holdA || state.input.hold2orY || state.input.holdB) {
             spawn_particle(HOLDING_SHIP_TRAIL, x, y, NULL);
         }
 
@@ -416,7 +416,7 @@ void update_ship_rotation(Player *player) {
 
 void ship_gamemode(Player *player) {
     if (state.dual) {
-        if (state.input.holdA || state.input.hold2orY) {
+        if (state.input.holdA || state.input.hold2orY || state.input.holdB) {
             player->buffering_state = BUFFER_END;
             if (player->vel_y <= 103.485492f)
                 player->gravity = player->mini ? 1643.5872f : 1397.0491f;
@@ -429,7 +429,7 @@ void ship_gamemode(Player *player) {
                 player->gravity = player->mini ? -1051.8984f : -894.11464f;
         }
     } else {
-        if (state.input.holdA || state.input.hold2orY) {
+        if (state.input.holdA || state.input.hold2orY || state.input.holdB) {
             player->buffering_state = BUFFER_END;
             if (player->vel_y <= grav(player, 103.485492f))
                 player->gravity = player->mini ? 1643.5872f : 1397.0491f;
@@ -475,7 +475,7 @@ void ball_gamemode(Player *player) {
     }
 
     // Jump
-    if ((state.input.holdA || state.input.hold2orY) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {
+    if ((state.input.holdA || state.input.hold2orY || state.input.holdB) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {
         player->upside_down ^= 1;
         set_p_velocity(player, -181.11601);
 
@@ -533,7 +533,7 @@ void ufo_particles(Player *player) {
 void ufo_gamemode(Player *player) {
     int mult = (player->upside_down ? -1 : 1);
 
-    if (player->buffering_state == BUFFER_READY && (state.input.pressedA || state.input.pressed2orY || state.input.pressedB || (state.old_player.gamemode == GAMEMODE_SHIP && (state.input.holdA || state.input.hold2orY || state.input.pressedB)))) {
+    if (player->buffering_state == BUFFER_READY && (state.input.pressedA || state.input.pressed2orY || state.input.pressedB || (state.old_player.gamemode == GAMEMODE_SHIP && (state.input.holdA || state.input.hold2orY || state.input.holdB)))) {
         player->vel_y = maxf(player->vel_y, player->mini ? 358.992 : 371.034);
         player->buffering_state = BUFFER_END;
         player->ufo_last_y = player->y;
@@ -581,7 +581,7 @@ void wave_gamemode(Player *player) {
 
     if (player->buffering_state == BUFFER_READY) player->buffering_state = BUFFER_END;
 
-    bool input = (state.input.holdA || state.input.hold2orY);
+    bool input = (state.input.holdA || state.input.hold2orY || state.input.holdB);
     player->gravity = 0;
 
     player->vel_y = (input * 2 - 1) * player_speeds[state.speed] * (player->mini ? 2 : 1);
@@ -854,7 +854,7 @@ void handle_player(Player *player) {
         set_particle_color(UFO_TRAIL, p1.r, p1.g, p1.b);
     }
     
-    if (state.input.holdA || state.input.hold2orY) {
+    if (state.input.holdA || state.input.hold2orY || state.input.holdB) {
         if (player->buffering_state == BUFFER_NONE) {
             player->buffering_state = BUFFER_READY;
         }
