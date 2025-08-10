@@ -448,7 +448,7 @@ int main_levels() {
             GRRLIB_DrawImg(i,screenHeight-64,menu_ground,0,1.5,1.5,RGBA(0, 127, 255, 255));//add ground 2: electric boogaloo
         }
     }
-    GRRLIB_DrawImg(screenWidth/2 - 444 * 1.5,screenHeight-64,ground_line_texture,0,1.5 * screen_factor_x,1.5,RGBA(255,255,255,255));//ground line
+    GRRLIB_DrawImg(screenWidth/2 - 444 * screen_factor_x,screenHeight-64,ground_line_texture,0,screen_factor_x,1,RGBA(255,255,255,255));//ground line
     
 
     
