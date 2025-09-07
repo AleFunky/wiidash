@@ -773,8 +773,54 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 obj->activated[state.current_player] = TRUE;
             }
             break;
+        case BLUE_TP_PORTAL:
+            if (!obj->activated[state.current_player]) {
+                // Teleport
+                player->y = obj->object.child_object->y;
+
+                particle_templates[USE_EFFECT].start_scale = 80;
+                particle_templates[USE_EFFECT].end_scale = 0;
+                particle_templates[USE_EFFECT].trifading = TRUE;
+
+                particle_templates[USE_EFFECT].start_color.a = 0;
+                particle_templates[USE_EFFECT].end_color.a = 255;
+
+                MotionTrail_Clear(&trail);
+
+                set_particle_color(USE_EFFECT, 56, 200, 255);
+                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+
+                set_particle_color(USE_EFFECT, 255, 255, 0);
+                spawn_particle(USE_EFFECT, obj->object.child_object->x, obj->object.child_object->y, obj);
+                
+                float camera_y = state.camera_y + SCREEN_HEIGHT_AREA / 2;
+                if (fabsf(camera_y - obj->object.child_object->y) >= SCREEN_HEIGHT_AREA/2 + 60) {
+                    state.intermediate_camera_y = state.camera_y = player->y - SCREEN_HEIGHT_AREA / 2;
+                }
+
+                state.has_teleported_timer = 0.5f;
+
+                obj->activated[state.current_player] = TRUE;
+            }
+            break;
     }
     if (!obj->collided[state.current_player]) obj->hitbox_counter[state.current_player]++; 
+}
+
+float get_rotated_x_hitbox(float x_offset, float y_offset, float rotation) {
+    float angle_rad = DegToRad(rotation); // Convert degrees to radians
+    float cos_a = cosf(angle_rad);
+    float sin_a = sinf(angle_rad);
+
+    return (x_offset * cos_a - y_offset * sin_a);
+}
+
+float get_rotated_y_hitbox(float x_offset, float y_offset, float rotation) {
+    float angle_rad = DegToRad(rotation); // Convert degrees to radians
+    float cos_a = cosf(angle_rad);
+    float sin_a = sinf(angle_rad);
+
+    return -(x_offset * sin_a + y_offset * cos_a);
 }
 
 void setup_dual() {
@@ -1055,6 +1101,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
         case BLUE_MIRROR_PORTAL:
         case DIVORCE_PORTAL:
         case WAVE_PORTAL:
+        case BLUE_TP_PORTAL:
             if (layer->layerNum == 1) {
                 particle_templates[PORTAL_PARTICLES].angle = 180.f - adjust_angle_y(obj->rotation, obj->flippedH);
 
@@ -1096,6 +1143,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
             break;
 
         case ORANGE_MIRROR_PORTAL:
+        case ORANGE_TP_PORTAL:
         case UFO_PORTAL:
         case DUAL_PORTAL:
             if (layer->layerNum == 1) {

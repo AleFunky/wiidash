@@ -938,6 +938,9 @@ enum Objects {
     COL4_TRIGGER,
     THREEDL_TRIGGER,
 
+    BLUE_TP_PORTAL = 747,
+    ORANGE_TP_PORTAL = 749,
+
     COL_TRIGGER = 899,
 
     MOVE_TRIGGER = 901,
@@ -1074,6 +1077,8 @@ enum HitboxTypes {
 };
 
 typedef struct {
+    float x_off;
+    float y_off;
     float width;
     float height;
     float radius;
@@ -1160,6 +1165,9 @@ GRRLIB_texImg *get_coin_particle_texture();
 
 extern GRRLIB_texImg *level_complete_texture;
 extern float complete_text_elapsed;
+
+float get_rotated_x_hitbox(float x_offset, float y_offset, float rotation);
+float get_rotated_y_hitbox(float x_offset, float y_offset, float rotation);
 
 void draw_all_object_layers();
 void draw_background(f32 x, f32 y);

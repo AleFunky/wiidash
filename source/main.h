@@ -97,6 +97,8 @@ typedef struct {
     bool paused;
 
     float level_progress;
+
+    float has_teleported_timer;
     
     Particle particles[MAX_PARTICLES];
 

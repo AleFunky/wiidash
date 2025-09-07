@@ -33,6 +33,13 @@ const ObjectHitbox dual_portal_hitbox = {
     .type = HITBOX_SPECIAL
 };
 
+const ObjectHitbox tp_portal_hitbox = {
+    .x_off = 12,
+    .width = 25,
+    .height = 90,
+    .type = HITBOX_SPECIAL
+};
+
 const ObjectHitbox no_hitbox = {
     .width = 0,
     .height = 0,
@@ -14212,10 +14219,56 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
 
     // 2.0 objects
     
+    [BLUE_TP_PORTAL] = { 
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = -1,
+                .texture = portal_15_back_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = portal_15_front_001_png
+            }
+        },
+        .hitbox = tp_portal_hitbox,
+        .spritesheet_layer = SHEET_PORTALS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 10,
+        .num_layers = 2
+    },
+    [ORANGE_TP_PORTAL] = { 
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = -1,
+                .texture = portal_16_back_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = portal_16_front_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_PORTALS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 10,
+        .num_layers = 2
+    },
     [COL_TRIGGER] = trigger,
     [MOVE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
-    [GREEN_ORB] = { // Yellow orb
+    [GREEN_ORB] = {
         .layers = {
             {
                 .x_offset = 0,

@@ -66,6 +66,7 @@ void MotionTrail_Init(MotionTrail* trail, float fade, float minSeg, float stroke
 void MotionTrail_UpdateWaveTrail(MotionTrail *trail, float delta);
 void MotionTrail_Update(MotionTrail* trail, float delta);
 void MotionTrail_ResumeStroke(MotionTrail* trail);
+void MotionTrail_Clear(MotionTrail *trail);
 void MotionTrail_StopStroke(MotionTrail* trail);
 void MotionTrail_Draw(MotionTrail* trail);
 void MotionTrail_DrawWaveTrail(MotionTrail *trail);

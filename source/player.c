@@ -197,13 +197,15 @@ void collide_with_obj(Player *player, GameObject *obj) {
         obj->object.prev_touching_player = obj->object.touching_player;
         obj->object.touching_player = 0;
 
+        float x = obj->x + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
+        float y = obj->y + get_rotated_y_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
         float width = hitbox->width * obj->object.scale_x;
         float height = hitbox->height * obj->object.scale_y;
 
         if (hitbox->is_circular) {
             if (intersect_rect_circle(
                 player->x, player->y, player->width, player->height, player->rotation, 
-                obj->x, obj->y, hitbox->radius * MAX(obj->object.scale_x, obj->object.scale_y)
+                x, y, hitbox->radius * MAX(obj->object.scale_x, obj->object.scale_y)
             )) {
                 handle_collision(player, obj, hitbox);
                 obj->collided[state.current_player] = TRUE;
@@ -222,14 +224,14 @@ void collide_with_obj(Player *player, GameObject *obj) {
             
             bool checkColl = intersect(
                 player->x, player->y, player->width, player->height, rotation, 
-                obj->x, obj->y, width, height, obj_rot
+                x, y, width, height, obj_rot
             );
             
             // Rotated hitboxes must also collide with the unrotated hitbox
             if (rotation != 0) {
                 checkColl = checkColl && intersect(
                     player->x, player->y, player->width, player->height, 0, 
-                    obj->x, obj->y, width, height, obj_rot
+                    x, y, width, height, obj_rot
                 );
             }
 
@@ -705,12 +707,12 @@ void run_camera() {
 
         float difference = player->y - state.old_player.y;
 
-        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground)) {
+        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground || state.has_teleported_timer)) {
             float lerp_ratio = 0.1f;
-            if (player->on_ground) {
+            if (player->on_ground || state.has_teleported_timer) {
                 // Slowly make player in bounds (60 units from player center)
                 state.camera_y_lerp = player->y + 60.f * mult - (SCREEN_HEIGHT_AREA / 2);
-                lerp_ratio = 0.2f;
+                lerp_ratio = (state.has_teleported_timer) ? 0.05f : 0.2f;
             } else {
                 // Move camera
                 state.camera_y_lerp += difference;
@@ -1153,6 +1155,8 @@ void init_variables() {
     state.camera_y = state.camera_intended_y;
     state.camera_y_lerp = state.camera_y;
     state.intermediate_camera_y = state.camera_y;
+
+    state.has_teleported_timer = 0;
 
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;
@@ -2165,11 +2169,12 @@ void draw_square(Vec2D rect[4], uint32_t color) {
 void draw_hitbox(GameObject *obj) {
     ObjectHitbox hitbox = objects[obj->id].hitbox;
 
-    float x = obj->x;
-    float y = obj->y;
+    float angle = obj->rotation;
+
+    float x = obj->x + get_rotated_x_hitbox(hitbox.x_off, hitbox.y_off, angle);
+    float y = obj->y + get_rotated_y_hitbox(hitbox.x_off, hitbox.y_off, angle);
     float w = hitbox.width * obj->object.scale_x;
     float h = hitbox.height * obj->object.scale_y;
-    float angle = obj->rotation;
 
     if (obj_hitbox_static(obj->id)) {
         angle = 0;

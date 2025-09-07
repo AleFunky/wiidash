@@ -199,6 +199,11 @@ int game_loop() {
                     input_buffer.read_index = (input_buffer.read_index + 1) & INPUT_BUFFER_MASK;
                     LWP_MutexUnlock(input_buffer.mutex);
                 }
+
+                state.has_teleported_timer -= STEPS_DT;
+                if (state.has_teleported_timer < 0) {
+                    state.has_teleported_timer = 0;
+                }
     
                 state.old_player = state.player;
                 if (level_info.custom_song_id >= 0) {

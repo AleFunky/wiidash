@@ -76,6 +76,11 @@ static float getDistanceSq(const Vec2* a, const Vec2* b) {
     return dx*dx + dy*dy;
 }
 
+void MotionTrail_Clear(MotionTrail *trail) {
+    trail->nuPoints = 0;
+    trail->previousNuPoints = 0;
+}
+
 void MotionTrail_Init(MotionTrail* trail, float fade, float minSeg, float stroke, bool waveTrail, Color color, GRRLIB_texImg *tex) {
     memset(trail, 0, sizeof(MotionTrail));
     trail->texture = tex;  

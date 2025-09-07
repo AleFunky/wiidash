@@ -898,3 +898,8 @@
 #include "d_pixelArt01_006_002_png.h"
 
 #include "gravJumpRing_01_001_png.h"
+
+#include "portal_15_back_001_png.h"
+#include "portal_15_front_001_png.h"
+#include "portal_16_back_001_png.h"
+#include "portal_16_front_001_png.h"

@@ -116,6 +116,10 @@ void free_sections(void) {
             sec = next;
         }
         section_hash[i] = NULL;
+    }
+}
+void free_gfx_sections(void) {
+    for (int i = 0; i < SECTION_HASH_SIZE; i++) {
         GFXSection *sec2 = section_gfx_hash[i];
         while (sec2) {
             GFXSection *next = sec2->next;
@@ -615,6 +619,7 @@ GDValueType get_value_type_for_key(int key) {
         case 44: return GD_VAL_HSV;    // Detail col HSV
         case 49: return GD_VAL_HSV;    // (Color trigger) Copy color HSV
         case 50: return GD_VAL_INT;    // (Color trigger) Copy color id
+        case 54: return GD_VAL_FLOAT;  // (Teleport portal) Y offset
         case 57: return GD_VAL_INT_ARRAY; // Groups
         case 58: return GD_VAL_BOOL;   // (Move trigger) Lock to player x
         case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
@@ -937,6 +942,9 @@ GameObject *convert_to_game_object(const GDObject *obj) {
                 case 44: // Detail col HSV
                     if (type == GD_VAL_HSV) object->object.detail_col_HSV = val.hsv;
                     break;
+                case 54: // Teleport portal y offset
+                    if (type == GD_VAL_FLOAT) object->object.orange_tp_portal_y_offset = val.f;
+                    break;
                 case 128: // Scale x
                     if (type == GD_VAL_FLOAT) object->object.scale_x = val.f;
                     break;
@@ -1253,9 +1261,10 @@ void sort_layers_by_layer(GDObjectLayerList *list) {
     
     for (int i = 0; i < list->count; i++) {
         sortable_list[i].layer = list->layers[i];
+        
         sortable_list[i].originalIndex = i;
         sortable_list[i].layerNum = list->layers[i]->layerNum;
-        
+
         GameObject *obj = sortable_list[i].layer->obj;
         sortable_list[i].zlayer = obj->object.zlayer;
         sortable_list[i].zorder = obj->object.zorder;
@@ -1610,6 +1619,118 @@ GDObjectLayerList *layersArrayList = NULL;
 int channelCount = 0;
 GDColorChannel *colorChannels = NULL;
 
+GameObject* add_object(int object_id, float x, float y, float rotation) {
+    // Create new game object
+    GameObject* obj = malloc(sizeof(GameObject));
+    if (!obj) {
+        printf("Couldn't allocate new object\n");
+        return NULL;
+    }
+
+    // Initialize with default values
+    memset(obj, 0, sizeof(GameObject));
+    obj->id = object_id;
+    obj->type = obtain_type_from_id(object_id);
+    obj->x = x;
+    obj->y = y;
+    obj->rotation = rotation;
+    obj->opacity = 1.0f;
+    
+    if (obj->type == TYPE_NORMAL_OBJECT) {
+        obj->object.main_col_channel = 0;
+        obj->object.detail_col_channel = 0;
+        obj->object.u1p9_col_channel = 0;
+        obj->object.scale_x = 1.0f;
+        obj->object.scale_y = 1.0f;
+        obj->object.zsheetlayer = objects[object_id].spritesheet_layer;
+        obj->object.zlayer = objects[object_id].def_zlayer;
+        obj->object.zorder = objects[object_id].def_zorder;
+    }
+
+    // Set hitbox dimensions
+    ObjectHitbox hitbox = objects[object_id].hitbox;
+    obj->width = hitbox.width;
+    obj->height = hitbox.height;
+
+    // Add to object list
+    objectsArrayList->count++;
+    objectsArrayList->objects = realloc(objectsArrayList->objects, 
+                                      sizeof(GameObject*) * objectsArrayList->count);
+    objectsArrayList->objects[objectsArrayList->count - 1] = obj;
+
+    // Add to sections
+    assign_object_to_section(obj);
+
+    // Update original positions list
+    origPositionsList = realloc(origPositionsList, 
+                               sizeof(struct ObjectPos) * objectsArrayList->count);
+    if (!origPositionsList) {
+        printf("Couldn't reallocate original position list\n");
+        return NULL;
+    }
+    origPositionsList[objectsArrayList->count - 1].x = x;
+    origPositionsList[objectsArrayList->count - 1].y = y;
+
+    // Update layers if needed
+    if (obj->type == TYPE_NORMAL_OBJECT) {
+        int new_layers = objects[object_id].num_layers;
+        if (new_layers > 0) {
+            int old_count = layersArrayList->count;
+            layersArrayList->count += new_layers;
+            
+            // Allocate new layer memory
+            GDObjectLayer** new_layers_array = malloc(sizeof(GDObjectLayer*) * layersArrayList->count);
+            if (!new_layers_array) {
+                printf("Couldn't allocate new layer array\n");
+                return NULL;
+            }
+            
+            // Copy old layer pointers
+            memcpy(new_layers_array, layersArrayList->layers, 
+                sizeof(GDObjectLayer*) * old_count);
+            
+            // Create and add new layers
+            for (int i = 0; i < new_layers; i++) {
+                GDObjectLayer* layer = malloc(sizeof(GDObjectLayer));
+                if (!layer) {
+                    printf("Couldn't allocate new layer\n");
+                    return NULL;
+                }
+                
+                layer->obj = obj;
+                layer->layer = (struct ObjectLayer*)&objects[object_id].layers[i];
+                layer->layerNum = i;
+                layer->col_channel = layer->layer->col_channel;
+                layer->blending = FALSE;
+                
+                new_layers_array[old_count + i] = layer;
+            }
+            
+            free(layersArrayList->layers);
+            layersArrayList->layers = new_layers_array;
+            
+            free_gfx_sections();
+            // Resort layers
+            sort_layers_by_layer(layersArrayList);
+        }
+    }
+
+    return obj;
+}
+
+void create_extra_objects() {
+    int old_count = objectsArrayList->count;
+    for (int i = 0; i < old_count; i++) {
+        GameObject *obj = objectsArrayList->objects[i];
+        switch (obj->id) {
+            case BLUE_TP_PORTAL:
+                float x_offset = 10 * fabsf(cosf(DegToRad(obj->rotation)));
+                obj->object.child_object = add_object(ORANGE_TP_PORTAL, obj->x - x_offset, obj->y + obj->object.orange_tp_portal_y_offset, adjust_angle_y(obj->rotation, obj->flippedH) + 180.f);
+                break;
+        }
+    }
+}
+
 void load_level_info(char *data, char *level_string) {
     char *gmd_song_id = extract_gmd_key((const char *) data, "k8", "i");
     if (!gmd_song_id) {
@@ -1736,6 +1857,9 @@ int load_level(char *data, bool is_custom) {
         }
 
         sort_layers_by_layer(layersArrayList);
+        
+        create_extra_objects();
+
         level_info.level_is_empty = FALSE;
         level_info.object_count = objectsArrayList->count;
         level_info.layer_count = layersArrayList->count;

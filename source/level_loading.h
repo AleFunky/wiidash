@@ -62,6 +62,8 @@ typedef struct {
     };
 } Trigger;
 
+typedef struct GameObject GameObject;
+
 typedef struct {
     int u1p9_col_channel; // key 19
     int main_col_channel;   // key 21
@@ -82,6 +84,9 @@ typedef struct {
     float delta_x;
     float delta_y;
 
+    float orange_tp_portal_y_offset; // key 54
+    GameObject *child_object;
+
     unsigned char touching_player;
     unsigned char prev_touching_player;
     // Slope
@@ -95,7 +100,7 @@ typedef enum {
     TYPE_ALPHA_TRIGGER,
 } ObjectType;
 
-typedef struct {
+typedef struct GameObject {
     int id;              // key 1
 
     ObjectType type;     // Defines the type
@@ -124,6 +129,7 @@ typedef struct {
     float width;
     float height;
 } GameObject;
+
 #pragma pack(push, 1)
 typedef struct {
     GDValue values[15];
@@ -245,6 +251,7 @@ unsigned int section_hash_func(int x, int y);
 Section *get_or_create_section(int x, int y);
 GFXSection *get_or_create_gfx_section(int x, int y);
 void free_sections(void);
+void free_gfx_sections(void);
 void update_object_section(GameObject *obj, float new_x, float new_y);
 
 char *get_level_name(char *data_ptr);
@@ -264,6 +271,8 @@ extern GDObjectLayerList *layersArrayList;
 
 extern GDLayerSortable gfx_player_layer;
 extern GameObject *player_game_object;
+
+GameObject* add_object(int object_id, float x, float y, float rotation);
 
 void free_game_object_list(GDGameObjectList *list);
 void free_game_object_array(GameObject **array, int count);
