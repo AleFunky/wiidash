@@ -1056,7 +1056,7 @@ float get_camera_x_scroll_pos() {
     if (screenWidth <= 640)
         factor_x = 1.0f;
     else
-        factor_x = 1.0f + 0.00535714f * (screenWidth - 640);
+        factor_x = 1.0f + 0.00735714f * (screenWidth - 640);
     return 120 * factor_x;
 }
 
