@@ -11,7 +11,7 @@ float executeEase(EaseTypes ease, float time, float period) {
             return linear(time);
 
         case EASE_IN:
-            return easeOut(time, period);
+            return easeIn(time, period);
         case EASE_OUT:
             return easeOut(time, period);
         case EASE_IN_OUT:
