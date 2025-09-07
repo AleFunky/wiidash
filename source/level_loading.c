@@ -597,7 +597,7 @@ GDValueType get_value_type_for_key(int key) {
         case 8:  return GD_VAL_INT;    // (Color trigger) Green
         case 9:  return GD_VAL_INT;    // (Color trigger) Blue
         case 10: return GD_VAL_FLOAT;  // (Color trigger) Duration
-        case 11: return GD_VAL_BOOL;   // (Color trigger) Touch Triggered
+        case 11: return GD_VAL_BOOL;   // (Triggers) Touch Triggered
         case 14: return GD_VAL_BOOL;   // (Color trigger) Tint ground
         case 15: return GD_VAL_BOOL;   // (Color trigger) Player 1 color
         case 16: return GD_VAL_BOOL;   // (Color trigger) Player 2 color
@@ -624,6 +624,8 @@ GDValueType get_value_type_for_key(int key) {
         case 57: return GD_VAL_INT_ARRAY; // Groups
         case 58: return GD_VAL_BOOL;   // (Move trigger) Lock to player x
         case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
+        case 62: return GD_VAL_BOOL;   // (Triggers) Spawn triggered
+        case 63: return GD_VAL_FLOAT;  // (Spawn trigger) Spawn delay
         case 128: return GD_VAL_FLOAT; // Scale x
         case 129: return GD_VAL_FLOAT; // Scale y
         default:
@@ -847,6 +849,8 @@ ObjectType obtain_type_from_id(int id) {
             return TYPE_ALPHA_TRIGGER;
         case TOGGLE_TRIGGER:
             return TYPE_TOGGLE_TRIGGER;
+        case SPAWN_TRIGGER:
+            return TYPE_SPAWN_TRIGGER;
 
     }
     return TYPE_NORMAL_OBJECT;
@@ -963,7 +967,9 @@ GameObject *convert_to_game_object(const GDObject *obj) {
             if (key == 10) { // Duration
                 if (type == GD_VAL_FLOAT) object->trigger.trig_duration = val.f;
             } else if (key == 11) { // Touch triggered
-                if (type == GD_VAL_BOOL) object->trigger.touchTriggered = val.b;
+                if (type == GD_VAL_BOOL) object->trigger.touch_triggered = val.b;
+            } else if (key == 62) { // Spawn triggered
+                if (type == GD_VAL_BOOL) object->trigger.spawn_triggered = val.b;
             }
             switch (object->type) {
                 case TYPE_COL_TRIGGER:
@@ -1020,6 +1026,16 @@ GameObject *convert_to_game_object(const GDObject *obj) {
                             break;
                         case 56: // Toggle mode
                             if (type == GD_VAL_BOOL) object->trigger.toggle_trigger.activate_group = val.b;
+                            break;
+                    }
+                    break;
+                case TYPE_SPAWN_TRIGGER:
+                    switch (key) {
+                        case 51: // Target group id
+                            if (type == GD_VAL_INT) object->trigger.spawn_trigger.target_group = val.i;
+                            break;
+                        case 63: // Spawn delay
+                            if (type == GD_VAL_FLOAT) object->trigger.spawn_trigger.spawn_delay = val.f;
                             break;
                     }
                     break;
@@ -1876,6 +1892,10 @@ int load_level(char *data, bool is_custom) {
         sort_layers_by_layer(layersArrayList);
         
         create_extra_objects();
+
+        for (int i = 1; i < MAX_GROUPS; i++) {
+            sort_group(i);
+        }
 
         level_info.level_is_empty = FALSE;
         level_info.object_count = objectsArrayList->count;

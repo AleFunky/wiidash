@@ -14289,4 +14289,5 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .num_layers = 1
     },
     [TOGGLE_TRIGGER] = trigger,
+    [SPAWN_TRIGGER] = trigger,
 };

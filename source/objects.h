@@ -18,6 +18,7 @@
 
 #define MAX_MOVING_CHANNELS 50
 #define MAX_ALPHA_CHANNELS 50
+#define MAX_SPAWN_CHANNELS 100
 
 enum Objects {
     PLAYER_OBJECT,
@@ -952,6 +953,8 @@ enum Objects {
 
     TOGGLE_TRIGGER = 1049,
 
+    SPAWN_TRIGGER = 1268,
+
     OBJECT_COUNT = 1329 // 2.0 object count
 };
 
@@ -1070,6 +1073,15 @@ struct AlphaTriggerBuffer {
     float *initial_opacities;
 };
 
+struct SpawnTriggerBuffer {
+    bool active;
+
+    int target_group;  
+
+    float seconds;
+    float time_run;
+};
+
 enum HitboxTypes {
     HITBOX_NONE,
     HITBOX_SOLID,
@@ -1142,6 +1154,7 @@ extern GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS];
 extern struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
 extern struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
 extern struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];
+extern struct SpawnTriggerBuffer spawn_trigger_buffer[MAX_SPAWN_CHANNELS];
 
 extern int layersDrawn;
 
@@ -1186,3 +1199,9 @@ bool is_modifiable(int col_channel);
 void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);
+void run_trigger(GameObject *obj);
+
+void handle_spawn_triggers();
+void handle_col_triggers();
+void handle_move_triggers();
+void handle_alpha_triggers();

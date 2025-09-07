@@ -917,6 +917,7 @@ bool p1_trail = FALSE;
 struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
 struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
 struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];
+struct SpawnTriggerBuffer spawn_trigger_buffer[MAX_SPAWN_CHANNELS];
 
 int find_existing_texture(int curr_object, const unsigned char *texture) {
     for (s32 object = 1; object < curr_object; object++) {
@@ -2052,6 +2053,13 @@ void draw_all_object_layers() {
     GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
 }
 
+void update_triggers() {
+    handle_spawn_triggers();
+    handle_col_triggers();
+    handle_move_triggers();
+    handle_alpha_triggers();
+}
+
 void handle_col_triggers() {
     for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
         struct ColTriggerBuffer *buffer = &col_trigger_buffer[chan];
@@ -2305,6 +2313,48 @@ void handle_move_triggers() {
     }
 }
 
+int obtain_free_spawn_slot() {
+    for (int i = 0; i < MAX_SPAWN_CHANNELS; i++) {
+        if (!spawn_trigger_buffer[i].active) return i;
+    }
+    return -1;
+}
+
+void upload_to_spawn_buffer(GameObject *obj) {
+    int slot = obtain_free_spawn_slot();
+    if (slot >= 0) {
+        struct SpawnTriggerBuffer *buffer = &spawn_trigger_buffer[slot];
+
+        buffer->target_group = obj->trigger.spawn_trigger.target_group;
+
+        buffer->time_run = 0;
+        buffer->seconds = obj->trigger.spawn_trigger.spawn_delay;
+        
+        buffer->active = TRUE;
+    }
+}
+
+void handle_spawn_triggers() {
+    for (int slot = 0; slot < MAX_SPAWN_CHANNELS; slot++) {
+        struct SpawnTriggerBuffer *buffer = &spawn_trigger_buffer[slot];
+        
+        if (buffer->active) {
+            buffer->time_run += STEPS_DT;
+            if (buffer->time_run > buffer->seconds) {
+                buffer->active = FALSE;
+
+                // Set new alpha on all objects
+                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
+                    GameObject *obj = p->obj;
+                    if (obj->type != TYPE_NORMAL_OBJECT) {
+                        run_trigger(obj);
+                    }
+                }
+            }
+        }
+    }
+}
+
 int obtain_free_alpha_slot() {
     for (int i = 0; i < MAX_ALPHA_CHANNELS; i++) {
         if (!alpha_trigger_buffer[i].active) return i;
@@ -2313,7 +2363,14 @@ int obtain_free_alpha_slot() {
 }
 
 void upload_to_alpha_buffer(GameObject *obj) {
+    if (obj->trigger.trig_duration == 0) {
+        for (Node *p = get_group(obj->trigger.alpha_trigger.target_group); p; p = p->next) {
+            p->obj->opacity = obj->trigger.alpha_trigger.opacity;
+        }
+        return;
+    }
     int slot = obtain_free_alpha_slot();
+
     if (slot >= 0) {
         struct AlphaTriggerBuffer *buffer = &alpha_trigger_buffer[slot];
 
@@ -2532,6 +2589,10 @@ void run_trigger(GameObject *obj) {
                 toggled_obj->toggled = !obj->trigger.toggle_trigger.activate_group;
             }
             break;
+        case SPAWN_TRIGGER:
+            upload_to_spawn_buffer(obj);
+            break;
+            
     }
     obj->activated[0] = TRUE;
 }
@@ -2541,14 +2602,14 @@ void handle_triggers(GameObject *obj) {
     Player *player = &state.player;
     
     if ((objects[obj_id].is_trigger || obj->id > OBJECT_COUNT) && !obj->activated[0]) {
-        if (obj->trigger.touchTriggered) {
+        if (obj->trigger.touch_triggered) {
             if (intersect(
                 player->x, player->y, player->width, player->height, 0, 
                 obj->x, obj->y, 30, 30, obj->rotation
             )) {
                 run_trigger(obj);
             }
-        } else {
+        } else if (!obj->trigger.spawn_triggered) {
             if (obj->x < state.player.x) {
                 run_trigger(obj);
             }
@@ -2598,9 +2659,7 @@ void handle_objects() {
         }
     }
     calculate_lbg();
-    handle_col_triggers();
-    handle_move_triggers();
-    handle_alpha_triggers();
+    update_triggers();
     handle_copy_channels();
 }
 

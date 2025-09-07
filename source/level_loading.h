@@ -48,6 +48,11 @@ typedef struct {
 } ToggleTrigger;
 
 typedef struct {
+    int target_group;     // key 51
+    float spawn_delay;    // key 63
+} SpawnTrigger;
+
+typedef struct {
     int offsetX;           // key 28
     int offsetY;           // key 29
     int easing;            // key 30
@@ -58,13 +63,15 @@ typedef struct {
 
 typedef struct {
     float trig_duration; // key 10
-    u8 touchTriggered; // key 11
+    u8 touch_triggered;  // key 11
+    u8 spawn_triggered;  // key 62
     
     union {
         ColTrigger col_trigger;
         MoveTrigger move_trigger;
         AlphaTrigger alpha_trigger;
         ToggleTrigger toggle_trigger;
+        SpawnTrigger spawn_trigger;
     };
 } Trigger;
 
@@ -105,6 +112,7 @@ typedef enum {
     TYPE_MOVE_TRIGGER,
     TYPE_ALPHA_TRIGGER,
     TYPE_TOGGLE_TRIGGER,
+    TYPE_SPAWN_TRIGGER,
 } ObjectType;
 
 typedef struct GameObject {

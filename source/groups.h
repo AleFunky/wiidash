@@ -11,3 +11,4 @@ typedef struct Node {
 void clear_groups(void);
 Node *get_group(int g);
 void register_object(GameObject *obj);
+void sort_group(int g);
