@@ -1249,7 +1249,7 @@ int compare_sortable_layers(const void *a, const void *b) {
     // Get blending zlayer modifier, don't affect player and only affect normal objects
     if (obj_idA != PLAYER_OBJECT && sheetA == SHEET_BLOCKS) {
         int col_channelA = GDlayerA->col_channel;
-        bool blendingA = channels[col_channelA].blending | GDlayerA->blending;
+        bool blendingA = channels[col_channelA].blending || GDlayerA->blending;
         if (blendingA ^ (zlayerA % 2 == 0)) {
             zlayerA--;
         }
@@ -1257,7 +1257,7 @@ int compare_sortable_layers(const void *a, const void *b) {
 
     if (obj_idB != PLAYER_OBJECT && sheetB == SHEET_BLOCKS) {
         int col_channelB = GDlayerB->col_channel;
-        bool blendingB = channels[col_channelB].blending | GDlayerA->blending;
+        bool blendingB = channels[col_channelB].blending || GDlayerB->blending;
         if (blendingB ^ (zlayerB % 2 == 0)) {
             zlayerB--;
         }
@@ -1269,8 +1269,8 @@ int compare_sortable_layers(const void *a, const void *b) {
     if (sheetA != sheetB)
         return sheetB - sheetA; // Descending
 
-    int zorderA = layerSortA->zorder;
-    int zorderB = layerSortB->zorder;
+    int zorderA = objA->object.zorder;
+    int zorderB = objB->object.zorder;
 
     if (zorderA != zorderB)
         return zorderA - zorderB; // Ascending
@@ -1300,7 +1300,6 @@ void sort_layers_by_layer(GDObjectLayerList *list) {
 
         GameObject *obj = sortable_list[i].layer->obj;
         sortable_list[i].zlayer = obj->object.zlayer;
-        sortable_list[i].zorder = obj->object.zorder;
 
         assign_layer_to_section(&sortable_list[i]);
     }
@@ -1351,7 +1350,6 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     sortable_layer.layer = layer;
     sortable_layer.originalIndex = 0;
     sortable_layer.zlayer = obj->object.zlayer;
-    sortable_layer.zorder = obj->object.zorder;
 
     gfx_player_layer = sortable_layer;
     player_game_object = obj;

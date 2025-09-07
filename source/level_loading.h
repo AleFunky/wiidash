@@ -179,8 +179,7 @@ typedef struct {
 
 typedef struct {
     GDObjectLayer *layer;
-    int zlayer;          
-    int zorder;          
+    int zlayer;
     int originalIndex;
     int layerNum;
 } GDLayerSortable;
