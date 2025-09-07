@@ -871,6 +871,10 @@ GameObject *convert_to_game_object(const GDObject *obj) {
         object->object.main_col_channel = 0;
         object->object.detail_col_channel = 0;
         object->object.u1p9_col_channel = 0;
+        
+        object->object.zsheetlayer = objects[object->id].spritesheet_layer;
+        object->object.zlayer = objects[object->id].def_zlayer;
+        object->object.zorder = objects[object->id].def_zorder;
 
         object->object.scale_x = 1.f;
         object->object.scale_y = 1.f;
@@ -1072,10 +1076,6 @@ GameObject *convert_to_game_object(const GDObject *obj) {
     }
 
     if (object->type == TYPE_NORMAL_OBJECT) {
-        object->object.zsheetlayer = objects[object->id].spritesheet_layer;
-        object->object.zlayer = objects[object->id].def_zlayer;
-        object->object.zorder = objects[object->id].def_zorder;
-
         // Setup slope
         if (objects[object->id].is_slope) {
             int orientation = object->rotation / 90;
