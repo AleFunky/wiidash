@@ -485,8 +485,8 @@ int handle_wall_cutscene() {
                 }
             }
 
-            float width = random_float(10, 20);
-            create_ray(level_info.wall_x, level_info.wall_y, angle, 1000, width, width * 2, 0.25f, RGBA(p1.r, p1.g, p1.b, random_int(63, 255)));
+            float width = random_float(5, 15);
+            create_ray(level_info.wall_x, level_info.wall_y, angle, 1000, width, width * 5, 0.25f, RGBA(p1.r, p1.g, p1.b, random_int(63, 255)));
             rays_spawned++;
         }
     }
