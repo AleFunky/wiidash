@@ -14288,4 +14288,5 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zorder = 12,
         .num_layers = 1
     },
+    [TOGGLE_TRIGGER] = trigger,
 };

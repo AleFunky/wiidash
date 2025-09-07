@@ -43,6 +43,11 @@ typedef struct {
 } AlphaTrigger;
 
 typedef struct {
+    int target_group;       // key 51
+    bool activate_group;    // key 56
+} ToggleTrigger;
+
+typedef struct {
     int offsetX;           // key 28
     int offsetY;           // key 29
     int easing;            // key 30
@@ -59,6 +64,7 @@ typedef struct {
         ColTrigger col_trigger;
         MoveTrigger move_trigger;
         AlphaTrigger alpha_trigger;
+        ToggleTrigger toggle_trigger;
     };
 } Trigger;
 
@@ -98,6 +104,7 @@ typedef enum {
     TYPE_COL_TRIGGER,
     TYPE_MOVE_TRIGGER,
     TYPE_ALPHA_TRIGGER,
+    TYPE_TOGGLE_TRIGGER,
 } ObjectType;
 
 typedef struct GameObject {

@@ -1878,7 +1878,7 @@ void draw_all_object_layers() {
                 
                 float calc_x = ((obj->x - state.camera_x) * SCALE) - widthAdjust;
                 float calc_y = screenHeight - ((obj->y - state.camera_y) * SCALE);  
-                if (calc_x > -90 && calc_x < screen_x_max) {        
+                if (!obj->toggled && calc_x > -90 && calc_x < screen_x_max) {        
                     if (calc_y > -90 && calc_y < screen_y_max) {    
                         if (visible_count < MAX_VISIBLE_LAYERS) {
                             // Add to visible layers, as it can be seen
@@ -1995,7 +1995,7 @@ void draw_all_object_layers() {
             obj_particles_time += t1 - t0;
 
             t0 = gettime();
-            if (!obj->toggled) put_object_layer(obj, calc_x, calc_y, layer);
+            put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();
             draw_time += t1 - t0;
             
@@ -2422,6 +2422,8 @@ void upload_to_move_buffer(GameObject *obj) {
 }
 
 void run_trigger(GameObject *obj) {
+    if (obj->toggled) return;
+
     switch (obj->id) {
         case TRIGGER_FADE_NONE:
             current_fading_effect = FADE_NONE;
@@ -2522,6 +2524,13 @@ void run_trigger(GameObject *obj) {
 
         case ALPHA_TRIGGER: // Alpha trigger
             upload_to_alpha_buffer(obj);
+            break;
+        
+        case TOGGLE_TRIGGER:
+            for (Node *p = get_group(obj->trigger.toggle_trigger.target_group); p; p = p->next) {
+                GameObject *toggled_obj = p->obj;
+                toggled_obj->toggled = !obj->trigger.toggle_trigger.activate_group;
+            }
             break;
     }
     obj->activated[0] = TRUE;

@@ -950,6 +950,8 @@ enum Objects {
 
     GREEN_ORB = 1022,
 
+    TOGGLE_TRIGGER = 1049,
+
     OBJECT_COUNT = 1329 // 2.0 object count
 };
 

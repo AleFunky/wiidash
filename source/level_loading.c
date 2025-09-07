@@ -620,6 +620,7 @@ GDValueType get_value_type_for_key(int key) {
         case 49: return GD_VAL_HSV;    // (Color trigger) Copy color HSV
         case 50: return GD_VAL_INT;    // (Color trigger) Copy color id
         case 54: return GD_VAL_FLOAT;  // (Teleport portal) Y offset
+        case 56: return GD_VAL_BOOL;   // (Toggle trigger) Activate trigger
         case 57: return GD_VAL_INT_ARRAY; // Groups
         case 58: return GD_VAL_BOOL;   // (Move trigger) Lock to player x
         case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
@@ -844,6 +845,8 @@ ObjectType obtain_type_from_id(int id) {
             return TYPE_MOVE_TRIGGER;
         case ALPHA_TRIGGER:
             return TYPE_ALPHA_TRIGGER;
+        case TOGGLE_TRIGGER:
+            return TYPE_TOGGLE_TRIGGER;
 
     }
     return TYPE_NORMAL_OBJECT;
@@ -1007,6 +1010,16 @@ GameObject *convert_to_game_object(const GDObject *obj) {
                             break;
                         case 51: // Target group id
                             if (type == GD_VAL_INT) object->trigger.alpha_trigger.target_group = val.i;
+                            break;
+                    }
+                    break;
+                case TYPE_TOGGLE_TRIGGER:
+                    switch (key) {
+                        case 51: // Target group id
+                            if (type == GD_VAL_INT) object->trigger.toggle_trigger.target_group = val.i;
+                            break;
+                        case 56: // Toggle mode
+                            if (type == GD_VAL_BOOL) object->trigger.toggle_trigger.activate_group = val.b;
                             break;
                     }
                     break;
