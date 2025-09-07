@@ -817,6 +817,10 @@ int convert_object(int id) {
             return FAKE_MEDIUM_SPIKE;
         case 1892:
             return MINI_FAKE_SPIKE;
+
+        // Temporal
+        case ROBOT_PORTAL:
+            return CUBE_PORTAL;
         
     }
     return id;
@@ -1932,6 +1936,7 @@ void unload_level() {
     channelCount = 0;
     memset(&state.particles, 0, sizeof(state.particles));
     free_sections();
+    free_gfx_sections();
     full_init_variables();
     unload_coin_texture();
 }

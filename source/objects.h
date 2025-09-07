@@ -938,6 +938,7 @@ enum Objects {
     COL4_TRIGGER,
     THREEDL_TRIGGER,
 
+    ROBOT_PORTAL = 745,
     BLUE_TP_PORTAL = 747,
     ORANGE_TP_PORTAL = 749,
 
