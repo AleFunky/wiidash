@@ -896,3 +896,5 @@
 
 #include "block003_part01_003_png.h"
 #include "d_pixelArt01_006_002_png.h"
+
+#include "gravJumpRing_01_001_png.h"

@@ -363,7 +363,8 @@
         "stdexcept": "c",
         "streambuf": "c",
         "system_error": "c",
-        "groups.h": "c"
+        "groups.h": "c",
+        "block003_part01_003_png.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

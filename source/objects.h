@@ -944,6 +944,8 @@ enum Objects {
 
     ALPHA_TRIGGER = 1007,
 
+    GREEN_ORB = 1022,
+
     OBJECT_COUNT = 1329 // 2.0 object count
 };
 

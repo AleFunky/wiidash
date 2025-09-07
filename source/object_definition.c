@@ -14215,4 +14215,24 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
     [COL_TRIGGER] = trigger,
     [MOVE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
+    [GREEN_ORB] = { // Yellow orb
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = gravJumpRing_01_001_png
+            }
+        },
+        .hitbox = {
+            .width = 36,
+            .height = 36,
+            .type = HITBOX_SPECIAL
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B1,
+        .def_zorder = 12,
+        .num_layers = 1
+    },
 };

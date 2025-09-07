@@ -178,6 +178,17 @@ float player_get_vel(Player *player, float vel) {
     return vel * (player->upside_down ? -1 : 1);
 }
 
+bool obj_hitbox_static(int id) {
+    switch (id) {
+        case YELLOW_ORB:
+        case BLUE_ORB:
+        case PINK_ORB:
+        case GREEN_ORB:
+            return TRUE;
+    }
+    return FALSE;
+}
+
 void collide_with_obj(Player *player, GameObject *obj) {
     ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
 
@@ -185,10 +196,14 @@ void collide_with_obj(Player *player, GameObject *obj) {
         number_of_collisions_checks++;
         obj->object.prev_touching_player = obj->object.touching_player;
         obj->object.touching_player = 0;
+
+        float width = hitbox->width * obj->object.scale_x;
+        float height = hitbox->height * obj->object.scale_y;
+
         if (hitbox->is_circular) {
             if (intersect_rect_circle(
                 player->x, player->y, player->width, player->height, player->rotation, 
-                obj->x, obj->y, hitbox->radius
+                obj->x, obj->y, hitbox->radius * MAX(obj->object.scale_x, obj->object.scale_y)
             )) {
                 handle_collision(player, obj, hitbox);
                 obj->collided[state.current_player] = TRUE;
@@ -198,18 +213,23 @@ void collide_with_obj(Player *player, GameObject *obj) {
             }
         } else {
             float obj_rot = normalize_angle(obj->rotation);
+
+            if (obj_hitbox_static(obj->id)) {
+                obj_rot = 0;
+            }
+
             float rotation = (obj_rot == 0 || obj_rot == 90 || obj_rot == 180 || obj_rot == 270) ? 0 : player->rotation;
             
             bool checkColl = intersect(
                 player->x, player->y, player->width, player->height, rotation, 
-                obj->x, obj->y, hitbox->width, hitbox->height, obj_rot
+                obj->x, obj->y, width, height, obj_rot
             );
             
             // Rotated hitboxes must also collide with the unrotated hitbox
             if (rotation != 0) {
                 checkColl = checkColl && intersect(
                     player->x, player->y, player->width, player->height, 0, 
-                    obj->x, obj->y, hitbox->width, hitbox->height, obj_rot
+                    obj->x, obj->y, width, height, obj_rot
                 );
             }
 
@@ -230,9 +250,13 @@ void collide_with_obj(Player *player, GameObject *obj) {
 void collide_with_slope(Player *player, GameObject *obj, bool has_slope) {
     ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
     number_of_collisions_checks++;
+    
+    float width = hitbox->width * obj->object.scale_x;
+    float height = hitbox->height * obj->object.scale_y;
+
     if (intersect(
         player->x, player->y, player->width, player->height, 0, 
-        obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+        obj->x, obj->y, width, height, obj->rotation
     )) {
         // The same check in handle_collision
         if (has_slope) {
@@ -2143,9 +2167,13 @@ void draw_hitbox(GameObject *obj) {
 
     float x = obj->x;
     float y = obj->y;
-    float w = hitbox.width;
-    float h = hitbox.height;
+    float w = hitbox.width * obj->object.scale_x;
+    float h = hitbox.height * obj->object.scale_y;
     float angle = obj->rotation;
+
+    if (obj_hitbox_static(obj->id)) {
+        angle = 0;
+    }
 
     unsigned int color = RGBA(0x00, 0xff, 0xff, 0xff);
 
@@ -2165,7 +2193,7 @@ void draw_hitbox(GameObject *obj) {
     } else if (objects[obj->id].is_saw) {
         if (hitbox.radius == 0) return;
 
-        float calc_radius = hitbox.radius * SCALE;
+        float calc_radius = hitbox.radius * MAX(obj->object.scale_x, obj->object.scale_y) * SCALE;
 
         custom_circunference(calc_x_on_screen(x), calc_y_on_screen(y), calc_radius, color, 2.f);
     } else {

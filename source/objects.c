@@ -272,6 +272,41 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
             } 
             if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
             break;
+        
+        case GREEN_ORB:
+            if (!obj->activated[state.current_player] && (state.input.holdJump) && player->buffering_state == BUFFER_READY) {    
+                MotionTrail_ResumeStroke(&trail);
+                
+                player->upside_down ^= 1;
+                player->vel_y = jump_heights_table[state.speed][JUMP_YELLOW_ORB][player->gamemode][player->mini];
+                
+                if (player->gamemode == GAMEMODE_SHIP) {
+                    player->vel_y *= 0.7f;
+                }
+
+                player->ball_rotation_speed = -1.f;
+                
+                player->on_ground = FALSE;
+                player->on_ceiling = FALSE;
+                player->inverse_rotation = FALSE;
+                player->left_ground = TRUE;
+                player->buffering_state = BUFFER_END;
+                player->ufo_last_y = player->y;
+
+                particle_templates[USE_EFFECT].start_scale = 70;
+                particle_templates[USE_EFFECT].end_scale = 0;
+                particle_templates[USE_EFFECT].trifading = TRUE;
+
+                set_particle_color(USE_EFFECT, 0, 255, 0);
+                particle_templates[USE_EFFECT].start_color.a = 0;
+                particle_templates[USE_EFFECT].end_color.a = 255;
+
+                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+
+                obj->activated[state.current_player] = TRUE;
+            } 
+            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+            break;
 
         case CUBE_PORTAL: 
             if (!obj->activated[state.current_player]) {
@@ -904,32 +939,32 @@ void unload_spritesheet() {
 void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
     switch (obj->id) {
         case SLOW_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[SLOW_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[SLOW_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 255, 220, 0);
             if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case NORMAL_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[NORMAL_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[NORMAL_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 0, 255, 255);
             if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case FAST_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[FAST_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[FAST_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 64, 255, 64);
             if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case FASTER_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[FASTER_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[FASTER_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 255, 127, 255);
             if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
@@ -994,7 +1029,14 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
             draw_obj_particles(PAD_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             break;
-            
+        
+        case GREEN_ORB:
+            set_particle_color(ORB_PARTICLES, 0, 255, 0);
+            spawn_particle(ORB_PARTICLES, obj->x, obj->y, obj);
+            draw_obj_particles(ORB_PARTICLES, obj);
+            draw_obj_particles(USE_EFFECT, obj);
+            draw_obj_particles(ORB_HITBOX_EFFECT, obj);
+            break;
             
         case YELLOW_GRAVITY_PORTAL:
             if (layer->layerNum == 1) {
@@ -1173,6 +1215,7 @@ int layer_pulses(GameObject *obj, GDObjectLayer *layer) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
+        case GREEN_ORB:
         case PULSING_CIRCLE:
         case PULSING_CIRCUNFERENCE:
         case PULSING_HEART:
@@ -1210,6 +1253,7 @@ float get_object_pulse(float amplitude, GameObject *obj) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
+        case GREEN_ORB:
             return map_range(amplitude, 0.f, 1.f, 0.3f, 1.2f);
         case PULSING_CIRCLE:
         case PULSING_CIRCUNFERENCE:
@@ -1380,6 +1424,7 @@ float get_rotation_speed(GameObject *obj) {
         case ROTATING_HEXAGON_BIG:
         case ROTATING_HEXAGON_MEDIUM:
         case ROTATING_HEXAGON_TINY:
+        case GREEN_ORB:
             return 180.f;
     }
     return 0.f;
@@ -1891,7 +1936,7 @@ void draw_all_object_layers() {
             if (is_layer0 && fade_edge) handle_special_fading(obj, calc_x, calc_y);
             
             // If saw, rotate
-            if (is_layer0 && objects[obj_id].is_saw && !state.paused) {
+            if (is_layer0 && (objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
                 obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
             }
 
