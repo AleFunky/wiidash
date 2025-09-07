@@ -286,6 +286,8 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
 
                 player->ball_rotation_speed = -1.f;
                 
+                flip_other_player(state.current_player);
+                
                 player->on_ground = FALSE;
                 player->on_ceiling = FALSE;
                 player->inverse_rotation = FALSE;
