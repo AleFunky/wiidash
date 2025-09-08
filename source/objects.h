@@ -16,10 +16,6 @@
 #define FADING_OBJ_WIDTH 180
 #define FADING_OBJ_PADDING 90
 
-#define MAX_MOVING_CHANNELS 50
-#define MAX_ALPHA_CHANNELS 50
-#define MAX_SPAWN_CHANNELS 100
-
 enum Objects {
     PLAYER_OBJECT,
     BASIC_BLOCK,
@@ -947,6 +943,7 @@ enum Objects {
 
     MOVE_TRIGGER = 901,
 
+    PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,
 
     GREEN_ORB = 1022,
@@ -1023,64 +1020,16 @@ enum SpriteSheets {
 
 struct ColorChannel {
     Color color;
+    Color non_pulse_color;
     float alpha;
     HSV hsv;
     bool blending;
     int copy_color_id;
 };
 
-struct ColTriggerBuffer {
-    bool active;
-    Color old_color;
-    float old_alpha;
-    Color new_color;
-    float new_alpha;
-    int copy_channel_id;
-    HSV copy_channel_HSV;
-    float seconds;
-    float time_run;
-};
-
 #define MAX_OBJECTS_IN_GROUP 1000
 
 #define MOVE_SPEED_DIVIDER 315
-
-struct MoveTriggerBuffer {
-    bool active;
-    int target_group;      // key 51
-    int offsetX;           // key 28
-    int offsetY;           // key 29
-    int easing;            // key 30
-    u8 lock_to_player_x:1; // key 58
-    u8 lock_to_player_y:1; // key 59
-
-    float move_last_x;
-    float move_last_y;
-
-    float seconds;
-    float time_run;
-};
-
-struct AlphaTriggerBuffer {
-    bool active;
-
-    int target_group;         
-    float new_alpha;
-
-    float seconds;
-    float time_run;
-
-    float *initial_opacities;
-};
-
-struct SpawnTriggerBuffer {
-    bool active;
-
-    int target_group;  
-
-    float seconds;
-    float time_run;
-};
 
 enum HitboxTypes {
     HITBOX_NONE,
@@ -1151,11 +1100,6 @@ extern const ObjectDefinition objects[];
 
 extern GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS];
 
-extern struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
-extern struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
-extern struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];
-extern struct SpawnTriggerBuffer spawn_trigger_buffer[MAX_SPAWN_CHANNELS];
-
 extern int layersDrawn;
 
 extern int beat_pulse;
@@ -1200,8 +1144,3 @@ void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);
 void run_trigger(GameObject *obj);
-
-void handle_spawn_triggers();
-void handle_col_triggers();
-void handle_move_triggers();
-void handle_alpha_triggers();

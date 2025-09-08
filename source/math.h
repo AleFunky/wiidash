@@ -83,3 +83,4 @@ float get_text_length(struct charset font, const float zoom, const char *text, .
 void draw_text(struct charset font, GRRLIB_texImg *tex, const float x, const float y, const float zoom, const char *text, ...);
 
 Color HSV_combine(Color color, HSV hsv);
+bool colors_equal(Color a, Color b);

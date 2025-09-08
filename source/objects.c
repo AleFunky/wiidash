@@ -21,6 +21,8 @@
 #include "particle_png.h"
 #include <ogc/lwp_watchdog.h>
 
+#include "triggers.h"
+
 #include "groups.h"
 
 GRRLIB_texImg *prev_tex = NULL;
@@ -276,6 +278,8 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         case GREEN_ORB:
             if (!obj->activated[state.current_player] && (state.input.holdJump) && player->buffering_state == BUFFER_READY) {    
                 MotionTrail_ResumeStroke(&trail);
+                player->gravObj = obj;
+                player->ceiling_inv_time = 0.5f;
                 
                 player->upside_down ^= 1;
                 player->vel_y = jump_heights_table[state.speed][JUMP_YELLOW_ORB][player->gamemode][player->mini];
@@ -778,7 +782,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         case BLUE_TP_PORTAL:
             if (!obj->activated[state.current_player]) {
                 // Teleport
-                player->y = obj->object.child_object->y;
+                player->y = CLAMP(obj->object.child_object->y, state.ground_y + player->height / 2, state.ceiling_y - player->height / 2);
 
                 particle_templates[USE_EFFECT].start_scale = 80;
                 particle_templates[USE_EFFECT].end_scale = 0;
@@ -913,11 +917,6 @@ GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS];
 int current_fading_effect = FADE_NONE;
 
 bool p1_trail = FALSE;
-
-struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
-struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
-struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];
-struct SpawnTriggerBuffer spawn_trigger_buffer[MAX_SPAWN_CHANNELS];
 
 int find_existing_texture(int curr_object, const unsigned char *texture) {
     for (s32 object = 1; object < curr_object; object++) {
@@ -1507,6 +1506,18 @@ u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, floa
         color = HSV_combine(color, obj->object.detail_col_HSV);
     }
 
+    if (layer->layer->color_type == COLOR_MAIN) {
+        obj->object.main_color = color;
+    } else if (layer->layer->color_type == COLOR_DETAIL) {
+        obj->object.detail_color = color;
+    }
+
+    if (obj->object.main_being_pulsed && layer->layer->color_type == COLOR_MAIN) {
+        color = obj->object.main_col_pulse;
+    } else if (obj->object.detail_being_pulsed && layer->layer->color_type == COLOR_DETAIL) {
+        color = obj->object.detail_col_pulse;
+    }
+
     return RGBA(color.r, color.g, color.b, opacity * channels[col_channel].alpha * obj->opacity);
 }
 
@@ -2053,570 +2064,6 @@ void draw_all_object_layers() {
     GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
 }
 
-void update_triggers() {
-    handle_spawn_triggers();
-    handle_col_triggers();
-    handle_move_triggers();
-    handle_alpha_triggers();
-}
-
-void handle_col_triggers() {
-    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
-        struct ColTriggerBuffer *buffer = &col_trigger_buffer[chan];
-
-        if (buffer->active) {
-            Color lerped_color;
-            Color color_to_lerp = buffer->new_color;
-            float alpha_to_lerp = buffer->new_alpha;
-            float lerped_alpha;
-
-            if (buffer->copy_channel_id) {
-                color_to_lerp = channels[buffer->copy_channel_id].color;
-                alpha_to_lerp = channels[buffer->copy_channel_id].alpha;
-            }
-
-            if (buffer->seconds > 0) {
-                float multiplier = buffer->time_run / buffer->seconds;
-                lerped_color = color_lerp(buffer->old_color, color_to_lerp, multiplier);
-                lerped_alpha = (alpha_to_lerp - buffer->old_alpha) * multiplier + buffer->old_alpha;
-            } else {
-                lerped_color = color_to_lerp;
-                lerped_alpha = alpha_to_lerp;
-            }
-
-            channels[chan].color = lerped_color;
-            channels[chan].alpha = lerped_alpha;
-
-            buffer->time_run += STEPS_DT;
-
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-                if (buffer->copy_channel_id) {
-                    channels[chan].hsv = buffer->copy_channel_HSV;
-                    channels[chan].copy_color_id = buffer->copy_channel_id;
-                } else {
-                    channels[chan].copy_color_id = 0;
-                }
-                channels[chan].color = color_to_lerp;
-                channels[chan].alpha = alpha_to_lerp;
-            }
-        }
-    }
-}
-
-void handle_copy_channels() {
-    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
-        int copy_color_id = channels[chan].copy_color_id;
-        if (copy_color_id > 0) {
-            Color color = channels[copy_color_id].color;
-            color = HSV_combine(color, channels[chan].hsv);
-            channels[chan].color = color;
-        }
-    }
-}
-
-void upload_to_buffer(GameObject *obj, int channel) {
-    if (channel == 0) channel = 1;
-    struct ColTriggerBuffer *buffer = &col_trigger_buffer[channel];
-    buffer->active = TRUE;
-    buffer->old_color = channels[channel].color;
-    buffer->old_alpha = channels[channel].alpha;
-    if (obj->trigger.col_trigger.p1_color) {
-        buffer->new_color.r = p1.r;
-        buffer->new_color.g = p1.g;
-        buffer->new_color.b = p1.b;
-        buffer->new_alpha = 1.f;
-    } else if (obj->trigger.col_trigger.p2_color) {
-        buffer->new_color.r = p2.r;
-        buffer->new_color.g = p2.g;
-        buffer->new_color.b = p2.b;
-        buffer->new_alpha = 1.f;
-    } else {
-        buffer->new_color.r = obj->trigger.col_trigger.trig_colorR;
-        buffer->new_color.g = obj->trigger.col_trigger.trig_colorG;
-        buffer->new_color.b = obj->trigger.col_trigger.trig_colorB;
-        buffer->new_alpha   = obj->trigger.col_trigger.opacity;
-    }
-
-    int copy_color_id = obj->trigger.col_trigger.copied_color_id;
-    if (copy_color_id > 0) {
-        buffer->copy_channel_HSV = obj->trigger.col_trigger.copied_hsv;
-        buffer->copy_channel_id = copy_color_id;
-    } else {
-        buffer->copy_channel_id = 0;
-    }
-
-    if (channel < BG) {
-        channels[channel].blending = obj->trigger.col_trigger.blending;
-    }
-    buffer->seconds = obj->trigger.trig_duration;
-    buffer->time_run = 0;
-}
-
-int convert_ease(int easing) {
-    switch (easing) {
-        case 0: return EASE_LINEAR;
-
-        case 1: return EASE_IN_OUT;
-        case 2: return EASE_IN;
-        case 3: return EASE_OUT;
-        
-        case 4: return ELASTIC_IN_OUT;
-        case 5: return ELASTIC_IN;
-        case 6: return ELASTIC_OUT;
-        
-        case 7: return BOUNCE_IN_OUT;
-        case 8: return BOUNCE_IN;
-        case 9: return BOUNCE_OUT;
-        
-        case 10: return EXPO_IN_OUT;
-        case 11: return EXPO_IN;
-        case 12: return EXPO_OUT;
-        
-        case 13: return SINE_IN_OUT;
-        case 14: return SINE_IN;
-        case 15: return SINE_OUT;
-        
-        case 16: return BACK_IN_OUT;
-        case 17: return BACK_IN;
-        case 18: return BACK_OUT;
-    }
-    return EASE_LINEAR;
-}
-
-void handle_move_triggers() {
-    // First reset deltas
-    for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
-
-        if (buffer->active) {
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                p->obj->object.delta_x = 0;
-                p->obj->object.delta_y = 0;   
-            }
-        }
-    }
-
-    for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
-
-        if (buffer->active) {
-            // Iterate through group objects
-            int i = 0;
-            
-            // Calculate delta
-            float delta_x;
-            float delta_y;
-            if (buffer->lock_to_player_x) {    
-                delta_x = state.player.vel_x * STEPS_DT;
-            } else {
-                float before_x = buffer->move_last_x;
-                float after_x = buffer->offsetX * easeTime(convert_ease(buffer->easing), buffer->time_run, buffer->seconds, 2.0f);
-                
-                delta_x = after_x - before_x;
-                buffer->move_last_x = after_x;
-            } 
-            
-            if (buffer->lock_to_player_y) {
-                delta_y = state.player.vel_y * STEPS_DT;;
-            } else {
-                float before_y = buffer->move_last_y;
-                float after_y = buffer->offsetY * easeTime(convert_ease(buffer->easing), buffer->time_run, buffer->seconds, 2.0f);
-
-                delta_y = after_y - before_y;
-                buffer->move_last_y = after_y;
-            }
-
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                GameObject *obj = p->obj;
-                
-                float new_x = obj->x + delta_x;
-                float new_y = obj->y + delta_y;
-
-                obj->object.delta_x += delta_x / STEPS_DT;
-                obj->object.delta_y += delta_y / STEPS_DT;
-
-                update_object_section(obj, new_x, new_y);
-
-                if (obj->object.touching_player) {
-                    Player *player;
-                    if (obj->object.touching_player == 1) {
-                        player = &state.player;
-                    } else if (obj->object.touching_player >= 2) {
-                        player = &state.player2;
-                    }
-
-                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                    if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
-                        player->y += delta_y;
-                    }
-                } else if (obj->object.prev_touching_player) {
-                    // Exiting
-                    Player *player;
-                    if (obj->object.prev_touching_player == 1) {
-                        player = &state.player;
-                    } else if (obj->object.prev_touching_player >= 2) {
-                        player = &state.player2;
-                    }
-
-                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                    if (grav_delta_y < -MOVE_SPEED_DIVIDER) {
-                        // Nothing
-                    } else if (grav_delta_y <= 0) {
-                        // Nothing
-                    } else if (grav_delta_y <= MOVE_SPEED_DIVIDER) {
-                        // Nothing
-                    } else {
-                        player->vel_y = grav_delta_y;
-                    }
-                }
-
-                i++;
-            }
-            buffer->time_run += STEPS_DT;
-
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-                
-                // Clear deltas
-                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                    GameObject *obj = p->obj;
-                    
-                    float delta_y = p->obj->object.delta_y * STEPS_DT;
-                    if (obj->object.touching_player) {
-                        Player *player;
-                        if (obj->object.touching_player == 1) {
-                            player = &state.player;
-                        } else if (obj->object.touching_player >= 2) {
-                            player = &state.player2;
-                        } else {
-                            player = &state.player;
-                        }
-
-                        float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                        if (grav_delta_y < -MOVE_SPEED_DIVIDER) {
-                            // Nothing
-                        } else if (grav_delta_y <= 0) {
-                            // Nothing
-                        } else if (grav_delta_y <= MOVE_SPEED_DIVIDER) {
-                            // Nothing
-                        } else {
-                            player->vel_y = grav_delta_y;
-                        }
-                    }
-                    
-                    obj->object.delta_x = 0;
-                    obj->object.delta_y = 0;   
-                }
-            }
-        }
-    }
-}
-
-int obtain_free_spawn_slot() {
-    for (int i = 0; i < MAX_SPAWN_CHANNELS; i++) {
-        if (!spawn_trigger_buffer[i].active) return i;
-    }
-    return -1;
-}
-
-void upload_to_spawn_buffer(GameObject *obj) {
-    int slot = obtain_free_spawn_slot();
-    if (slot >= 0) {
-        struct SpawnTriggerBuffer *buffer = &spawn_trigger_buffer[slot];
-
-        buffer->target_group = obj->trigger.spawn_trigger.target_group;
-
-        buffer->time_run = 0;
-        buffer->seconds = obj->trigger.spawn_trigger.spawn_delay;
-        
-        buffer->active = TRUE;
-    }
-}
-
-void handle_spawn_triggers() {
-    for (int slot = 0; slot < MAX_SPAWN_CHANNELS; slot++) {
-        struct SpawnTriggerBuffer *buffer = &spawn_trigger_buffer[slot];
-        
-        if (buffer->active) {
-            buffer->time_run += STEPS_DT;
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-
-                // Set new alpha on all objects
-                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                    GameObject *obj = p->obj;
-                    if (obj->type != TYPE_NORMAL_OBJECT) {
-                        run_trigger(obj);
-                    }
-                }
-            }
-        }
-    }
-}
-
-int obtain_free_alpha_slot() {
-    for (int i = 0; i < MAX_ALPHA_CHANNELS; i++) {
-        if (!alpha_trigger_buffer[i].active) return i;
-    }
-    return -1;
-}
-
-void upload_to_alpha_buffer(GameObject *obj) {
-    if (obj->trigger.trig_duration == 0) {
-        for (Node *p = get_group(obj->trigger.alpha_trigger.target_group); p; p = p->next) {
-            p->obj->opacity = obj->trigger.alpha_trigger.opacity;
-        }
-        return;
-    }
-    int slot = obtain_free_alpha_slot();
-
-    if (slot >= 0) {
-        struct AlphaTriggerBuffer *buffer = &alpha_trigger_buffer[slot];
-
-        buffer->new_alpha = obj->trigger.alpha_trigger.opacity;
-        buffer->target_group = obj->trigger.alpha_trigger.target_group;
-
-        buffer->time_run = 0;
-        buffer->seconds = obj->trigger.trig_duration;
-        
-        int count = 0;
-
-        float capacity = 8;
-        
-        float *opacities = malloc(sizeof(float) * capacity); // Initial 8
-
-        for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-            if (count >= capacity) {
-                capacity *= 2; // grow exponentially
-                float *tmp = realloc(opacities, sizeof(float) * capacity);
-                if (!tmp) {
-                    free(opacities);
-                    printf("Couldn't allocate alpha values\n");
-                    return;
-                }
-                opacities = tmp;
-            }
-
-            GameObject *obj = p->obj;
-            opacities[count++] = obj->opacity;
-        }
-        buffer->initial_opacities = opacities;
-        
-        buffer->active = TRUE;
-    }
-}
-
-void handle_alpha_triggers() {
-    for (int slot = 0; slot < MAX_ALPHA_CHANNELS; slot++) {
-        struct AlphaTriggerBuffer *buffer = &alpha_trigger_buffer[slot];
-        
-        if (buffer->active) {
-            int i = 0;
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                GameObject *obj = p->obj;
-                float lerped_alpha;
-
-                if (buffer->seconds > 0) {
-                    float multiplier = buffer->time_run / buffer->seconds;
-                    lerped_alpha = (buffer->new_alpha - buffer->initial_opacities[i]) * multiplier + buffer->initial_opacities[i];
-                } else {
-                    lerped_alpha = buffer->new_alpha;
-                }
-
-                obj->opacity = lerped_alpha;
-
-                i++;
-            }
-            buffer->time_run += STEPS_DT;
-
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-
-                // Set new alpha on all objects
-                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                    GameObject *obj = p->obj;
-                    obj->opacity = buffer->new_alpha;
-                }
-
-                free(buffer->initial_opacities);
-            }
-        }
-    }
-}
-
-
-int obtain_free_move_slot() {
-    for (int i = 0; i < MAX_MOVING_CHANNELS; i++) {
-        if (!move_trigger_buffer[i].active) return i;
-    }
-    return -1;
-}
-
-void upload_to_move_buffer(GameObject *obj) {
-    int slot = obtain_free_move_slot();
-    if (slot >= 0) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
-
-        buffer->easing = obj->trigger.move_trigger.easing;
-
-        buffer->offsetX = obj->trigger.move_trigger.offsetX;
-        buffer->offsetY = obj->trigger.move_trigger.offsetY;
-
-        buffer->lock_to_player_x = obj->trigger.move_trigger.lock_to_player_x;
-        buffer->lock_to_player_y = obj->trigger.move_trigger.lock_to_player_y;
-
-        buffer->target_group = obj->trigger.move_trigger.target_group;
-
-        buffer->time_run = 0;
-        buffer->seconds = obj->trigger.trig_duration;
-
-        buffer->move_last_x = 0;
-        buffer->move_last_y = 0;
-        
-        buffer->active = TRUE;
-    }
-}
-
-void run_trigger(GameObject *obj) {
-    if (obj->toggled) return;
-
-    switch (obj->id) {
-        case TRIGGER_FADE_NONE:
-            current_fading_effect = FADE_NONE;
-            break;
-            
-        case TRIGGER_FADE_UP:
-            current_fading_effect = FADE_UP;
-            break;
-            
-        case TRIGGER_FADE_DOWN:
-            current_fading_effect = FADE_DOWN;
-            break;
-            
-        case TRIGGER_FADE_RIGHT:
-            current_fading_effect = FADE_RIGHT;
-            break;
-            
-        case TRIGGER_FADE_LEFT:
-            current_fading_effect = FADE_LEFT;
-            break;
-            
-        case TRIGGER_FADE_SCALE_IN:
-            current_fading_effect = FADE_SCALE_IN;
-            break;
-            
-        case TRIGGER_FADE_SCALE_OUT:
-            current_fading_effect = FADE_SCALE_OUT;
-            break;
-        
-        case TRIGGER_FADE_INWARDS:
-            current_fading_effect = FADE_INWARDS;
-            break;
-
-        case TRIGGER_FADE_OUTWARDS:
-            current_fading_effect = FADE_OUTWARDS;
-            break;
-        
-        case TRIGGER_FADE_LEFT_SEMICIRCLE:
-            current_fading_effect = FADE_CIRCLE_LEFT;
-            break;
-
-        case TRIGGER_FADE_RIGHT_SEMICIRCLE:
-            current_fading_effect = FADE_CIRCLE_RIGHT;
-            break;
-
-        case BG_TRIGGER:
-            upload_to_buffer(obj, BG);
-            if (!obj->trigger.col_trigger.tintGround) break;
-        
-        case GROUND_TRIGGER:
-            upload_to_buffer(obj, GROUND);
-            break;
-                    
-        case LINE_TRIGGER:
-        case 915: // gd converts 1.4 line trigger to 2.0 one for some reason
-            upload_to_buffer(obj, LINE);
-            break;
-        
-        case OBJ_TRIGGER:
-            upload_to_buffer(obj, OBJ);
-            break;
-        
-        case OBJ_2_TRIGGER:
-            upload_to_buffer(obj, 1);
-            break;
-        
-        case COL2_TRIGGER: // col 2
-            upload_to_buffer(obj, 2);
-            break;
-
-        case COL3_TRIGGER: // col 3
-            upload_to_buffer(obj, 3);
-            break;
-            
-        case COL4_TRIGGER: // col 4
-            upload_to_buffer(obj, 4);
-            break;
-            
-        case THREEDL_TRIGGER: // 3DL
-            upload_to_buffer(obj, THREEDL);
-            break;
-
-        case ENABLE_TRAIL:
-            p1_trail = TRUE;
-            break;
-        
-        case DISABLE_TRAIL:
-            p1_trail = FALSE;
-            break;
-
-        case COL_TRIGGER: // 2.0 color trigger
-            upload_to_buffer(obj, obj->trigger.col_trigger.target_color_id);
-            break;
-        
-        case MOVE_TRIGGER: // Move trigger
-            upload_to_move_buffer(obj);
-            break;
-
-        case ALPHA_TRIGGER: // Alpha trigger
-            upload_to_alpha_buffer(obj);
-            break;
-        
-        case TOGGLE_TRIGGER:
-            for (Node *p = get_group(obj->trigger.toggle_trigger.target_group); p; p = p->next) {
-                GameObject *toggled_obj = p->obj;
-                toggled_obj->toggled = !obj->trigger.toggle_trigger.activate_group;
-            }
-            break;
-        case SPAWN_TRIGGER:
-            upload_to_spawn_buffer(obj);
-            break;
-            
-    }
-    obj->activated[0] = TRUE;
-}
-
-void handle_triggers(GameObject *obj) {
-    int obj_id = obj->id;
-    Player *player = &state.player;
-    
-    if ((objects[obj_id].is_trigger || obj->id > OBJECT_COUNT) && !obj->activated[0]) {
-        if (obj->trigger.touch_triggered) {
-            if (intersect(
-                player->x, player->y, player->width, player->height, 0, 
-                obj->x, obj->y, 30, 30, obj->rotation
-            )) {
-                run_trigger(obj);
-            }
-        } else if (!obj->trigger.spawn_triggered) {
-            if (obj->x < state.player.x) {
-                run_trigger(obj);
-            }
-        }
-    }
-}
-
 u64 last_beat_time = 0;
 int pulse_frames_left = 0;
 int beat_pulse = 0;
@@ -2644,6 +2091,18 @@ void update_beat() {
 
     if (MP3Player_GetAmplitude() < 0.05f) {
         beat_pulse = false;
+    }
+}
+
+void handle_copy_channels() {
+    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
+        int copy_color_id = channels[chan].copy_color_id;
+        if (copy_color_id > 0) {
+            Color color = channels[copy_color_id].color;
+            color = HSV_combine(color, channels[chan].hsv);
+            channels[chan].color = color;
+            channels[chan].non_pulse_color = color;
+        }
     }
 }
 

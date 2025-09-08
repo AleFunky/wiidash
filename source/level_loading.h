@@ -25,7 +25,7 @@ typedef struct {
     u8 trig_colorR;      // key 7
     u8 trig_colorG;      // key 8
     u8 trig_colorB;      // key 9
-    float opacity;          // key 35
+    float opacity;       // key 35
 
     u8 tintGround:1;     // key 14
     u8 p1_color:1;       // key 15
@@ -36,6 +36,25 @@ typedef struct {
     HSV copied_hsv;      // key 49
     int copied_color_id; // key 50
 } ColTrigger;
+
+typedef struct {
+    Color color;           // keys 7, 8 and 9
+
+    int target_color_id;   // key 23
+
+    float fade_in;         // key 45
+    float hold;            // key 46
+    float fade_out;        // key 47
+    int pulse_mode;        // key 48
+    
+    HSV copied_hsv;        // key 49
+    int copied_color_id;   // key 50
+    int target_group;      // key 51
+    int pulse_target_type; // key 52
+
+    bool main_only;        // key 65
+    bool detail_only;      // key 66
+} PulseTrigger;
 
 typedef struct {
     float opacity;       // key 35
@@ -69,6 +88,7 @@ typedef struct {
     union {
         ColTrigger col_trigger;
         MoveTrigger move_trigger;
+        PulseTrigger pulse_trigger;
         AlphaTrigger alpha_trigger;
         ToggleTrigger toggle_trigger;
         SpawnTrigger spawn_trigger;
@@ -94,6 +114,14 @@ typedef struct {
     HSV main_col_HSV;
     HSV detail_col_HSV;
 
+    Color main_color;
+    Color detail_color;
+
+    bool main_being_pulsed;
+    Color main_col_pulse;
+    bool detail_being_pulsed;
+    Color detail_col_pulse;
+
     float delta_x;
     float delta_y;
 
@@ -110,6 +138,7 @@ typedef enum {
     TYPE_NORMAL_OBJECT,
     TYPE_COL_TRIGGER,
     TYPE_MOVE_TRIGGER,
+    TYPE_PULSE_TRIGGER,
     TYPE_ALPHA_TRIGGER,
     TYPE_TOGGLE_TRIGGER,
     TYPE_SPAWN_TRIGGER,

@@ -996,3 +996,7 @@ Color HSV_combine(Color color, HSV hsv) {
 
     return returned_color;
 }
+
+bool colors_equal(Color a, Color b) {
+    return a.r == b.r && a.g == b.g && a.b == b.b;
+}

@@ -19,6 +19,7 @@
 #include "../libraries/color.h"
 
 #include "groups.h"
+#include "triggers.h"
 
 #include "bg_01_png.h"
 #include "bg_02_png.h"
@@ -593,9 +594,9 @@ GDValueType get_value_type_for_key(int key) {
         case 4:  return GD_VAL_BOOL;   // Flipped Horizontally
         case 5:  return GD_VAL_BOOL;   // Flipped Vertically
         case 6:  return GD_VAL_FLOAT;  // Rotation
-        case 7:  return GD_VAL_INT;    // (Color trigger) Red
-        case 8:  return GD_VAL_INT;    // (Color trigger) Green
-        case 9:  return GD_VAL_INT;    // (Color trigger) Blue
+        case 7:  return GD_VAL_INT;    // (Color/Pulse trigger) Red
+        case 8:  return GD_VAL_INT;    // (Color/Pulse trigger) Green
+        case 9:  return GD_VAL_INT;    // (Color/Pulse trigger) Blue
         case 10: return GD_VAL_FLOAT;  // (Color trigger) Duration
         case 11: return GD_VAL_BOOL;   // (Triggers) Touch Triggered
         case 14: return GD_VAL_BOOL;   // (Color trigger) Tint ground
@@ -617,8 +618,14 @@ GDValueType get_value_type_for_key(int key) {
         case 42: return GD_VAL_BOOL;   // Detail col HSV enabled
         case 43: return GD_VAL_HSV;    // Main col HSV
         case 44: return GD_VAL_HSV;    // Detail col HSV
-        case 49: return GD_VAL_HSV;    // (Color trigger) Copy color HSV
-        case 50: return GD_VAL_INT;    // (Color trigger) Copy color id
+        case 45: return GD_VAL_FLOAT;  // (Pulse trigger) Fade in
+        case 46: return GD_VAL_FLOAT;  // (Pulse trigger) Hold
+        case 47: return GD_VAL_FLOAT;  // (Pulse trigger) Fade out
+        case 48: return GD_VAL_INT;    // (Pulse trigger) Pulse mode
+        case 49: return GD_VAL_HSV;    // (Color/Pulse trigger) Copy color HSV
+        case 50: return GD_VAL_INT;    // (Color/Pulse trigger) Copy color id
+        case 51: return GD_VAL_INT;    // (Triggers) Target group id
+        case 52: return GD_VAL_INT;    // (Pulse trigger) Pulse target type
         case 54: return GD_VAL_FLOAT;  // (Teleport portal) Y offset
         case 56: return GD_VAL_BOOL;   // (Toggle trigger) Activate trigger
         case 57: return GD_VAL_INT_ARRAY; // Groups
@@ -626,6 +633,8 @@ GDValueType get_value_type_for_key(int key) {
         case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
         case 62: return GD_VAL_BOOL;   // (Triggers) Spawn triggered
         case 63: return GD_VAL_FLOAT;  // (Spawn trigger) Spawn delay
+        case 65: return GD_VAL_BOOL;   // (Pulse trigger) Main only
+        case 66: return GD_VAL_BOOL;   // (Pulse trigger) Detail only
         case 128: return GD_VAL_FLOAT; // Scale x
         case 129: return GD_VAL_FLOAT; // Scale y
         default:
@@ -845,6 +854,8 @@ ObjectType obtain_type_from_id(int id) {
             return TYPE_COL_TRIGGER;
         case MOVE_TRIGGER:
             return TYPE_MOVE_TRIGGER;
+        case PULSE_TRIGGER:
+            return TYPE_PULSE_TRIGGER;
         case ALPHA_TRIGGER:
             return TYPE_ALPHA_TRIGGER;
         case TOGGLE_TRIGGER:
@@ -1064,6 +1075,49 @@ GameObject *convert_to_game_object(const GDObject *obj) {
                             if (type == GD_VAL_BOOL) object->trigger.move_trigger.lock_to_player_y = val.b;
                             break;
                     }
+                    break;
+                case TYPE_PULSE_TRIGGER:
+                    switch (key) {
+                        case 7:  // Color R
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.color.r = val.i;
+                            break;
+                        case 8:  // Color G
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.color.g = val.i;
+                            break;
+                        case 9:  // Color B
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.color.b = val.i;
+                            break;
+                        case 45: // Fade in
+                            if (type == GD_VAL_FLOAT) object->trigger.pulse_trigger.fade_in = val.f;
+                            break;
+                        case 46: // Hold
+                            if (type == GD_VAL_FLOAT) object->trigger.pulse_trigger.hold = val.f;
+                            break;
+                        case 47: // Fade out
+                            if (type == GD_VAL_FLOAT) object->trigger.pulse_trigger.fade_out = val.f;
+                            break;
+                        case 48: // Pulse mode
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.pulse_mode = val.i;
+                            break;
+                        case 49: // Copy color HSV
+                            if (type == GD_VAL_HSV) object->trigger.pulse_trigger.copied_hsv = val.hsv;
+                            break;
+                        case 50: // Copy color ID
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.copied_color_id = val.i;
+                            break;
+                        case 51: // Target group id
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.target_group = val.i;
+                            break;
+                        case 52: // Pulse target type
+                            if (type == GD_VAL_INT) object->trigger.pulse_trigger.pulse_target_type = val.i;
+                            break;
+                        case 65: // Main only
+                            if (type == GD_VAL_BOOL) object->trigger.pulse_trigger.main_only = val.b;
+                            break;
+                        case 66: // Detail only
+                            if (type == GD_VAL_BOOL) object->trigger.pulse_trigger.detail_only = val.b;
+                            break;
+                    }
                 default:
                     break;
             }
@@ -1278,8 +1332,7 @@ int compare_sortable_layers(const void *a, const void *b) {
     return layerSortA->originalIndex - layerSortB->originalIndex; // Stable fallback
 }
 
-// Me when this is like Java (using Comparable interface)
-void sort_layers_by_layer(GDObjectLayerList *list) {
+void make_sortable_layers(GDObjectLayerList *list) {
     if (!list || list->count <= 1) return;
 
     printf("Sorting layer list\n");
@@ -1742,7 +1795,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
             
             free_gfx_sections();
             // Resort layers
-            sort_layers_by_layer(layersArrayList);
+            make_sortable_layers(layersArrayList);
         }
     }
 
@@ -1887,7 +1940,7 @@ int load_level(char *data, bool is_custom) {
             return 4;
         }
 
-        sort_layers_by_layer(layersArrayList);
+        make_sortable_layers(layersArrayList);
         
         create_extra_objects();
 
@@ -2060,6 +2113,8 @@ void set_color_channels() {
 
                     if (colorChannel.playerColor == 1) channels[id].color = p1;
                     if (colorChannel.playerColor == 2) channels[id].color = p2;
+                    
+                    channels[id].non_pulse_color = channels[id].color;
                 }
         }
     }
@@ -2090,6 +2145,8 @@ void reload_level() {
         obj->opacity = 1.f;
         obj->x = origPositionsList[i].x;
         obj->y = origPositionsList[i].y;
+        obj->object.main_being_pulsed = FALSE;
+        obj->object.detail_being_pulsed = FALSE;
     }
     reset_color_channels();
     set_color_channels();
@@ -2115,6 +2172,7 @@ void calculate_lbg() {
     channels[LBG_NO_LERP].color.r = r;
     channels[LBG_NO_LERP].color.g = g;
     channels[LBG_NO_LERP].color.b = b;
+    channels[LBG_NO_LERP].non_pulse_color = channels[LBG_NO_LERP].color;
     channels[LBG_NO_LERP].alpha = 1.f;
     channels[LBG_NO_LERP].blending = TRUE;
 
@@ -2130,6 +2188,7 @@ void calculate_lbg() {
     channels[LBG].color.r = r;
     channels[LBG].color.g = g;
     channels[LBG].color.b = b;
+    channels[LBG].non_pulse_color = channels[LBG].color;
     channels[LBG].alpha = 1.f;
     channels[LBG].blending = TRUE;
 }
