@@ -241,11 +241,15 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
     int frameIndex = (int)(time * anim->fps) % anim->frameCount;
     AnimationFrame* frame = &anim->frames[frameIndex];
 
+    int upside_down_mult = (player->upside_down ? -1 : 1);
+
     for (int i = 0; i < frame->partCount; i++) {
         SpritePart* part = &frame->parts[i];
         
-        float rotated_x = (part->x * cosRot - part->y * sinRot) * scale;
-        float rotated_y = (part->x * sinRot + part->y * cosRot) * scale;
+        float part_y = part->y * upside_down_mult;
+
+        float rotated_x = (part->x * cosRot - part_y * sinRot) * scale;
+        float rotated_y = (part->x * sinRot + part_y * cosRot) * scale;
 
         float calc_x = ((player->x + rotated_x - state.camera_x) * SCALE) - widthAdjust;
         float calc_y = screenHeight - ((player->y + rotated_y - state.camera_y) * SCALE);
@@ -261,7 +265,7 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
                       tex, 
                       final_rotation, 
                       BASE_SCALE * part->sx * scale * state.mirror_mult, 
-                      BASE_SCALE * part->sy * scale, 
+                      BASE_SCALE * part->sy * scale * upside_down_mult, 
                       RGBA(p2.r, p2.g, p2.b, 255));
         
         // Second part
@@ -273,7 +277,7 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
                       tex, 
                       final_rotation, 
                       BASE_SCALE * part->sx * scale * state.mirror_mult, 
-                      BASE_SCALE * part->sy * scale, 
+                      BASE_SCALE * part->sy * scale * upside_down_mult, 
                       RGBA(p1.r, p1.g, p1.b, 255));
     }
 }
