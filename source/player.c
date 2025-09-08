@@ -139,7 +139,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             )) {
                 if (hitbox->type == HITBOX_BREAKABLE_BLOCK) {
                     // Spawn breakable brick particles
-                    obj->toggled = TRUE;
+                    obj->hide_sprite = TRUE;
                     for (s32 i = 0; i < 10; i++) {
                         spawn_particle(BREAKABLE_BRICK_PARTICLES, obj->x, obj->y, obj);
                     }
@@ -202,7 +202,7 @@ bool obj_hitbox_static(int id) {
 void collide_with_obj(Player *player, GameObject *obj) {
     ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
 
-    if (hitbox->type != HITBOX_NONE && !obj->toggled && obj->id < OBJECT_COUNT) {
+    if (hitbox->type != HITBOX_NONE && !obj->toggled && !obj->hide_sprite && obj->id < OBJECT_COUNT) {
         number_of_collisions_checks++;
         obj->object.prev_touching_player = obj->object.touching_player;
         obj->object.touching_player = 0;

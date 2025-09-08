@@ -617,7 +617,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
                 spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
 
-                obj->toggled = TRUE;
+                obj->hide_sprite = TRUE;
                 obj->activated[state.current_player] = TRUE;
             }
             break;
@@ -2007,7 +2007,7 @@ void draw_all_object_layers() {
             obj_particles_time += t1 - t0;
 
             t0 = gettime();
-            put_object_layer(obj, calc_x, calc_y, layer);
+            if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();
             draw_time += t1 - t0;
             

@@ -233,6 +233,7 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
         robot_4_l2,
         robot_4_l1,
     };
+    
     float rotationRad = DegToRad(-rotation);
     float cosRot = cosf(rotationRad);
     float sinRot = sinf(rotationRad);
@@ -249,15 +250,17 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
         float calc_x = ((player->x + rotated_x - state.camera_x) * SCALE) - widthAdjust;
         float calc_y = screenHeight - ((player->y + rotated_y - state.camera_y) * SCALE);
 
+        float final_rotation = (part->rotation + rotation) * state.mirror_mult;
+
         // First part
         GRRLIB_texImg *tex = robot_textures[i * 2];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x + 6 - (tex->w) / 2, 
+        custom_drawImg(get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2, 
                       calc_y + 6 - (tex->h) / 2, 
                       tex, 
-                      part->rotation + rotation, 
-                      BASE_SCALE * part->sx * scale, 
+                      final_rotation, 
+                      BASE_SCALE * part->sx * scale * state.mirror_mult, 
                       BASE_SCALE * part->sy * scale, 
                       RGBA(p2.r, p2.g, p2.b, 255));
         
@@ -265,11 +268,11 @@ void playRobotAnimation(Player *player, Animation* anim, float time, float scale
         tex = robot_textures[i * 2 + 1];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x + 6 - (tex->w) / 2, 
+        custom_drawImg(get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2, 
                       calc_y + 6 - (tex->h) / 2, 
                       tex, 
-                      part->rotation + rotation, 
-                      BASE_SCALE * part->sx * scale, 
+                      final_rotation, 
+                      BASE_SCALE * part->sx * scale * state.mirror_mult, 
                       BASE_SCALE * part->sy * scale, 
                       RGBA(p1.r, p1.g, p1.b, 255));
     }

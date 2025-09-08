@@ -169,7 +169,8 @@ typedef struct GameObject {
     bool collided[2];               // if the object just started being touched
     float ampl_scaling;             // the amplitude scaling for pulsing objects
     u8 transition_applied;          // the transition applied to the object
-    bool toggled;                   // if its enabled or disabled
+    bool toggled;                   // toggle trigger status
+    bool hide_sprite;
     float width;
     float height;
 } GameObject;
