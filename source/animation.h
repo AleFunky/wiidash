@@ -28,6 +28,6 @@ typedef struct {
 } AnimationLibrary;
 
 void playAnimation(Animation* anim, float time);
-void playRobotAnimation(Player *player, Animation* anim, float time);
+void playRobotAnimation(Player *player, Animation* anim, float time, float scale, float rotation);
 void parsePlist(const char* filename, AnimationLibrary* lib);
 Animation* getAnimation(AnimationLibrary* lib, const char* name);

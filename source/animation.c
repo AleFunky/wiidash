@@ -6,6 +6,8 @@
 #include "animation.h"
 #include "player.h"
 #include "main.h"
+#include <math.h>
+
 void extractAnimName(const char* frameName, char* outAnimName) {
     strcpy(outAnimName, frameName);
 
@@ -205,22 +207,9 @@ Animation* getAnimation(AnimationLibrary* lib, const char* name) {
     return NULL;
 }
 
-void playAnimation(Animation* anim, float time) {
-    int frameIndex = (int)(time * anim->fps) % anim->frameCount;
-    AnimationFrame* frame = &anim->frames[frameIndex];
-
-    for (int i = 0; i < frame->partCount; i++) {
-        SpritePart* part = &frame->parts[i];
-        printf("Draw %d at (%.2f, %.2f) scale(%.2f,%.2f) rot=%.2f z=%d\n",
-               i, part->x, part->y,
-               part->sx, part->sy,
-               part->rotation, part->z);
-    }
-}
-
 #include "math.h"
 
-void playRobotAnimation(Player *player, Animation* anim, float time) {
+void playRobotAnimation(Player *player, Animation* anim, float time, float scale, float rotation) {
     // I should figure a better way to do it
     GRRLIB_texImg *robot_textures[] = {
         robot_3_l2,
@@ -244,6 +233,9 @@ void playRobotAnimation(Player *player, Animation* anim, float time) {
         robot_4_l2,
         robot_4_l1,
     };
+    float rotationRad = DegToRad(-rotation);
+    float cosRot = cosf(rotationRad);
+    float sinRot = sinf(rotationRad);
 
     int frameIndex = (int)(time * anim->fps) % anim->frameCount;
     AnimationFrame* frame = &anim->frames[frameIndex];
@@ -251,19 +243,34 @@ void playRobotAnimation(Player *player, Animation* anim, float time) {
     for (int i = 0; i < frame->partCount; i++) {
         SpritePart* part = &frame->parts[i];
         
-        float calc_x = ((player->x + part->x - state.camera_x) * SCALE) - widthAdjust;
-        float calc_y = screenHeight - ((player->y + part->y - state.camera_y) * SCALE);
+        float rotated_x = (part->x * cosRot - part->y * sinRot) * scale;
+        float rotated_y = (part->x * sinRot + part->y * cosRot) * scale;
+
+        float calc_x = ((player->x + rotated_x - state.camera_x) * SCALE) - widthAdjust;
+        float calc_y = screenHeight - ((player->y + rotated_y - state.camera_y) * SCALE);
 
         // First part
         GRRLIB_texImg *tex = robot_textures[i * 2];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x + 6 - (tex->w) / 2, calc_y + 6 - (tex->h) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p2.r, p2.g, p2.b, 255));
+        custom_drawImg(calc_x + 6 - (tex->w) / 2, 
+                      calc_y + 6 - (tex->h) / 2, 
+                      tex, 
+                      part->rotation + rotation, 
+                      BASE_SCALE * part->sx * scale, 
+                      BASE_SCALE * part->sy * scale, 
+                      RGBA(p2.r, p2.g, p2.b, 255));
         
-        // Second
+        // Second part
         tex = robot_textures[i * 2 + 1];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x  + 6 - (tex->w) / 2, calc_y + 6 - (tex->h) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p1.r, p1.g, p1.b, 255));
+        custom_drawImg(calc_x + 6 - (tex->w) / 2, 
+                      calc_y + 6 - (tex->h) / 2, 
+                      tex, 
+                      part->rotation + rotation, 
+                      BASE_SCALE * part->sx * scale, 
+                      BASE_SCALE * part->sy * scale, 
+                      RGBA(p1.r, p1.g, p1.b, 255));
     }
 }

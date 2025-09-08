@@ -1469,7 +1469,7 @@ void draw_player(Player *player) {
             
             Animation* runAnim = getAnimation(&robot_animations, "Robot_run");
             if (runAnim) {
-                playRobotAnimation(player, runAnim, state.timer);
+                playRobotAnimation(player, runAnim, state.timer, scale, player->rotation);
             }
             
             break;
