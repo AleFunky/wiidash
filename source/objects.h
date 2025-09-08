@@ -942,6 +942,7 @@ enum Objects {
     COL_TRIGGER = 899,
 
     MOVE_TRIGGER = 901,
+    V2_0_LINE_TRIGGER = 915,
 
     PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,

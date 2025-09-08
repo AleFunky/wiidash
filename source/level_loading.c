@@ -850,7 +850,7 @@ ObjectType obtain_type_from_id(int id) {
         case COL4_TRIGGER:
         case THREEDL_TRIGGER:
         case COL_TRIGGER: // 2.0 col trigger
-        case 915:         // 2.0 line trigger
+        case V2_0_LINE_TRIGGER:         // 2.0 line trigger
             return TYPE_COL_TRIGGER;
         case MOVE_TRIGGER:
             return TYPE_MOVE_TRIGGER;

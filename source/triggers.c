@@ -710,7 +710,7 @@ void run_trigger(GameObject *obj) {
             break;
                     
         case LINE_TRIGGER:
-        case 915: // gd converts 1.4 line trigger to 2.0 one for some reason
+        case V2_0_LINE_TRIGGER: // gd converts 1.4 line trigger to 2.0 one for some reason
             upload_to_buffer(obj, LINE);
             break;
         

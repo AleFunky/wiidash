@@ -14267,6 +14267,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
     },
     [COL_TRIGGER] = trigger,
     [MOVE_TRIGGER] = trigger,
+    [V2_0_LINE_TRIGGER] = trigger,
     [PULSE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
     [GREEN_ORB] = {
