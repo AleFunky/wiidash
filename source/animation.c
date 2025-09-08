@@ -258,12 +258,12 @@ void playRobotAnimation(Player *player, Animation* anim, float time) {
         GRRLIB_texImg *tex = robot_textures[i * 2];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x - (tex->w * BASE_SCALE) / 2, calc_y - (tex->h * BASE_SCALE) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p2.r, p2.g, p2.b, 255));
+        custom_drawImg(calc_x + 6 - (tex->w) / 2, calc_y + 6 - (tex->h) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p2.r, p2.g, p2.b, 255));
         
         // Second
         tex = robot_textures[i * 2 + 1];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
-        custom_drawImg(calc_x - (tex->w * BASE_SCALE) / 2, calc_y - (tex->h * BASE_SCALE) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p1.r, p1.g, p1.b, 255));
+        custom_drawImg(calc_x  + 6 - (tex->w) / 2, calc_y + 6 - (tex->h) / 2, tex, part->rotation, BASE_SCALE * part->sx, BASE_SCALE * part->sy, RGBA(p1.r, p1.g, p1.b, 255));
     }
 }
