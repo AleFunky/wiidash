@@ -33,6 +33,7 @@ jobs:
           echo "Go to %localappdata%/GeometryDash and put the .mp3 file with the file name of the \"<song_id>.mp3\", where <song_id> is the custom song id that the level uses, to the folder this .txt file is at." >> out/rom/user_songs/ADD_MP3s_HERE.txt
           cp -r data/hbc/. out/rom/
           cp -r data/songs/. out/rom/resources/songs/
+          cp -r data/extra/. out/rom/resources/
           cp wiidash.dol out/rom/boot.dol
       - name: Publish build to GH Actions
         uses: actions/upload-artifact@v4
