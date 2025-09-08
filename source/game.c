@@ -148,6 +148,7 @@ int paused_loop() {
     return FALSE;
 }
 
+
 int game_loop() {
     size_t size;
     if (level_info.custom_song_id >= 0) {

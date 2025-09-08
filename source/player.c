@@ -16,6 +16,8 @@
 #include "oggplayer.h"
 #include "explode_11_ogg.h"
 
+#include "animation.h"
+
 #include "easing.h"
 
 GRRLIB_texImg *icon_l1;
@@ -29,6 +31,14 @@ GRRLIB_texImg *ufo_l2;
 GRRLIB_texImg *ufo_dome;
 GRRLIB_texImg *wave_l1;
 GRRLIB_texImg *wave_l2;
+GRRLIB_texImg *robot_1_l1;
+GRRLIB_texImg *robot_1_l2;
+GRRLIB_texImg *robot_2_l1;
+GRRLIB_texImg *robot_2_l2;
+GRRLIB_texImg *robot_3_l1;
+GRRLIB_texImg *robot_3_l2;
+GRRLIB_texImg *robot_4_l1;
+GRRLIB_texImg *robot_4_l2;
 
 GRRLIB_texImg *trail_tex;
 
@@ -1205,6 +1215,15 @@ void load_icons() {
     ufo_dome = GRRLIB_LoadTexturePNG(bird_01_3_001_png);
     wave_l1 = GRRLIB_LoadTexturePNG(dart_01_001_png);
     wave_l2 = GRRLIB_LoadTexturePNG(dart_01_2_001_png);
+    
+    robot_1_l1 = GRRLIB_LoadTexturePNG(robot_01_01_001_png);
+    robot_1_l2 = GRRLIB_LoadTexturePNG(robot_01_01_2_001_png);
+    robot_2_l1 = GRRLIB_LoadTexturePNG(robot_01_02_001_png);
+    robot_2_l2 = GRRLIB_LoadTexturePNG(robot_01_02_2_001_png);
+    robot_3_l1 = GRRLIB_LoadTexturePNG(robot_01_03_001_png);
+    robot_3_l2 = GRRLIB_LoadTexturePNG(robot_01_03_2_001_png);
+    robot_4_l1 = GRRLIB_LoadTexturePNG(robot_01_04_001_png);
+    robot_4_l2 = GRRLIB_LoadTexturePNG(robot_01_04_2_001_png);
 
     trail_tex = GRRLIB_LoadTexturePNG(trail_png);
 
@@ -1229,6 +1248,14 @@ void unload_icons() {
     GRRLIB_FreeTexture(ufo_dome);
     GRRLIB_FreeTexture(wave_l1);
     GRRLIB_FreeTexture(wave_l2);
+    GRRLIB_FreeTexture(robot_1_l1);
+    GRRLIB_FreeTexture(robot_1_l2);
+    GRRLIB_FreeTexture(robot_2_l1);
+    GRRLIB_FreeTexture(robot_2_l2);
+    GRRLIB_FreeTexture(robot_3_l1);
+    GRRLIB_FreeTexture(robot_3_l2);
+    GRRLIB_FreeTexture(robot_4_l1);
+    GRRLIB_FreeTexture(robot_4_l2);
     GRRLIB_FreeTexture(trail_tex);
 }
 
@@ -1415,7 +1442,6 @@ void draw_ufo(Player *player, float calc_x, float calc_y) {
 
 
 void draw_player(Player *player) {
-
     float calc_x = ((player->x - state.camera_x) * SCALE) - widthAdjust;
     float calc_y = screenHeight - ((player->y - state.camera_y) * SCALE);
     
@@ -1440,7 +1466,13 @@ void draw_player(Player *player) {
         case GAMEMODE_CUBE:
             GRRLIB_SetHandle(icon_l1, 30, 30);
             GRRLIB_SetHandle(icon_l2, 30, 30);
-        
+            
+            Animation* runAnim = getAnimation(&robot_animations, "Robot_run");
+            if (runAnim) {
+                playRobotAnimation(player, runAnim, state.timer);
+            }
+            
+            break;
             set_texture(icon_l1);
             custom_drawImg(
                 get_mirror_x(calc_x, state.mirror_factor) + 6 - (30), calc_y + 6 - (30),

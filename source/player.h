@@ -194,3 +194,12 @@ void draw_player_hitbox(Player *player);
 void draw_hitbox_trail(int player);
 bool player_circle_touches_slope(GameObject *obj, Player *player);
 bool is_spike_slope(GameObject *obj);
+
+extern GRRLIB_texImg *robot_1_l1;
+extern GRRLIB_texImg *robot_1_l2;
+extern GRRLIB_texImg *robot_2_l1;
+extern GRRLIB_texImg *robot_2_l2;
+extern GRRLIB_texImg *robot_3_l1;
+extern GRRLIB_texImg *robot_3_l2;
+extern GRRLIB_texImg *robot_4_l1;
+extern GRRLIB_texImg *robot_4_l2;

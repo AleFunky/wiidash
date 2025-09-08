@@ -1,10 +1,3 @@
-/*===========================================
-        GRRLIB (GX Version)
-        Example code by Xane
-
-        This example shows the different
-        new blending modes.
-============================================*/
 #include <grrlib.h>
 
 #include <stdlib.h>
@@ -40,6 +33,10 @@
 
 #include "trail.h"
 #include "bigFont_png.h"
+
+#include "animation.h"
+
+#include <fat.h>
 
 // Declare Static Functions
 static void ExitGame(void);
@@ -85,6 +82,8 @@ int number_of_collisions_checks = 0;
 char launch_dir[256] = SDCARD_FOLDER;
 float ir_x;
 float ir_y;
+
+AnimationLibrary robot_animations = {0};
 
 void draw_game() {
     draw_background(state.background_x / 8, -(state.camera_y / 8) + 416);
@@ -183,6 +182,8 @@ void draw_game() {
         draw_text(big_font, big_font_text, screenWidth / 2 - textOffset, screenHeight / 2 - 15, 0.5, "PAUSED");
     }
     layersDrawn = 0;
+
+    state.timer += dt;
 }
 
 #include <mad.h>
@@ -250,6 +251,10 @@ int main(int argc, char **argv) {
         set_launch_dir(argv[0]);
     }
 
+    if (!fatInitDefault()) {
+		printf("fatInitDefault failure\n");
+	}
+
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
     printf("grrlib status %d\n", GRRLIB_Init());
@@ -287,6 +292,18 @@ int main(int argc, char **argv) {
 
     // hopefully this fixes the ir position
     WPAD_SetVRes(WPAD_CHAN_0,screenWidth,screenHeight);
+    
+    char robot_plist_path[278];
+    
+    snprintf(robot_plist_path, sizeof(robot_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "robot.plist");
+    parsePlist(robot_plist_path, &robot_animations);
+
+    printf("Loaded %d animations\n", robot_animations.animCount);
+    for (int i = 0; i < robot_animations.animCount; i++) {
+        printf("Animation %s: %d frames\n",
+               robot_animations.animations[i].name,
+               robot_animations.animations[i].frameCount);
+    }
 
     full_init_variables();
     while(1) {

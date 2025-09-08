@@ -293,12 +293,11 @@ void draw_menu() {
     }
 }
 
+#include "animation.h"
+
 int menu_loop() {
     exit_menu = false;
-    if (!fatInitDefault()) {
-		printf("fatInitDefault failure\n");
-	}
-    
+
     DIR *pdir = opendir(launch_dir);
 
 	if (!pdir){
@@ -423,8 +422,7 @@ int menu_loop() {
     }
 
     GRRLIB_Render();
-    GRRLIB_Render();;
-
+    GRRLIB_Render();
     return exit_code;
 }
 

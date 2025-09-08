@@ -99,6 +99,8 @@ typedef struct {
     float level_progress;
 
     float has_teleported_timer;
+
+    float timer;
     
     Particle particles[MAX_PARTICLES];
 
@@ -155,6 +157,10 @@ extern GameState state;
 extern GRRLIB_texImg *big_font_text;
 extern GRRLIB_texImg *font;
 extern GRRLIB_texImg *cursor;
+
+#include "animation.h"
+
+extern AnimationLibrary robot_animations;
 
 extern float ir_x;
 extern float ir_y;
