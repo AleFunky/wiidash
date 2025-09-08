@@ -17,7 +17,7 @@ jobs:
       - name: Build GRRLIB
         run: |
           cd GRRLIB/
-          dkp-pacman --sync --needed --noconfirm libfat-ogc ppc-libpng ppc-freetype ppc-libjpeg-turbo ppc-libvorbisidec
+          dkp-pacman --sync --needed --noconfirm libfat-ogc ppc-libpng ppc-freetype ppc-libjpeg-turbo ppc-libvorbisidec ppc-mxml
           make -C GRRLIB clean all install
       - name: Make application
         run: |
