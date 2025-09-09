@@ -5,7 +5,6 @@
 #include <wiiuse/wpad.h>
 #include <math.h>
 #include "math.h"
-#include "object_includes.h"
 #include <unistd.h>
 #include <stdio.h>
 #include "icons_includes.h"

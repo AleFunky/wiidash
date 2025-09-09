@@ -2210,6 +2210,12 @@ bool check_song(int id) {
     return access(full_path, F_OK) == 0;
 }
 
+void *load_texture(const char *path, size_t *out_size) {
+    char full_path[273];
+    snprintf(full_path, sizeof(full_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, path);
+    return read_file(full_path, out_size);
+}
+
 void update_percentage() {
     float progress = (state.player.x / (level_info.last_obj_x + (11 * 30.f))) * 100;
     if (progress > 100) progress = 100;

@@ -258,6 +258,7 @@ int main(int argc, char **argv) {
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
     printf("grrlib status %d\n", GRRLIB_Init());
+    
     WPAD_Init();
     PAD_Init();
     WPAD_SetIdleTimeout( 60 * 10 );
