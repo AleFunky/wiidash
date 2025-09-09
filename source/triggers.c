@@ -600,6 +600,9 @@ void handle_alpha_triggers() {
                 }
 
                 obj->opacity = lerped_alpha;
+                if (obj->object.child_object) {
+                    obj->object.child_object->opacity = lerped_alpha;
+                }
 
                 i++;
             }
@@ -612,6 +615,10 @@ void handle_alpha_triggers() {
                 for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                     GameObject *obj = p->obj;
                     obj->opacity = buffer->new_alpha;
+                    
+                    if (obj->object.child_object) {
+                        obj->object.child_object->opacity = buffer->new_alpha;
+                    }
                 }
 
                 free(buffer->initial_opacities);
