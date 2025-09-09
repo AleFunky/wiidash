@@ -233,9 +233,9 @@ void upload_to_pulse_buffer(GameObject *obj) {
         if (channel == 0) channel = 1;
         buffer->target_color_id = channel;
 
-        //printf("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);
-        //printf("fade in %.2f hold %.2f fade out %.2f\n", buffer->fade_in, buffer->hold, buffer->fade_out);
-        //printf("channel %d\n", buffer->target_color_id);
+        //output_log("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);
+        //output_log("fade in %.2f hold %.2f fade out %.2f\n", buffer->fade_in, buffer->hold, buffer->fade_out);
+        //output_log("channel %d\n", buffer->target_color_id);
 
         buffer->time_run = 0;
         buffer->seconds = obj->trigger.pulse_trigger.fade_in + obj->trigger.pulse_trigger.hold + obj->trigger.pulse_trigger.fade_out;   
@@ -359,132 +359,159 @@ int convert_ease(int easing) {
     return EASE_LINEAR;
 }
 
-void handle_move_triggers() {
-    // First reset deltas
-    for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
+static MovingGroup move_groups[MAX_GROUPS];
 
-        if (buffer->active) {
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                p->obj->object.delta_x = 0;
-                p->obj->object.delta_y = 0;   
-            }
+void init_move_triggers() {
+    memset(move_groups, 0, sizeof(move_groups));
+}
+
+static void cache_move_group(int group_id) {
+    if (move_groups[group_id].objects != NULL) {
+        return; // Already cached
+    }
+
+    // Count objects first
+    int count = 0;
+    for (Node* p = get_group(group_id); p; p = p->next) {
+        count++;
+    }
+
+    if (count == 0) return;
+
+    // Allocate exactly what we need
+    MovingObject* objects = malloc(count * sizeof(MovingObject));
+    if (!objects) return;
+
+    // Fill the cache
+    int i = 0;
+    for (Node* p = get_group(group_id); p; p = p->next) {
+        objects[i].obj = p->obj;
+        objects[i].x = p->obj->x;
+        objects[i].y = p->obj->y;
+        objects[i].old_x = p->obj->x;
+        objects[i].old_y = p->obj->y;
+        i++;
+    }
+
+    move_groups[group_id].objects = objects;
+    move_groups[group_id].count = count;
+    move_groups[group_id].capacity = count;
+}
+
+void handle_move_triggers() {
+    // Reset deltas first
+    for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
+        struct MoveTriggerBuffer* buffer = &move_trigger_buffer[slot];
+        if (!buffer->active) continue;
+
+        MovingGroup* group = &move_groups[buffer->target_group];
+        if (!group->objects) {
+            cache_move_group(buffer->target_group);
+        }
+
+        for (int i = 0; i < group->count; i++) {
+            group->objects[i].obj->object.delta_x = 0;
+            group->objects[i].obj->object.delta_y = 0;
         }
     }
 
+    // Process active move triggers
     for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
+        struct MoveTriggerBuffer* buffer = &move_trigger_buffer[slot];
+        if (!buffer->active) continue;
 
-        if (buffer->active) {
-            // Iterate through group objects
-            int i = 0;
-            
-            // Calculate delta
-            float delta_x;
-            float delta_y;
-            if (buffer->lock_to_player_x) {    
-                delta_x = state.player.vel_x * STEPS_DT;
-            } else {
-                float before_x = buffer->move_last_x;
-                float after_x = buffer->offsetX * easeTime(convert_ease(buffer->easing), buffer->time_run, buffer->seconds, 2.0f);
-                
-                delta_x = after_x - before_x;
-                buffer->move_last_x = after_x;
-            } 
-            
-            if (buffer->lock_to_player_y) {
-                delta_y = state.player.vel_y * STEPS_DT;;
-            } else {
-                float before_y = buffer->move_last_y;
-                float after_y = buffer->offsetY * easeTime(convert_ease(buffer->easing), buffer->time_run, buffer->seconds, 2.0f);
+        MovingGroup* group = &move_groups[buffer->target_group];
+        if (!group->objects) continue;
 
-                delta_y = after_y - before_y;
-                buffer->move_last_y = after_y;
-            }
+        // Calculate movement deltas once
+        float delta_x, delta_y;
+        float easing = easeTime(convert_ease(buffer->easing), 
+                              buffer->time_run, buffer->seconds, 2.0f);
 
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                GameObject *obj = p->obj;
-                
-                float new_x = obj->x + delta_x;
-                float new_y = obj->y + delta_y;
+        if (buffer->lock_to_player_x) {
+            delta_x = state.player.vel_x * STEPS_DT;
+        } else {
+            float before_x = buffer->move_last_x;
+            float after_x = buffer->offsetX * easing;
+            delta_x = after_x - before_x;
+            buffer->move_last_x = after_x;
+        }
 
-                obj->object.delta_x += delta_x / STEPS_DT;
-                obj->object.delta_y += delta_y / STEPS_DT;
+        if (buffer->lock_to_player_y) {
+            delta_y = state.player.vel_y * STEPS_DT;
+        } else {
+            float before_y = buffer->move_last_y;
+            float after_y = buffer->offsetY * easing;
+            delta_y = after_y - before_y;
+            buffer->move_last_y = after_y;
+        }
 
-                update_object_section(obj, new_x, new_y);
+        // Update all objects in group
+        for (int i = 0; i < group->count; i++) {
+            MovingObject* mobj = &group->objects[i];
+            GameObject* obj = mobj->obj;
 
-                if (obj->object.touching_player) {
-                    Player *player;
-                    if (obj->object.touching_player == 1) {
-                        player = &state.player;
-                    } else if (obj->object.touching_player >= 2) {
-                        player = &state.player2;
-                    }
+            float new_x = obj->x + delta_x;
+            float new_y = obj->y + delta_y;
 
-                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                    if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
-                        player->y += delta_y;
-                    }
-                } else if (obj->object.prev_touching_player) {
-                    // Exiting
-                    Player *player;
-                    if (obj->object.prev_touching_player == 1) {
-                        player = &state.player;
-                    } else if (obj->object.prev_touching_player >= 2) {
-                        player = &state.player2;
-                    }
+            obj->object.delta_x += delta_x / STEPS_DT;
+            obj->object.delta_y += delta_y / STEPS_DT;
 
-                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                    if (grav_delta_y < -MOVE_SPEED_DIVIDER) {
-                        // Nothing
-                    } else if (grav_delta_y <= 0) {
-                        // Nothing
-                    } else if (grav_delta_y <= MOVE_SPEED_DIVIDER) {
-                        // Nothing
-                    } else {
-                        player->vel_y = grav_delta_y;
-                    }
+            update_object_section(obj, new_x, new_y);
+
+            // Handle player collision
+            if (obj->object.touching_player) {
+                Player* player = (obj->object.touching_player == 1) ? 
+                               &state.player : &state.player2;
+
+                float grav_delta_y = grav(player, delta_y / STEPS_DT);
+                if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
+                    player->y += delta_y;
                 }
+            } else if (obj->object.prev_touching_player) {
+                Player* player = (obj->object.prev_touching_player == 1) ?
+                               &state.player : &state.player2;
 
-                i++;
-            }
-            buffer->time_run += STEPS_DT;
-
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-                
-                // Clear deltas
-                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                    GameObject *obj = p->obj;
-                    
-                    float delta_y = p->obj->object.delta_y * STEPS_DT;
-                    if (obj->object.touching_player) {
-                        Player *player;
-                        if (obj->object.touching_player == 1) {
-                            player = &state.player;
-                        } else if (obj->object.touching_player >= 2) {
-                            player = &state.player2;
-                        } else {
-                            player = &state.player;
-                        }
-
-                        float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                        if (grav_delta_y < -MOVE_SPEED_DIVIDER) {
-                            // Nothing
-                        } else if (grav_delta_y <= 0) {
-                            // Nothing
-                        } else if (grav_delta_y <= MOVE_SPEED_DIVIDER) {
-                            // Nothing
-                        } else {
-                            player->vel_y = grav_delta_y;
-                        }
-                    }
-                    
-                    obj->object.delta_x = 0;
-                    obj->object.delta_y = 0;   
+                float grav_delta_y = grav(player, delta_y / STEPS_DT);
+                if (grav_delta_y > MOVE_SPEED_DIVIDER) {
+                    player->vel_y = grav_delta_y;
                 }
             }
         }
+
+        // Update timer and check completion
+        buffer->time_run += STEPS_DT;
+        if (buffer->time_run > buffer->seconds) {
+            buffer->active = FALSE;
+
+            // Clear final deltas
+            for (int i = 0; i < group->count; i++) {
+                GameObject* obj = group->objects[i].obj;
+                
+                if (obj->object.touching_player) {
+                    Player* player = (obj->object.touching_player == 1) ?
+                                   &state.player : &state.player2;
+
+                    float delta_y = obj->object.delta_y * STEPS_DT;
+                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
+                    if (grav_delta_y > MOVE_SPEED_DIVIDER) {
+                        player->vel_y = grav_delta_y;
+                    }
+                }
+                
+                obj->object.delta_x = 0;
+                obj->object.delta_y = 0;
+            }
+        }
+    }
+}
+
+void cleanup_move_triggers() {
+    for (int i = 0; i < MAX_GROUPS; i++) {
+        free(move_groups[i].objects);
+        move_groups[i].objects = NULL;
+        move_groups[i].count = 0;
+        move_groups[i].capacity = 0;
     }
 }
 
@@ -567,7 +594,7 @@ void upload_to_alpha_buffer(GameObject *obj) {
                 float *tmp = realloc(opacities, sizeof(float) * capacity);
                 if (!tmp) {
                     free(opacities);
-                    printf("Couldn't allocate alpha values\n");
+                    output_log("Couldn't allocate alpha values\n");
                     return;
                 }
                 opacities = tmp;

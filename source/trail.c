@@ -295,7 +295,7 @@ void MotionTrail_AddWavePoint(MotionTrail* trail) {
 
     trail->nuPoints++;
 
-    //printf("Added 1 - %d / %d\n", trail->nuPoints, trail->maxPoints);
+    //output_log("Added 1 - %d / %d\n", trail->nuPoints, trail->maxPoints);
 
     if (trail->nuPoints > 1) {
         ccVertexLineToPolygonWave(trail->pointVertexes, trail->stroke, trail->vertices, 0, trail->actualNuPoints);

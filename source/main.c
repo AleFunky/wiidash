@@ -252,12 +252,12 @@ int main(int argc, char **argv) {
     }
 
     if (!fatInitDefault()) {
-		printf("fatInitDefault failure\n");
+		output_log("fatInitDefault failure\n");
 	}
 
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
-    printf("grrlib status %d\n", GRRLIB_Init());
+    output_log("grrlib status %d\n", GRRLIB_Init());
     
     WPAD_Init();
     PAD_Init();
@@ -282,7 +282,9 @@ int main(int argc, char **argv) {
     screen_factor_x = (float) screenWidth / 640;
     screen_factor_y = (float) screenHeight / 480;
 
-    printf("%d, %d mode %d\n", screenWidth, screenHeight, rmode->viTVMode);
+    output_log("xfb[0]=%p xfb[1]=%p\n", xfb[0], xfb[1]);
+
+    output_log("%d, %d mode %d\n", screenWidth, screenHeight, rmode->viTVMode);
 
     startTime = gettime();    
 
@@ -299,9 +301,9 @@ int main(int argc, char **argv) {
     snprintf(robot_plist_path, sizeof(robot_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "robot.plist");
     parsePlist(robot_plist_path, &robot_animations);
 
-    printf("Loaded %d animations\n", robot_animations.animCount);
+    output_log("Loaded %d animations\n", robot_animations.animCount);
     for (int i = 0; i < robot_animations.animCount; i++) {
-        printf("Animation %s: %d frames\n",
+        output_log("Animation %s: %d frames\n",
                robot_animations.animations[i].name,
                robot_animations.animations[i].frameCount);
     }
@@ -323,8 +325,58 @@ Exit:
     return 0;
 }
 
+static FILE *log_file = NULL;
+
+static void ensure_log_file(void) {
+    if (log_file) return;  // already open
+
+    // Initialize SD/USB filesystem
+    if (!fatInitDefault()) return;
+
+    char log_filename[278];
+    snprintf(log_filename, sizeof(log_filename), "%s/%s", launch_dir, "output.txt");
+    
+    log_file = fopen(log_filename, "a");
+}
+
+static void close_log_file(void) {
+    if (log_file) {
+        fclose(log_file);
+        log_file = NULL;
+    }
+}
+
+int output_log(const char *fmt, ...) {
+    ensure_log_file();
+
+    if (!log_file) return 0; // failed to open log
+
+    va_list args1, args2;
+    int ret;
+
+    va_start(args1, fmt);
+    va_copy(args2, args1);  // duplicate args for two outputs
+
+    // Output to log file
+    ensure_log_file();
+    if (log_file) {
+        ret = vfprintf(log_file, fmt, args1);
+        fflush(log_file);
+    }
+
+    // Output to console (stdout)
+    ret = vprintf(fmt, args2);
+    
+    va_end(args2);
+    va_end(args1);
+
+    return ret;
+}
+
 static void ExitGame(void) {
     unload_spritesheet();
+
+    close_log_file();
 
     // Deinitialize GRRLIB & Video
     GRRLIB_Exit();

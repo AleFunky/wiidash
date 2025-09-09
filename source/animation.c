@@ -7,6 +7,7 @@
 #include "player.h"
 #include "main.h"
 #include <math.h>
+#include "game.h"
 
 void extractAnimName(const char* frameName, char* outAnimName) {
     strcpy(outAnimName, frameName);
@@ -38,7 +39,7 @@ Animation* getOrCreateAnimation(AnimationLibrary* lib, const char* animName) {
 void parsePlist(const char* filename, AnimationLibrary* lib) {
     FILE* fp = fopen(filename, "r");
     if (!fp) {
-        printf("Failed to open %s\n", filename);
+        output_log("Failed to open %s\n", filename);
         return;
     }
     mxml_node_t* tree = mxmlLoadFile(NULL, fp, MXML_OPAQUE_CALLBACK);
@@ -48,7 +49,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
     // Top-level <dict>
     mxml_node_t* rootDict = mxmlFindElement(tree, tree, "dict", NULL, NULL, MXML_DESCEND_FIRST);
     if (!rootDict) {
-        printf("No top-level <dict> found\n");
+        output_log("No top-level <dict> found\n");
         mxmlDelete(tree);
         return;
     }
@@ -67,7 +68,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
     }
 
     if (!animKey) {
-        printf("No animationContainer key found\n");
+        output_log("No animationContainer key found\n");
         mxmlDelete(tree);
         return;
     }
@@ -80,7 +81,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
     }
 
     if (!animDict || strcmp(mxmlGetElement(animDict), "dict") != 0) {
-        printf("No dict found after animationContainer key\n");
+        output_log("No dict found after animationContainer key\n");
         mxmlDelete(tree);
         return;
     }
@@ -93,7 +94,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
         const char* frameName = mxmlGetOpaque(frameKey);
         if (!frameName) continue;
 
-        //printf("Processing frame: %s\n", frameName);  // Debug print
+        //output_log("Processing frame: %s\n", frameName);  // Debug print
 
         char animName[64];
         extractAnimName(frameName, animName);
@@ -110,7 +111,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
         }
         
         if (!frameDict || strcmp(mxmlGetElement(frameDict), "dict") != 0) {
-            printf("No dict found for frame %s\n", frameName);
+            output_log("No dict found for frame %s\n", frameName);
             continue;
         }
 
@@ -122,7 +123,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
             const char* spriteKeyText = mxmlGetOpaque(spriteKey);
             if (!spriteKeyText) continue;
 
-            //printf("  Processing sprite: %s\n", spriteKeyText);  // Debug print
+            //output_log("  Processing sprite: %s\n", spriteKeyText);  // Debug print
 
             // Get sprite dict
             mxml_node_t* spriteDict = mxmlGetNextSibling(spriteKey);
@@ -158,7 +159,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
                 const char* valText = mxmlGetOpaque(valNode);
                 if (!valText) continue;
 
-                //printf("    Property: %s = %s\n", keyText, valText);  // Debug print
+                //output_log("    Property: %s = %s\n", keyText, valText);  // Debug print
 
                 if (strcmp(keyText, "position") == 0) {
                     // Skip leading whitespace
@@ -166,7 +167,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
                     if (sscanf(valText, "{%f,%f}", &part->x, &part->y) != 2) {
                         // Try with space after comma
                         if (sscanf(valText, "{%f, %f}", &part->x, &part->y) != 2) {
-                            printf("Failed to parse position: %s\n", valText);
+                            output_log("Failed to parse position: %s\n", valText);
                         }
                     }
                 }
@@ -176,7 +177,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
                     if (sscanf(valText, "{%f,%f}", &part->sx, &part->sy) != 2) {
                         // Try with space after comma
                         if (sscanf(valText, "{%f, %f}", &part->sx, &part->sy) != 2) {
-                            printf("Failed to parse scale: %s\n", valText);
+                            output_log("Failed to parse scale: %s\n", valText);
                         }
                     }
                 }
@@ -188,7 +189,7 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
                 }
             }
 
-            //printf("  Loaded sprite: pos(%.2f,%.2f) scale(%.2f,%.2f) rot=%.2f z=%d\n",
+            //output_log("  Loaded sprite: pos(%.2f,%.2f) scale(%.2f,%.2f) rot=%.2f z=%d\n",
             //       part->x, part->y, part->sx, part->sy, part->rotation, part->z);
         }
     }

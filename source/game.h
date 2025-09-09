@@ -42,3 +42,6 @@ int game_loop();
 void draw_rays();
 void create_ray(float x, float y, float angle, float length, float startWidth, float endWidth, float duration, u32 color);
 void erase_rays();
+
+
+int output_log(const char *fmt, ...);

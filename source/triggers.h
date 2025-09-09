@@ -93,6 +93,22 @@ struct SpawnTriggerBuffer {
     float time_run;
 };
 
+typedef struct {
+    float x, y;
+    float old_x, old_y;
+    GameObject* obj;
+} MovingObject;
+
+typedef struct {
+    MovingObject* objects;
+    int count;
+    int capacity;
+} MovingGroup;
+
+
+void init_move_triggers();
+void cleanup_move_triggers();
+
 extern struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
 extern struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
 extern struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];

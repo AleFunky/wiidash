@@ -1010,7 +1010,7 @@ void load_spritesheet() {
             char *texture = objects[object].layers[layer].texture;
             if (!texture) continue;
 
-            printf("Loading texture of object %d layer %d\n", object, layer);
+            output_log("Loading texture of object %d layer %d\n", object, layer);
             
             int existing = find_existing_texture(object, texture);
             if (existing < 0) {
@@ -1018,9 +1018,9 @@ void load_spritesheet() {
                 if (loaded_texture) {
                     GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8*) loaded_texture);
                     if (image == NULL || image->data == NULL) {
-                        printf("Couldn't load texture of object %d layer %d\n", object, layer);
+                        output_log("Couldn't load texture of object %d layer %d\n", object, layer);
                     } else {
-                        printf("Loaded texture of object %d layer %d\n", object, layer);
+                        output_log("Loaded texture of object %d layer %d\n", object, layer);
                         GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
                         object_images[object][layer] = image;
                         free(loaded_texture);
@@ -1030,7 +1030,7 @@ void load_spritesheet() {
                 int object_found = existing / MAX_OBJECT_LAYERS;
                 int layer_found = existing % MAX_OBJECT_LAYERS;
 
-                printf("Texture already loaded in object %d layer %d\n", object_found, layer_found);
+                output_log("Texture already loaded in object %d layer %d\n", object_found, layer_found);
                 object_images[object][layer] = object_images[object_found][layer_found];
             }
         }

@@ -17,6 +17,7 @@
 #include <ogc/lwp_watchdog.h>
 #include <unistd.h>
 #include <math.h>
+#include "triggers.h"
 
 int paused_loop();
 int handle_wall_cutscene();
@@ -58,7 +59,7 @@ void init_input_buffer() {
 }
 
 void *input_loop(void *arg) {
-    printf("Starting input thread\n");
+    output_log("Starting input thread\n");
     input_thread_active = TRUE;
     exit_level_flag = FALSE;
     while (1) {
@@ -80,7 +81,7 @@ void *input_loop(void *arg) {
 
         KeyInput input = input_buffer.inputs[input_buffer.write_index];
 
-        //if (input.pressedJump) printf("INPUT THREAD - Step n %d jump is %d\n", input_buffer.write_index, input.pressedJump);
+        //if (input.pressedJump) output_log("INPUT THREAD - Step n %d jump is %d\n", input_buffer.write_index, input.pressedJump);
         
         if (level_info.completing) {
             complete_level_flag = TRUE;
@@ -112,7 +113,7 @@ void *input_loop(void *arg) {
         if (calc_time > 0) usleep(calc_time);
     }
     input_thread_active = FALSE;
-    printf("Exiting input thread\n");
+    output_log("Exiting input thread\n");
     return NULL;
 }
 
@@ -171,7 +172,8 @@ int game_loop() {
     if (current_song_pointer) {
         MP3Player_PlayBuffer(current_song_pointer, size, NULL);
     }
-
+    
+    init_move_triggers();
     init_input_buffer();
     LWP_CreateThread(&input_thread, input_loop, NULL, NULL, 0, 100);
 
@@ -311,6 +313,7 @@ int game_loop() {
     LWP_JoinThread(input_thread, NULL);
 
     unload_level();
+    cleanup_move_triggers();
 
     return FALSE;
 }

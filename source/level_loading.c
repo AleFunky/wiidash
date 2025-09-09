@@ -36,6 +36,7 @@
 #include "g_05_png.h"
 #include "g_06_png.h"
 #include "g_07_png.h"
+#include "game.h"
 
 const unsigned char *backgrounds[] = {
     bg_01_png,
@@ -247,7 +248,7 @@ char *extract_gmd_key(const char *data, const char *key, const char *type) {
 
     // Confirm that the type start tag is here
     if (strncmp(start, type_start_tag, strlen(type_start_tag)) != 0) {
-        printf("Expected start tag '%s' not found after key\n", type_start_tag);
+        output_log("Expected start tag '%s' not found after key\n", type_start_tag);
         return NULL;
     }
 
@@ -259,7 +260,7 @@ char *extract_gmd_key(const char *data, const char *key, const char *type) {
     snprintf(type_end_tag, sizeof(type_end_tag), "</%s>", type);
     char *end = strstr(start, type_end_tag);
     if (!end) {
-        printf("Could not find end tag '%s'\n", type_end_tag);
+        output_log("Could not find end tag '%s'\n", type_end_tag);
         return NULL;
     }
 
@@ -267,7 +268,7 @@ char *extract_gmd_key(const char *data, const char *key, const char *type) {
     int len = end - start;
     char *value = malloc(len + 1);
     if (!value) {
-        printf("malloc for gmd key %s failed\n", key);
+        output_log("malloc for gmd key %s failed\n", key);
         return NULL;
     }
     strncpy(value, start, len);
@@ -300,7 +301,7 @@ int base64_decode(const char *in, unsigned char *out) {
         int d = in[i+3] == '=' ? 0 : b64_char(in[i+3]);
 
         if (a == -1 || b == -1 || c == -1 || d == -1) {
-            printf("Invalid base64 character at position %d\n", i);
+            output_log("Invalid base64 character at position %d\n", i);
             return -1;
         }
 
@@ -308,7 +309,7 @@ int base64_decode(const char *in, unsigned char *out) {
         if (in[i+2] != '=') out[len++] = (b << 4) | (c >> 2);
         if (in[i+3] != '=') out[len++] = (c << 6) | d;
     }
-    printf("Decoded %d bytes from base64\n", len);
+    output_log("Decoded %d bytes from base64\n", len);
     return len;
 }
 
@@ -344,21 +345,21 @@ uLongf get_uncompressed_size(unsigned char *data, int data_len) {
 
 char *decompress_data(unsigned char *data, int data_len, uLongf *out_len) {
     uLongf final_size = get_uncompressed_size(data, data_len);
-    printf("Decompressing to a final size of %lu bytes...\n", (unsigned long)final_size);
+    output_log("Decompressing to a final size of %lu bytes...\n", (unsigned long)final_size);
 
     z_stream strm = {0};
     strm.next_in = data;
     strm.avail_in = data_len;
 
     if (inflateInit2(&strm, 15 | 32) != Z_OK) {   // auto-detect gzip/zlib
-        printf("Failed to initialize zlib stream for GZIP\n");
+        output_log("Failed to initialize zlib stream for GZIP\n");
         return NULL;
     }
 
     // Allocate exactly enough memory (+1 for null terminator if needed)
     char *out = malloc(final_size + 1);
     if (!out) {
-        printf("malloc failed for %lu bytes\n", (unsigned long)final_size);
+        output_log("malloc failed for %lu bytes\n", (unsigned long)final_size);
         inflateEnd(&strm);
         return NULL;
     }
@@ -368,7 +369,7 @@ char *decompress_data(unsigned char *data, int data_len, uLongf *out_len) {
 
     int ret = inflate(&strm, Z_FINISH);
     if (ret != Z_STREAM_END) {
-        printf("inflate failed with code %d\n", ret);
+        output_log("inflate failed with code %d\n", ret);
         free(out);
         inflateEnd(&strm);
         return NULL;
@@ -379,7 +380,7 @@ char *decompress_data(unsigned char *data, int data_len, uLongf *out_len) {
 
     inflateEnd(&strm);
 
-    printf("Decompressed %lu bytes successfully\n", (unsigned long)*out_len);
+    output_log("Decompressed %lu bytes successfully\n", (unsigned long)*out_len);
     return out;
 }
 
@@ -418,7 +419,7 @@ char *get_metadata_value(const char *levelString, const char *key) {
 }
 
 char *decompress_level(char *data) {
-    printf("Loading level data...\n");
+    output_log("Loading level data...\n");
 
     char *b64 = extract_gmd_key((const char *) data, "k4", "s");
     if (!b64) {
@@ -431,7 +432,7 @@ char *decompress_level(char *data) {
     unsigned char *decoded = malloc(strlen(b64));
     int decoded_len = base64_decode(b64, decoded);
     if (decoded_len <= 0) {
-        printf("Failed to decode base64\n");
+        output_log("Failed to decode base64\n");
         free(b64);
         free(decoded);
         return NULL;
@@ -440,7 +441,7 @@ char *decompress_level(char *data) {
     uLongf decompressed_len;
     char *decompressed = decompress_data(decoded, decoded_len, &decompressed_len);
     if (!decompressed) {
-        printf("Decompression failed (check zlib error above)\n");
+        output_log("Decompression failed (check zlib error above)\n");
         free(decoded);
         free(b64);
         return NULL;
@@ -572,7 +573,7 @@ int parse_color_channels(const char *colorString, GDColorChannel **outArray) {
 
     GDColorChannel *channels = malloc(sizeof(GDColorChannel) * count);
     if (!channels) {
-        printf("Couldn't alloc color channels\n");
+        output_log("Couldn't alloc color channels\n");
         free_string_array(entries, count);
         return 0;
     }
@@ -1168,13 +1169,13 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
     GameObject **objectArray = malloc(sizeof(GameObject *) * objList->objectCount);
     if (!objectArray) return NULL;
 
-    printf("Converting objects...\n");
+    output_log("Converting objects...\n");
 
     for (int i = 0; i < objList->objectCount; i++) {
         objectArray[i] = convert_to_game_object(&objList->objects[i]);
         assign_object_to_section(objectArray[i]);
         if (!objectArray[i]) {
-            printf("Failed to convert object %d\n", i);
+            output_log("Failed to convert object %d\n", i);
             for (int j = 0; j < i; j++) {
                 free_game_object(objectArray[j]);
             }
@@ -1183,11 +1184,11 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
         }
     }
 
-    printf("Allocating list...\n");
+    output_log("Allocating list...\n");
 
     GDGameObjectList *gameObjectList = malloc(sizeof(GDGameObjectList));
     if (!gameObjectList) {
-        printf("Failed to allocate the game object list");
+        output_log("Failed to allocate the game object list");
         for (int i = 0; i < objList->objectCount; i++) {
             free_game_object(objectArray[i]);
         }
@@ -1220,39 +1221,39 @@ GDObjectList *parse_string(const char *levelString) {
     char **sections = split_string(levelString, ';', &sectionCount);
 
     if (sectionCount < 3) {
-        printf("Level string missing sections!\n");
+        output_log("Level string missing sections!\n");
         free_string_array(sections, sectionCount);
         return NULL;
     }
     
-    printf("Parsing string...\n");
+    output_log("Parsing string...\n");
 
     int objectCount = sectionCount - 1;
-    printf("%d\n", objectCount);
+    output_log("%d\n", objectCount);
     
     // Allocate GD objects
     GDObject *objects = (GDObject *)malloc(sizeof(GDObject) * objectCount);
 
-    printf("Size of gdobjects %d bytes\n", sizeof(GDObject) * objectCount);
+    output_log("Size of gdobjects %d bytes\n", sizeof(GDObject) * objectCount);
     if (objects == NULL) {
         free_string_array(sections, sectionCount);
-        printf("Couldn't allocate GD Objects\n");
+        output_log("Couldn't allocate GD Objects\n");
         return NULL;
     }
 
     for (int i = 1; i < sectionCount; i++) {
         if (!parse_gd_object(sections[i], &objects[i - 1])) {
-            printf("Failed to parse object at section %d\n", i);
+            output_log("Failed to parse object at section %d\n", i);
         }
     }
 
     free_string_array(sections, sectionCount);
     
-    printf("Allocating object list...\n");
+    output_log("Allocating object list...\n");
 
     GDObjectList *objectList = malloc(sizeof(GDObjectList));
     if (!objectList) {
-        printf("Memory allocation failed for objectList\n");
+        output_log("Memory allocation failed for objectList\n");
         free(objects);
         return NULL;
     }
@@ -1331,13 +1332,17 @@ int compare_sortable_layers(const void *a, const void *b) {
 void make_sortable_layers(GDObjectLayerList *list) {
     if (!list || list->count <= 1) return;
 
-    printf("Sorting layer list\n");
+    output_log("Sorting layer list\n");
     
+    if (sortable_list) {
+        free(sortable_list);
+    }
+
     // Wrap objects with indices
     sortable_list = malloc(sizeof(GDLayerSortable) * list->count);
 
     if (sortable_list == NULL) {
-        printf("Couldn't allocate sortable layer\n");
+        output_log("Couldn't allocate sortable layer\n");
         return;
     }
     
@@ -1374,11 +1379,11 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
             layerCount += objects[obj->id].num_layers;
     }
 
-    printf("Allocating %d bytes for %d layers\n", sizeof(GDObjectLayer) * layerCount, layerCount);
+    output_log("Allocating %d bytes for %d layers\n", sizeof(GDObjectLayer) * layerCount, layerCount);
     GDObjectLayer *layers = malloc(sizeof(GDObjectLayer) * layerCount);
 
     if (layers == NULL) {
-        printf("Couldn't allocate layers\n");
+        output_log("Couldn't allocate layers\n");
         return NULL;
     }
 
@@ -1403,7 +1408,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     gfx_player_layer = sortable_layer;
     player_game_object = obj;
 
-    printf("Allocated %d layers\n", layerCount);
+    output_log("Allocated %d layers\n", layerCount);
 
     // Fill array
     int count = 0;
@@ -1456,13 +1461,13 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
             }
     }
     
-    printf("Finished filling %d layers\n", count);
+    output_log("Finished filling %d layers\n", count);
 
-    printf("Allocating layer list\n");
+    output_log("Allocating layer list\n");
     GDObjectLayerList *layerList = malloc(sizeof(GDObjectLayerList));
     
     if (layerList == NULL) {
-        printf("Couldn't allocate layer list\n");
+        output_log("Couldn't allocate layer list\n");
         free(obj);
         free(layers);
         return NULL;
@@ -1472,7 +1477,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     layerList->layers = malloc(sizeof(GDObjectLayer *) * count);
 
     if (layerList->layers == NULL) {
-        printf("Couldn't allocate layer pointers\n");
+        output_log("Couldn't allocate layer pointers\n");
         free(layers);
         free(layerList);
         return NULL;
@@ -1499,7 +1504,7 @@ void free_layer_list(GDObjectLayerList *list) {
 int parse_old_channels(char *level_string, GDColorChannel **outArray) {
     GDColorChannel *channels = malloc(sizeof(GDColorChannel) * 2);
     if (!channels) {
-        printf("Couldn't alloc initial pre 2.0 color channels\n");
+        output_log("Couldn't alloc initial pre 2.0 color channels\n");
         return 0;
     }
 
@@ -1703,7 +1708,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     // Create new game object
     GameObject* obj = malloc(sizeof(GameObject));
     if (!obj) {
-        printf("Couldn't allocate new object\n");
+        output_log("Couldn't allocate new object\n");
         return NULL;
     }
 
@@ -1745,7 +1750,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     origPositionsList = realloc(origPositionsList, 
                                sizeof(struct ObjectPos) * objectsArrayList->count);
     if (!origPositionsList) {
-        printf("Couldn't reallocate original position list\n");
+        output_log("Couldn't reallocate original position list\n");
         return NULL;
     }
     origPositionsList[objectsArrayList->count - 1].x = x;
@@ -1761,7 +1766,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
             // Allocate new layer memory
             GDObjectLayer** new_layers_array = malloc(sizeof(GDObjectLayer*) * layersArrayList->count);
             if (!new_layers_array) {
-                printf("Couldn't allocate new layer array\n");
+                output_log("Couldn't allocate new layer array\n");
                 return NULL;
             }
             
@@ -1773,7 +1778,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
             for (int i = 0; i < new_layers; i++) {
                 GDObjectLayer* layer = malloc(sizeof(GDObjectLayer));
                 if (!layer) {
-                    printf("Couldn't allocate new layer\n");
+                    output_log("Couldn't allocate new layer\n");
                     return NULL;
                 }
                 
@@ -1891,7 +1896,7 @@ int load_level(char *data, bool is_custom) {
     char *level_string = decompress_level(data);
 
     if (level_string == NULL) {
-        printf("Failed decompressing the level.\n");
+        output_log("Failed decompressing the level.\n");
         return 1;
     }
 
@@ -1916,7 +1921,7 @@ int load_level(char *data, bool is_custom) {
         free(level_string);
 
         if (objectsList == NULL) {
-            printf("Failed parsing the objects.\n");
+            output_log("Failed parsing the objects.\n");
             return 2;
         }
 
@@ -1924,14 +1929,14 @@ int load_level(char *data, bool is_custom) {
         free_gd_object_list(objectsList);
 
         if (objectsArrayList == NULL) {
-            printf("Failed converting objects to game object structs.\n");
+            output_log("Failed converting objects to game object structs.\n");
             return 3;
         }
 
         layersArrayList = fill_layers_array(objectsArrayList);
 
         if (layersArrayList == NULL) {
-            printf("Couldn't sort layers\n");
+            output_log("Couldn't sort layers\n");
             free_game_object_list(objectsArrayList);
             return 4;
         }
@@ -1976,7 +1981,7 @@ int load_level(char *data, bool is_custom) {
 
     load_coin_texture();
 
-    printf("Finished loading level\n");
+    output_log("Finished loading level\n");
 
     return 0;
 }

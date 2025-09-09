@@ -235,7 +235,7 @@ void load_folder(char *dir) {
 
     DIR *level_dir = opendir(directory);
 
-    printf("Loaded folder: %s\n", directory);
+    output_log("Loaded folder: %s\n", directory);
 
     while ((pent=readdir(level_dir))!=NULL) {
         stat(pent->d_name,&statbuf);
@@ -253,7 +253,7 @@ void load_folder(char *dir) {
 
                 if (sd_level_count >= MAX_SD_LEVELS) break;
 
-                printf("Found GMD file: %s %llu\n", pent->d_name, pent->d_stat.st_size);
+                output_log("Found GMD file: %s %llu\n", pent->d_name, pent->d_stat.st_size);
             }
         } else { { // Folder
             snprintf(sd_level_paths[sd_level_count].name, MAX_PATH_LEN, "%s/%s", directory, pent->d_name);
@@ -262,7 +262,7 @@ void load_folder(char *dir) {
 
             if (sd_level_count >= MAX_SD_LEVELS) break;
 
-            printf("Found folder: %s %llu\n", pent->d_name, pent->d_stat.st_size);
+            output_log("Found folder: %s %llu\n", pent->d_name, pent->d_stat.st_size);
         } }
     }
     closedir(level_dir);
