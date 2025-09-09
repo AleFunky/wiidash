@@ -35,6 +35,7 @@ jobs:
           cp -r data/hbc/. out/rom/
           cp -r data/songs/. out/rom/resources/songs/
           cp -r data/objects/. out/rom/resources/textures/
+          cp -r data/perspective/. out/rom/resources/textures/
           cp -r data/glow/. out/rom/resources/textures/
           cp -r data/portals/. out/rom/resources/textures/
           cp -r data/extra/. out/rom/resources/
