@@ -351,6 +351,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     player->ceiling_inv_time = 0.1f;
                     player->snap_rotation = TRUE;
                     player->gamemode = GAMEMODE_CUBE;
+                    player->is_cube_or_robot = TRUE;
                     flip_other_player(state.current_player ^ 1);
 
                     particle_templates[USE_EFFECT].start_scale = 80;
@@ -858,6 +859,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     player->ceiling_inv_time = 0.1f;
                     player->snap_rotation = TRUE;
                     player->gamemode = GAMEMODE_ROBOT;
+                    player->is_cube_or_robot = TRUE;
                     flip_other_player(state.current_player ^ 1);
 
                     particle_templates[USE_EFFECT].start_scale = 80;
