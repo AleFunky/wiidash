@@ -9,7 +9,7 @@
 #define STEPS_HZ 240
 #define STEPS_DT (1.0f / STEPS_HZ) // 1/240 seconds per physics step
 
-#define INPUT_BUFFER_SIZE 4
+#define INPUT_BUFFER_SIZE 8
 #define INPUT_BUFFER_MASK (INPUT_BUFFER_SIZE-1)
 
 #define ticks_to_secs_float(ticks) (((float)(ticks)/(float)(TB_TIMER_CLOCK*1000)))
