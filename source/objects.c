@@ -36,7 +36,7 @@ const int dual_gamemode_heights[GAMEMODE_COUNT] = {
     9,  // Ball
     10, // Ufo
     10, // Wave
-    10, // Robot
+    9, // Robot
 };
 
 const float jump_heights_table[SPEED_COUNT][JUMP_TYPES_COUNT][GAMEMODE_COUNT][2] = {
@@ -341,7 +341,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 state.ground_y = 0;
                 state.ceiling_y = 999999;
                 if (player->gamemode != GAMEMODE_CUBE) {
-                    if (player->gamemode != GAMEMODE_BALL) {
+                    if (player->gamemode != GAMEMODE_BALL && player->gamemode != GAMEMODE_ROBOT) {
                         MotionTrail_StopStroke(&trail);
                         player->vel_y /= 2;
                     }
@@ -849,7 +849,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 state.ground_y = 0;
                 state.ceiling_y = 999999;
                 if (player->gamemode != GAMEMODE_ROBOT) {
-                    if (player->gamemode != GAMEMODE_BALL) {
+                    if (player->gamemode != GAMEMODE_BALL && player->gamemode != GAMEMODE_CUBE) {
                         MotionTrail_StopStroke(&trail);
                         player->vel_y /= 2;
                     }
