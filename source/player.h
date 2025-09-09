@@ -21,6 +21,8 @@
 #define END_ANIMATION_TIME 1.f
 #define END_ANIMATION_X_START (9.f * 30.f)
 
+typedef struct Animation Animation;
+
 typedef struct {
     GameObject *slope;
     float elapsed;
@@ -58,6 +60,15 @@ typedef struct {
     bool touching_slope;
     bool inverse_rotation;
     bool snap_rotation;
+
+    bool is_cube_or_robot;
+
+    float robot_air_time;
+
+    int curr_robot_animation_id;
+    float robot_anim_timer;
+    Animation *curr_robot_animation;
+    Animation *prev_robot_animation;
     
     GameObject *potentialSlope;
 
@@ -95,12 +106,22 @@ enum BufferingState {
     BUFFER_END
 };
 
+enum RobotAnimation {
+    ROBOT_RUN,
+    ROBOT_JUMP_START,
+    ROBOT_JUMP,
+    ROBOT_FALL_START,
+    ROBOT_FALL,
+    ROBOT_ANIMATIONS_COUNT,
+};
+
 enum PlayerGamemode {
     GAMEMODE_CUBE,
     GAMEMODE_SHIP,
     GAMEMODE_BALL,
     GAMEMODE_UFO,
     GAMEMODE_WAVE,
+    GAMEMODE_ROBOT,
     GAMEMODE_COUNT
 };
 

@@ -656,7 +656,27 @@ ParticleTemplate particle_templates[] = {
         .maxRadius = 0,
         .priority = 100,
         .texture_id = PARTICLE_SQUARE
-    }
+    },
+    [ROBOT_JUMP_PARTICLES] = {
+        .angle = 0, .angleVar = 180,
+        .speed = 15, .speedVar = 4,
+        .gravity_x = 0, .gravity_y = -300,
+        .rel_gravity = FALSE,
+        .life = 0.5f, .lifeVar = 0.15f,
+        .start_scale = 0.5, .start_scaleVar = 0.1,
+        .end_scale = 0, .end_scaleVar = 0,
+        .start_color = {255,0,0,255},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,0,255},
+        .end_colorVar = {0,0,0,0},
+        .blending = TRUE,
+        .sourcePosVarX = 0, .sourcePosVarY = 0,
+        .rotatePerSecond = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 70,
+        .texture_id = PARTICLE_SQUARE
+    },
 };
 
 void add_particle(int i, int group_id, float x, float y, GameObject *parent_obj) {

@@ -93,6 +93,7 @@ enum ParticleGroupID {
     END_WALL_COMPLETE_CIRCLES,
     END_WALL_FIREWORK,
     END_WALL_TEXT_EFFECT,
+    ROBOT_JUMP_PARTICLES,
 };
 
 extern ParticleTemplate particle_templates[];

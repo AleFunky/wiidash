@@ -15,7 +15,7 @@ typedef struct {
     int partCount;
 } AnimationFrame;
 
-typedef struct {
+typedef struct Animation {
     char name[64];
     AnimationFrame frames[64];
     int frameCount;
@@ -28,6 +28,13 @@ typedef struct {
 } AnimationLibrary;
 
 void playAnimation(Animation* anim, float time);
-void playRobotAnimation(Player *player, Animation* anim, float time, float scale, float rotation);
+void playRobotAnimation(Player *player, 
+                               Animation* fromAnim, 
+                               Animation* toAnim,
+                               float time, 
+                               float scale, 
+                               float rotation,
+                               float blendFactor);
 void parsePlist(const char* filename, AnimationLibrary* lib);
 Animation* getAnimation(AnimationLibrary* lib, const char* name);
+bool robotAnimFinished(Animation *anim, float time);

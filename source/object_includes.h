@@ -899,6 +899,8 @@
 
 #include "gravJumpRing_01_001_png.h"
 
+#include "portal_14_back_001_png.h"
+#include "portal_14_front_001_png.h"
 #include "portal_15_back_001_png.h"
 #include "portal_15_front_001_png.h"
 #include "portal_16_back_001_png.h"

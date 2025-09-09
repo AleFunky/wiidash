@@ -829,10 +829,6 @@ int convert_object(int id) {
             return FAKE_MEDIUM_SPIKE;
         case 1892:
             return MINI_FAKE_SPIKE;
-
-        // Temporal
-        case ROBOT_PORTAL:
-            return CUBE_PORTAL;
         
     }
     return id;

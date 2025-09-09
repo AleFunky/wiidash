@@ -162,7 +162,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                     break;
                 }
                 // Behave normally
-                if (player->gamemode != GAMEMODE_CUBE || gravSnap) {
+                if (!player->is_cube_or_robot || gravSnap) {
                     if (((gravTop(player) - obj_gravBottom(player, obj) <= clip && player->vel_y > obj->object.delta_y) || gravSnap) && !slope_condition) {
                         if (!gravSnap) player->on_ceiling = TRUE;
                         player->inverse_rotation = FALSE;
@@ -656,6 +656,65 @@ void wave_gamemode(Player *player) {
     }
 }
 
+void robot_gamemode(Player *player) {
+    trail.positionR = (Vec2){player->x, player->y};  
+    trail.startingPositionInitialized = TRUE;
+
+    
+    if (player->vel_y < -810) player->vel_y = -810;
+
+    if (player->y > 2794.f) state.dead = TRUE;
+
+    if (player->on_ground) {
+        player->curr_robot_animation_id = ROBOT_RUN;
+        MotionTrail_StopStroke(&trail);
+        if (!player->slope_data.slope) player->rotation = round(player->rotation / 90.0f) * 90.0f;
+    }
+
+    // Player on ground or just left the ground
+    if ((player->time_since_ground < 0.05f) && (frame_counter & 0b11) == 0) {
+        particle_templates[CUBE_DRAG].angle = (player->upside_down ? -90 : 90);
+        particle_templates[CUBE_DRAG].gravity_y = (player->upside_down ? 300 : -300);
+        spawn_particle(CUBE_DRAG, player->x, (player->upside_down ? getTop(player) - 2 : getBottom(player) + 2), NULL);
+    }
+
+    SlopeData slope_data = player->slope_data;
+
+    // If not currently on slope, look at the last frame
+    if (!player->slope_data.slope && player->slope_slide_coyote_time) {
+        slope_data = player->coyote_slope;
+    }
+
+    if (!slope_data.slope) {    
+        player->rotation = 0;
+    }
+
+    if ((slope_data.slope || player->on_ground) && (state.input.holdJump && player->buffering_state == BUFFER_READY)) {
+        set_p_velocity(player, cube_jump_heights[state.speed] / 2);
+        player->inverse_rotation = FALSE;
+
+        player->on_ground = FALSE;
+        player->robot_anim_timer = 0;
+        player->curr_robot_animation_id = ROBOT_JUMP_START;
+        player->buffering_state = BUFFER_END;
+
+        player->robot_air_time = 0.f;
+
+        player->gravity = 0;
+    }
+
+    if (player->robot_air_time >= 1.5 || (!state.input.holdJump)) {   
+        player->gravity = -2794.1082 * 0.9;
+        if (player->curr_robot_animation_id == ROBOT_JUMP) {
+            player->robot_anim_timer = 0;
+            player->curr_robot_animation_id = ROBOT_FALL_START;
+        }
+    } else if (player->buffering_state == BUFFER_END) {
+        if ((frame_counter & 0b11) == 0) spawn_particle(ROBOT_JUMP_PARTICLES, getLeft(player) + 5 * (player->mini ? 0.6f : 1.f), (player->upside_down ? getTop(player) - 2 : getBottom(player) + 2), NULL);
+        player->robot_air_time += 5.4 * STEPS_DT;
+    }
+}
+
 void run_camera() {
     Player *player = &state.player;
 
@@ -664,7 +723,7 @@ void run_camera() {
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;
 
-    if (state.player.gamemode != GAMEMODE_CUBE || state.dual) {
+    if (!player->is_cube_or_robot || state.dual) {
         calc_height = (SCREEN_HEIGHT_AREA - playable_height) / 2;
     }
 
@@ -709,7 +768,7 @@ void run_camera() {
             state.camera_x = final_camera_x_wall + 3.f * random_float(-1, 1);
             state.camera_y = final_camera_y_wall + 3.f * random_float(-1, 1);
         }
-    } else if (player->gamemode == GAMEMODE_CUBE && !state.dual) {
+    } else if (player->is_cube_or_robot && !state.dual) {
         float distance = state.camera_y_lerp + (SCREEN_HEIGHT_AREA / 2) - player->y;
         float distance_abs = fabsf(distance);
 
@@ -847,6 +906,15 @@ void run_player(Player *player) {
                 spawn_particle(P1_TRAIL, player->x, player->y, NULL);
             }
             break;
+        case GAMEMODE_ROBOT:
+            robot_gamemode(player);
+
+            if (p1_trail && (frame_counter & 0b1111) == 0) {
+                particle_templates[P1_TRAIL].start_scale = 0.73333f * scale;
+                particle_templates[P1_TRAIL].end_scale = 0.73333f * scale;
+                spawn_particle(P1_TRAIL, player->x, player->y, NULL);
+            }
+            break;
     }
     
     player->time_since_ground += STEPS_DT;
@@ -895,7 +963,7 @@ void run_player(Player *player) {
     bool slopeCheck = player->slope_data.slope && (grav_slope_orient(player->slope_data.slope, player) == ORIENT_NORMAL_DOWN || grav_slope_orient(player->slope_data.slope, player) == ORIENT_UD_DOWN);
 
     if (getGroundBottom(player) < state.ground_y) {
-        if (player->ceiling_inv_time <= 0 && player->gamemode == GAMEMODE_CUBE && player->upside_down) {
+        if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && player->upside_down) {
             state.dead = TRUE;
         }
 
@@ -909,7 +977,7 @@ void run_player(Player *player) {
 
     // Ceiling
     if (getGroundTop(player) > state.ceiling_y) {
-        if (player->ceiling_inv_time <= 0 && player->gamemode == GAMEMODE_CUBE && !player->upside_down) {
+        if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && !player->upside_down) {
             state.dead = TRUE;
         }
 
@@ -1004,6 +1072,8 @@ void handle_player(Player *player) {
     } else {
         player->buffering_state = BUFFER_NONE;
     }
+
+    player->is_cube_or_robot = player->gamemode == GAMEMODE_CUBE || player->gamemode == GAMEMODE_ROBOT;
     
     player->on_ground = FALSE;
     player->on_ceiling = FALSE;
@@ -1152,6 +1222,7 @@ void init_variables() {
             set_intended_ceiling();
             break;
         case GAMEMODE_CUBE:
+        case GAMEMODE_ROBOT:
             state.camera_intended_y = -95.f;
     }
     
@@ -1171,7 +1242,7 @@ void init_variables() {
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;
 
-    if (state.player.gamemode != GAMEMODE_CUBE || state.dual) {
+    if (!player->is_cube_or_robot || state.dual) {
         calc_height = (SCREEN_HEIGHT_AREA - playable_height) / 2;
     }
 
@@ -1440,6 +1511,13 @@ void draw_ufo(Player *player, float calc_x, float calc_y) {
     );
 }
 
+char *robot_animations_names[ROBOT_ANIMATIONS_COUNT] = {
+    [ROBOT_RUN]         = "Robot_run",
+    [ROBOT_JUMP_START]  = "Robot_jump_start",
+    [ROBOT_JUMP]        = "Robot_jump_loop",
+    [ROBOT_FALL_START]  = "Robot_fall_start",
+    [ROBOT_FALL]        = "Robot_fall_loop",
+};
 
 void draw_player(Player *player) {
     float calc_x = ((player->x - state.camera_x) * SCALE) - widthAdjust;
@@ -1467,12 +1545,6 @@ void draw_player(Player *player) {
             GRRLIB_SetHandle(icon_l1, 30, 30);
             GRRLIB_SetHandle(icon_l2, 30, 30);
             
-            Animation* runAnim = getAnimation(&robot_animations, "Robot_run");
-            if (runAnim) {
-                playRobotAnimation(player, runAnim, state.timer, scale, player->rotation);
-            }
-            
-            break;
             set_texture(icon_l1);
             custom_drawImg(
                 get_mirror_x(calc_x, state.mirror_factor) + 6 - (30), calc_y + 6 - (30),
@@ -1545,6 +1617,15 @@ void draw_player(Player *player) {
                 RGBA(p2.r, p2.g, p2.b, 255)
             );
             break;
+        case GAMEMODE_ROBOT:
+            player->prev_robot_animation = player->curr_robot_animation;
+            player->curr_robot_animation = getAnimation(&robot_animations, robot_animations_names[player->curr_robot_animation_id]);
+            if (player->curr_robot_animation && player->prev_robot_animation) {
+                float speed_mult = (player_speeds[state.speed] / player_speeds[SPEED_NORMAL]);
+                playRobotAnimation(player, player->prev_robot_animation, player->curr_robot_animation, player->robot_anim_timer, scale, player->lerp_rotation, 0.5f);
+                player->robot_anim_timer += dt * speed_mult;
+            }
+            break;
     }
     set_texture(prev_tex);
 }
@@ -1559,6 +1640,9 @@ GRRLIB_texImg *get_p1_trail_tex() {
 
         case GAMEMODE_WAVE:
             return wave_l1;
+
+        case GAMEMODE_ROBOT:
+            return robot_1_l1;
         
     }
     return icon_l1;
@@ -1773,7 +1857,7 @@ void slope_calc(GameObject *obj, Player *player) {
         
         bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
         
-        if (player->gamemode == GAMEMODE_CUBE && !gravSnap) {
+        if (player->is_cube_or_robot && !gravSnap) {
             state.dead = TRUE;
         }
 
@@ -1819,7 +1903,7 @@ void slope_calc(GameObject *obj, Player *player) {
         
         bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
         
-        if (player->gamemode == GAMEMODE_CUBE && !gravSnap) {
+        if (player->is_cube_or_robot && !gravSnap) {
             state.dead = TRUE;
         }
 
@@ -1924,7 +2008,7 @@ void slope_collide(GameObject *obj, Player *player) {
 
     bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
 
-    if (!gravSnap && player->gamemode == GAMEMODE_CUBE && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
+    if (!gravSnap && player->is_cube_or_robot && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
 
     // Check if player inside slope
     if (orient == ORIENT_NORMAL_UP || orient == ORIENT_UD_UP) {
@@ -1943,7 +2027,7 @@ void slope_collide(GameObject *obj, Player *player) {
         orient < ORIENT_UD_DOWN && 
         gravTop(player) - obj_gravBottom(player, obj) <= clip + 5 * !player->mini // Remove extra if mini
     ) {
-        if (player->gamemode != GAMEMODE_WAVE && ((player->gamemode != GAMEMODE_CUBE && (player->vel_y >= 0)) || gravSnap)) {
+        if (player->gamemode != GAMEMODE_WAVE && ((!player->is_cube_or_robot && (player->vel_y >= 0)) || gravSnap)) {
             player->vel_y = 0;
             if (!gravSnap) player->on_ceiling = TRUE;
             player->time_since_ground = 0;
@@ -2149,7 +2233,7 @@ void snap_player_to_slope(GameObject *obj, Player *player) {
 
         //printf("best snap %.2f prev rotation %.2f\n", bestSnap, player->rotation);
         player->rotation = bestSnap;
-    } else if (player->gamemode == GAMEMODE_UFO) {
+    } else if (player->gamemode == GAMEMODE_UFO || player->gamemode == GAMEMODE_ROBOT) {
         player->rotation = RadToDeg(slope_snap_angle(obj, player));
     }
 }

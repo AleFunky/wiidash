@@ -233,9 +233,9 @@ void upload_to_pulse_buffer(GameObject *obj) {
         if (channel == 0) channel = 1;
         buffer->target_color_id = channel;
 
-        printf("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);
-        printf("fade in %.2f hold %.2f fade out %.2f\n", buffer->fade_in, buffer->hold, buffer->fade_out);
-        printf("channel %d\n", buffer->target_color_id);
+        //printf("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);
+        //printf("fade in %.2f hold %.2f fade out %.2f\n", buffer->fade_in, buffer->hold, buffer->fade_out);
+        //printf("channel %d\n", buffer->target_color_id);
 
         buffer->time_run = 0;
         buffer->seconds = obj->trigger.pulse_trigger.fade_in + obj->trigger.pulse_trigger.hold + obj->trigger.pulse_trigger.fade_out;   

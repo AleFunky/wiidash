@@ -207,77 +207,133 @@ Animation* getAnimation(AnimationLibrary* lib, const char* name) {
     return NULL;
 }
 
+bool robotAnimFinished(Animation *anim, float time) {
+    int frameIndex = (int)(time * anim->fps);
+    return frameIndex >= anim->frameCount;
+}
+
 #include "math.h"
 
-void playRobotAnimation(Player *player, Animation* anim, float time, float scale, float rotation) {
-    // I should figure a better way to do it
-    GRRLIB_texImg *robot_textures[] = {
-        robot_3_l2,
-        robot_3_l1,
-
-        robot_2_l2,
-        robot_2_l1,
-
-        robot_4_l2,
-        robot_4_l1,
-
-        robot_1_l2,
-        robot_1_l1,
-
-        robot_3_l2,
-        robot_3_l1,
-
-        robot_2_l2,
-        robot_2_l1,
-
-        robot_4_l2,
-        robot_4_l1,
-    };
+void lerpSpritePart(SpritePart* out, SpritePart* a, SpritePart* b, float t) {
+    out->x = a->x + (b->x - a->x) * t;
+    out->y = a->y + (b->y - a->y) * t;
+    out->sx = a->sx + (b->sx - a->sx) * t;
+    out->sy = a->sy + (b->sy - a->sy) * t;
     
+    // Handle rotation interpolation to prevent flipping
+    float angleDiff = b->rotation - a->rotation;
+    if (angleDiff > 180.0f) angleDiff -= 360.0f;
+    if (angleDiff < -180.0f) angleDiff += 360.0f;
+    out->rotation = a->rotation + angleDiff * t;
+    
+    out->z = a->z;
+}
+
+void playRobotAnimation(Player *player, 
+                        Animation* fromAnim, 
+                        Animation* toAnim,
+                        float time, 
+                        float scale, 
+                        float rotation,
+                        float blendFactor) 
+{
+    // Animation textures
+    GRRLIB_texImg *robot_textures[] = {
+        robot_3_l2, robot_3_l1,
+        robot_2_l2, robot_2_l1,
+        robot_4_l2, robot_4_l1,
+        robot_1_l2, robot_1_l1,
+        robot_3_l2, robot_3_l1,
+        robot_2_l2, robot_2_l1,
+        robot_4_l2, robot_4_l1,
+    };
+
+    // Prev anim
+    float frameTimeFrom = time * fromAnim->fps;
+    int curFrameFrom = (int)frameTimeFrom % fromAnim->frameCount;
+    int nextFrameFrom = (curFrameFrom + 1) % fromAnim->frameCount;
+    float frameLerpFrom = frameTimeFrom - (int)frameTimeFrom;
+
+    AnimationFrame* frameFrom = &fromAnim->frames[curFrameFrom];
+    AnimationFrame* nextFrameFromData = &fromAnim->frames[nextFrameFrom];
+
+    // This anim
+    float frameTimeTo = time * toAnim->fps;
+    int curFrameTo = (int)frameTimeTo % toAnim->frameCount;
+    int nextFrameTo = (curFrameTo + 1) % toAnim->frameCount;
+    float frameLerpTo = frameTimeTo - (int)frameTimeTo;
+
+    if (curFrameTo == toAnim->frameCount - 2) {
+        switch (player->curr_robot_animation_id) {
+            case ROBOT_JUMP_START:
+                player->curr_robot_animation_id = ROBOT_JUMP;
+                nextFrameTo = toAnim->frameCount - 1;
+                break;
+            case ROBOT_FALL_START:
+                player->curr_robot_animation_id = ROBOT_FALL;
+                nextFrameTo = toAnim->frameCount - 1;
+                break;
+        }
+    }
+
+    AnimationFrame* frameTo = &toAnim->frames[curFrameTo];
+    AnimationFrame* nextFrameToData = &toAnim->frames[nextFrameTo];
+
     float rotationRad = DegToRad(-rotation);
     float cosRot = cosf(rotationRad);
     float sinRot = sinf(rotationRad);
 
-    int frameIndex = (int)(time * anim->fps) % anim->frameCount;
-    AnimationFrame* frame = &anim->frames[frameIndex];
-
     int upside_down_mult = (player->upside_down ? -1 : 1);
 
-    for (int i = 0; i < frame->partCount; i++) {
-        SpritePart* part = &frame->parts[i];
-        
-        float part_y = part->y * upside_down_mult;
+    for (int i = 0; i < frameFrom->partCount; i++) {
+        SpritePart partFromInterp;
+        SpritePart partToInterp;
+        SpritePart finalPart;
 
-        float rotated_x = (part->x * cosRot - part_y * sinRot) * scale;
-        float rotated_y = (part->x * sinRot + part_y * cosRot) * scale;
+        lerpSpritePart(&partFromInterp, &frameFrom->parts[i], &nextFrameFromData->parts[i], frameLerpFrom);
+        lerpSpritePart(&partToInterp, &frameTo->parts[i], &nextFrameToData->parts[i], frameLerpTo);
+
+        finalPart.x        = lerp(partFromInterp.x,        partToInterp.x,        blendFactor);
+        finalPart.y        = lerp(partFromInterp.y,        partToInterp.y,        blendFactor);
+        finalPart.rotation = lerp(partFromInterp.rotation, partToInterp.rotation, blendFactor);
+        finalPart.sx       = lerp(partFromInterp.sx,       partToInterp.sx,       blendFactor);
+        finalPart.sy       = lerp(partFromInterp.sy,       partToInterp.sy,       blendFactor);
+
+        float part_y = finalPart.y * upside_down_mult;
+
+        float rotated_x = (finalPart.x * cosRot - part_y * sinRot) * scale;
+        float rotated_y = (finalPart.x * sinRot + part_y * cosRot) * scale;
 
         float calc_x = ((player->x + rotated_x - state.camera_x) * SCALE) - widthAdjust;
         float calc_y = screenHeight - ((player->y + rotated_y - state.camera_y) * SCALE);
 
-        float final_rotation = (part->rotation + rotation) * state.mirror_mult;
+        float final_rotation = (finalPart.rotation + rotation) * state.mirror_mult;
+
+        GRRLIB_texImg *tex;
 
         // First part
-        GRRLIB_texImg *tex = robot_textures[i * 2];
+        tex = robot_textures[i * 2];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
         custom_drawImg(get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2, 
-                      calc_y + 6 - (tex->h) / 2, 
-                      tex, 
-                      final_rotation, 
-                      BASE_SCALE * part->sx * scale * state.mirror_mult, 
-                      BASE_SCALE * part->sy * scale * upside_down_mult, 
-                      RGBA(p2.r, p2.g, p2.b, 255));
-        
+                       calc_y + 6 - (tex->h) / 2, 
+                       tex, 
+                       final_rotation, 
+                       BASE_SCALE * finalPart.sx * scale * state.mirror_mult, 
+                       BASE_SCALE * finalPart.sy * scale * upside_down_mult, 
+                       RGBA(p2.r, p2.g, p2.b, 255));
+
         // Second part
         tex = robot_textures[i * 2 + 1];
         set_texture(tex); 
         GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
         custom_drawImg(get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2, 
-                      calc_y + 6 - (tex->h) / 2, 
-                      tex, 
-                      final_rotation, 
-                      BASE_SCALE * part->sx * scale * state.mirror_mult, 
-                      BASE_SCALE * part->sy * scale * upside_down_mult, 
-                      RGBA(p1.r, p1.g, p1.b, 255));
+                       calc_y + 6 - (tex->h) / 2, 
+                       tex, 
+                       final_rotation, 
+                       BASE_SCALE * finalPart.sx * scale * state.mirror_mult, 
+                       BASE_SCALE * finalPart.sy * scale * upside_down_mult, 
+                       RGBA(p1.r, p1.g, p1.b, 255));
     }
 }
+
