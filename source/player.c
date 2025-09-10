@@ -2299,6 +2299,8 @@ void draw_hitbox(GameObject *obj) {
         angle = 0;
     }
 
+    if (obj->toggled) return;
+
     unsigned int color = RGBA(0x00, 0xff, 0xff, 0xff);
 
     int hitbox_type = hitbox.type;
