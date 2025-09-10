@@ -98,6 +98,9 @@ typedef struct {
     SlopeData coyote_slope;
 
     SlopeData slope_data;
+
+    float has_teleported_timer;
+    bool just_teleported;
 } Player;
 
 enum BufferingState {

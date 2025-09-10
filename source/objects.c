@@ -816,7 +816,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         case BLUE_TP_PORTAL:
             if (!obj->activated[state.current_player]) {
                 // Teleport
-                player->y = CLAMP(obj->object.child_object->y, state.ground_y + player->height / 2, state.ceiling_y - player->height / 2);
+                player->y = obj->object.child_object->y;
 
                 particle_templates[USE_EFFECT].start_scale = 80;
                 particle_templates[USE_EFFECT].end_scale = 0;
@@ -834,11 +834,12 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 spawn_particle(USE_EFFECT, obj->object.child_object->x, obj->object.child_object->y, obj);
                 
                 float camera_y = state.camera_y + SCREEN_HEIGHT_AREA / 2;
-                if (fabsf(camera_y - obj->object.child_object->y) >= SCREEN_HEIGHT_AREA/2 + 60) {
+                if (player->is_cube_or_robot && fabsf(camera_y - obj->object.child_object->y) >= SCREEN_HEIGHT_AREA/2 + 60) {
                     state.intermediate_camera_y = state.camera_y = player->y - SCREEN_HEIGHT_AREA / 2;
                 }
 
-                state.has_teleported_timer = 0.5f;
+                player->has_teleported_timer = 0.5f;
+                player->just_teleported = TRUE;
 
                 obj->activated[state.current_player] = TRUE;
             }

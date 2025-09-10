@@ -779,12 +779,12 @@ void run_camera() {
 
         float difference = player->y - state.old_player.y;
 
-        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground || state.has_teleported_timer)) {
+        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground || player->has_teleported_timer)) {
             float lerp_ratio = 0.1f;
-            if (player->on_ground || state.has_teleported_timer) {
+            if (player->on_ground || player->has_teleported_timer) {
                 // Slowly make player in bounds (60 units from player center)
                 state.camera_y_lerp = player->y + 60.f * mult - (SCREEN_HEIGHT_AREA / 2);
-                lerp_ratio = (state.has_teleported_timer) ? 0.05f : 0.2f;
+                lerp_ratio = (player->has_teleported_timer) ? 0.05f : 0.2f;
             } else {
                 // Move camera
                 state.camera_y_lerp += difference;
@@ -965,7 +965,7 @@ void run_player(Player *player) {
     
     bool slopeCheck = player->slope_data.slope && (grav_slope_orient(player->slope_data.slope, player) == ORIENT_NORMAL_DOWN || grav_slope_orient(player->slope_data.slope, player) == ORIENT_UD_DOWN);
 
-    if (getGroundBottom(player) < state.ground_y) {
+    if (getGroundBottom(player) < state.ground_y && !player->just_teleported) {
         if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && player->upside_down) {
             state.dead = TRUE;
         }
@@ -979,7 +979,7 @@ void run_player(Player *player) {
     }
 
     // Ceiling
-    if (getGroundTop(player) > state.ceiling_y) {
+    if (getGroundTop(player) > state.ceiling_y && !player->just_teleported) {
         if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && !player->upside_down) {
             state.dead = TRUE;
         }
@@ -1067,6 +1067,11 @@ void handle_player(Player *player) {
         set_particle_color(UFO_JUMP, p2.r, p2.g, p2.b);
         set_particle_color(UFO_TRAIL, p1.r, p1.g, p1.b);
     }
+
+    player->has_teleported_timer -= STEPS_DT;
+    if (player->has_teleported_timer < 0) {
+        player->has_teleported_timer = 0;
+    }
     
     if (state.input.holdJump) {
         if (player->buffering_state == BUFFER_NONE) {
@@ -1084,6 +1089,8 @@ void handle_player(Player *player) {
     player->gravObj = NULL;
     
     player->timeElapsed += STEPS_DT;
+
+    player->just_teleported = FALSE;
 
     u32 t0 = gettime();
     if (player->cutscene_timer == 0) collide_with_objects(player);
@@ -1168,7 +1175,6 @@ void init_variables() {
     state.camera_wall_timer = 0;
     state.camera_wall_initial_y = 0;
 
-    state.ground_y_gfx = 0;
     state.mirror_factor = 0;
     state.mirror_speed_factor = 1.f;
     state.intended_mirror_factor = 0;
@@ -1240,7 +1246,7 @@ void init_variables() {
     state.camera_y_lerp = state.camera_y;
     state.intermediate_camera_y = state.camera_y;
 
-    state.has_teleported_timer = 0;
+    player->has_teleported_timer = 0;
 
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;

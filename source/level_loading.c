@@ -874,6 +874,9 @@ GameObject *convert_to_game_object(const GDObject *obj) {
     object->id = obj->values[0].i;
     object->type = obtain_type_from_id(object->id);
     
+    // Temporarily convert user coins (added in 2.0) into secret coins
+    object->id = convert_object(object->id);
+    
     if (object->type == TYPE_NORMAL_OBJECT) {
         // Set to default colors
         object->object.main_col_channel = 0;
@@ -890,8 +893,6 @@ GameObject *convert_to_game_object(const GDObject *obj) {
         object->trigger.col_trigger.opacity = 1.f;
     }
 
-    // Temporarily convert user coins (added in 2.0) into secret coins
-    object->id = convert_object(object->id);
     object->opacity = 1.f;
 
     if (is_object_unimplemented(object->id)) {
@@ -1966,7 +1967,7 @@ int load_level(char *data, bool is_custom) {
     memset(move_trigger_buffer, 0, sizeof(move_trigger_buffer));
     memset(alpha_trigger_buffer, 0, sizeof(alpha_trigger_buffer));
     memset(pulse_trigger_buffer, 0, sizeof(pulse_trigger_buffer));
-    
+
     level_info.pulsing_type = random_int(0,2);
 
     // Load level's bg and ground texture
@@ -2148,15 +2149,18 @@ void reload_level() {
         obj->object.delta_x = 0;
         obj->object.delta_y = 0;
         obj->opacity = 1.f;
-        obj->x = origPositionsList[i].x;
-        obj->y = origPositionsList[i].y;
         obj->object.main_being_pulsed = FALSE;
         obj->object.detail_being_pulsed = FALSE;
+        update_object_section(obj, origPositionsList[i].x, origPositionsList[i].y);
     }
     reset_color_channels();
     set_color_channels();
+
+    
 }
 
+
+#include <ogc/usbmouse.h>
 // https://github.com/gd-programming/gd.docs/issues/87
 void calculate_lbg() {
     struct ColorChannel channel = channels[BG];

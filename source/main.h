@@ -98,8 +98,6 @@ typedef struct {
 
     float level_progress;
 
-    float has_teleported_timer;
-
     float timer;
     
     Particle particles[MAX_PARTICLES];
