@@ -147,6 +147,7 @@ extern float player_draw_time;
 
 extern int number_of_collisions;
 extern int number_of_collisions_checks;
+extern int number_of_moving_objects;
 
 extern char launch_dir[256];
 

@@ -399,6 +399,7 @@ static void cache_move_group(int group_id) {
 }
 
 void handle_move_triggers() {
+    number_of_moving_objects = 0;
     // Reset deltas first
     for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
         struct MoveTriggerBuffer* buffer = &move_trigger_buffer[slot];
@@ -477,6 +478,8 @@ void handle_move_triggers() {
                     player->vel_y = grav_delta_y;
                 }
             }
+
+            number_of_moving_objects++;
         }
 
         // Update timer and check completion

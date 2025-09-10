@@ -78,6 +78,7 @@ float player_draw_time = 0;
 
 int number_of_collisions = 0;
 int number_of_collisions_checks = 0;
+int number_of_moving_objects = 0;
 
 char launch_dir[256] = SDCARD_FOLDER;
 float ir_x;
@@ -153,17 +154,21 @@ void draw_game() {
         char physics[128];
         snprintf(physics, sizeof(physics), "Physics: %.2f ms (P: %.2f Obj: %.2f E: %.2f)", physics_time, player_time, triggers_time, particles_time);
         draw_text(big_font, big_font_text, 20, 170, 0.25, physics);
+        
+        char objects[128];
+        snprintf(objects, sizeof(objects), "Obj: Move %d", number_of_moving_objects);
+        draw_text(big_font, big_font_text, 20, 200, 0.25, objects);
 
         char collision[128];
         snprintf(collision, sizeof(collision), "Collision: %.2f ms (Checks: %d Succeded: %d)", collision_time, number_of_collisions_checks, number_of_collisions);
-        draw_text(big_font, big_font_text, 20, 200, 0.25, collision);
+        draw_text(big_font, big_font_text, 20, 230, 0.25, collision);
 
         t1 = gettime();
         float text = ticks_to_microsecs(t1 - t0) / 1000.f;
         
         char text_ms[64];
         snprintf(text_ms, sizeof(text_ms), "Text: %.2f ms", text);
-        draw_text(big_font, big_font_text, 20, 230, 0.25, text_ms);
+        draw_text(big_font, big_font_text, 20, 260, 0.25, text_ms);
 
         u64 last_frame = gettime();
         float cpu_time = ticks_to_microsecs(last_frame - start_frame) / 1000.f;
