@@ -130,6 +130,7 @@ typedef struct {
 
     unsigned char touching_player;
     unsigned char prev_touching_player;
+    unsigned char touching_side;
     // Slope
     unsigned char orientation;
 } NormalObject;

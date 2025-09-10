@@ -1030,7 +1030,7 @@ struct ColorChannel {
 
 #define MAX_OBJECTS_IN_GROUP 1000
 
-#define MOVE_SPEED_DIVIDER 315
+#define MOVE_SPEED_DIVIDER 315 * 4
 
 enum HitboxTypes {
     HITBOX_NONE,
