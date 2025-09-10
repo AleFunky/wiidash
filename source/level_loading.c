@@ -1961,10 +1961,12 @@ int load_level(char *data, bool is_custom) {
         objectsArrayList->objects = NULL;
         layersArrayList = fill_layers_array(objectsArrayList);
     }
-    
+
     memset(col_trigger_buffer, 0, sizeof(col_trigger_buffer));
     memset(move_trigger_buffer, 0, sizeof(move_trigger_buffer));
-
+    memset(alpha_trigger_buffer, 0, sizeof(alpha_trigger_buffer));
+    memset(pulse_trigger_buffer, 0, sizeof(pulse_trigger_buffer));
+    
     level_info.pulsing_type = random_int(0,2);
 
     // Load level's bg and ground texture
