@@ -2,6 +2,7 @@
 #include "objects.h"
 #include "level_loading.h"
 #include "stdio.h"
+#include "object_includes.h"
 #include "ground_line_png.h"
 #include "levelCompleteText_png.h"
 #include "main.h"
@@ -986,10 +987,10 @@ int current_fading_effect = FADE_NONE;
 
 bool p1_trail = FALSE;
 
-int find_existing_texture(int curr_object, char *texture) {
+int find_existing_texture(int curr_object, const unsigned char *texture) {
     for (s32 object = 1; object < curr_object; object++) {
         for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
-            char *loaded_texture = objects[object].layers[layer].texture;
+            const unsigned char *loaded_texture = objects[object].layers[layer].texture;
             if (loaded_texture == texture) {
                 return (object * MAX_OBJECT_LAYERS) + layer;
             }
@@ -1003,28 +1004,23 @@ void load_spritesheet() {
     ground_line = GRRLIB_LoadTexturePNG(ground_line_png);
     level_complete_texture = GRRLIB_LoadTexturePNG(levelCompleteText_png);
 
-    size_t size;
     for (s32 object = 1; object < OBJECT_COUNT; object++) {
         for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
             // Skip unused layers
-            char *texture = objects[object].layers[layer].texture;
+            const unsigned char *texture = objects[object].layers[layer].texture;
             if (!texture) continue;
 
             output_log("Loading texture of object %d layer %d\n", object, layer);
             
             int existing = find_existing_texture(object, texture);
             if (existing < 0) {
-                char *loaded_texture = load_texture(texture, &size);
-                if (loaded_texture) {
-                    GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8*) loaded_texture);
-                    if (image == NULL || image->data == NULL) {
-                        output_log("Couldn't load texture of object %d layer %d\n", object, layer);
-                    } else {
-                        output_log("Loaded texture of object %d layer %d\n", object, layer);
-                        GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
-                        object_images[object][layer] = image;
-                        free(loaded_texture);
-                    }
+                GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8 *) texture);
+                if (image == NULL || image->data == NULL) {
+                    printf("Couldn't load texture of object %d layer %d\n", object, layer);
+                } else {
+                    printf("Loaded texture of object %d layer %d\n", object, layer);
+                    GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
+                    object_images[object][layer] = image;
                 }
             } else {
                 int object_found = existing / MAX_OBJECT_LAYERS;
@@ -1046,7 +1042,7 @@ void unload_spritesheet() {
 
     for (s32 object = 0; object < OBJECT_COUNT; object++) {
         for (s32 layer = 0; layer < objects[object].num_layers; layer++) {
-            char *texture = objects[object].layers[layer].texture;
+            const unsigned char *texture = objects[object].layers[layer].texture;
             int existing = find_existing_texture(object, texture);
             // Dont double free textures
             if (existing < 0) {
@@ -1445,16 +1441,11 @@ GRRLIB_texImg *get_coin_particle_texture() {
 }
 
 void load_coin_texture() {
-    size_t size;
     for (s32 i = 0; i < NUM_COIN_FRAMES; i++) {
         if (level_info.level_is_custom) {
-            const u8 *texture = (const u8 *) load_texture(user_coin_layer[i].texture, &size);
-            current_coin_texture[i] = GRRLIB_LoadTexturePNG(texture);
-            free((u8 *)texture);
+            current_coin_texture[i] = GRRLIB_LoadTexturePNG(user_coin_layer[i].texture);
         } else {
-            const u8 *texture = (const u8 *) load_texture(secret_coin_layer[i].texture, &size);
-            current_coin_texture[i] = GRRLIB_LoadTexturePNG(texture);
-            free((u8 *)texture);
+            current_coin_texture[i] = GRRLIB_LoadTexturePNG(secret_coin_layer[i].texture);
         }
         GRRLIB_SetHandle(current_coin_texture[i], current_coin_texture[i]->w / 2, current_coin_texture[i]->h / 2);
     }

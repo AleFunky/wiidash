@@ -1057,7 +1057,7 @@ struct ObjectLayer {
     u32 col_channel;
     s32 zlayer_offset;
     s8 color_type;
-    char *texture;
+    const u8 *texture;
 };
 
 enum ColorTypes {

@@ -26,7 +26,6 @@ jobs:
         run: |
           mkdir -p out/rom
           mkdir -p out/rom/resources
-          mkdir -p out/rom/resources/textures
           mkdir -p out/rom/resources/songs
           mkdir -p out/rom/user_levels
           mkdir -p out/rom/user_songs
@@ -34,10 +33,6 @@ jobs:
           echo "Go to %localappdata%/GeometryDash and put the .mp3 file with the file name of the \"<song_id>.mp3\", where <song_id> is the custom song id that the level uses, to the folder this .txt file is at." >> out/rom/user_songs/ADD_MP3s_HERE.txt
           cp -r data/hbc/. out/rom/
           cp -r data/songs/. out/rom/resources/songs/
-          cp -r data/objects/. out/rom/resources/textures/
-          cp -r data/perspective/. out/rom/resources/textures/
-          cp -r data/glow/. out/rom/resources/textures/
-          cp -r data/portals/. out/rom/resources/textures/
           cp -r data/extra/. out/rom/resources/
           cp wiidash.dol out/rom/boot.dol
       - name: Publish build to GH Actions

@@ -17,7 +17,7 @@ endif
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source libraries
-DATA		:=	data data/icons data/levels data/sfx data/back_grounds data/perspective data/menu
+DATA		:=	data data/objects data/glow data/portals data/icons data/levels data/sfx data/back_grounds data/perspective data/menu
 INCLUDES	:=  libraries
 
 include $(patsubst %/$(BUILD),%,$(CURDIR))/wii_rules

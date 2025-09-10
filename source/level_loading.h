@@ -337,4 +337,3 @@ char *load_user_song(int id, size_t *out_size);
 
 bool check_song(int id);
 void update_percentage();
-void *load_texture(const char *path, size_t *out_size);
