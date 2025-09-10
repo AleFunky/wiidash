@@ -571,6 +571,9 @@ void upload_to_alpha_buffer(GameObject *obj) {
     if (obj->trigger.trig_duration == 0) {
         for (Node *p = get_group(obj->trigger.alpha_trigger.target_group); p; p = p->next) {
             p->obj->opacity = obj->trigger.alpha_trigger.opacity;
+            if (p->obj->object.child_object) {
+                p->obj->object.child_object->opacity = obj->trigger.alpha_trigger.opacity;
+            }
         }
         return;
     }
