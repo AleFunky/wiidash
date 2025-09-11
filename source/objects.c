@@ -1621,7 +1621,11 @@ u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, floa
         color = obj->object.detail_col_pulse;
     }
 
-    return RGBA(color.r, color.g, color.b, opacity * channels[col_channel].alpha * obj->opacity);
+    float new_opacity = opacity * channels[col_channel].alpha * obj->opacity;
+    float transformed_opacity = new_opacity;
+
+    if (channels[col_channel].blending) transformed_opacity = CLAMP((0.175656971639325 * powf(7.06033051530761, new_opacity / 255.f) - 0.213355914301931), 0, 1) * 255;
+    return RGBA(color.r, color.g, color.b, transformed_opacity);
 }
 
 static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {

@@ -1303,6 +1303,12 @@ int compare_sortable_layers(const void *a, const void *b) {
     if (obj_idA != PLAYER_OBJECT && sheetA == SHEET_BLOCKS) {
         int col_channelA = GDlayerA->col_channel;
         bool blendingA = channels[col_channelA].blending || GDlayerA->blending;
+
+        // Two colored objects must have both channels be blending
+        if (objA->object.main_col_channel > 0 && objA->object.detail_col_channel > 0) {
+            blendingA = GDlayerA->blending || (channels[objA->object.main_col_channel].blending && channels[objA->object.detail_col_channel].blending);
+        }
+        
         if (blendingA ^ (zlayerA % 2 == 0)) {
             zlayerA--;
         }
@@ -1311,6 +1317,12 @@ int compare_sortable_layers(const void *a, const void *b) {
     if (obj_idB != PLAYER_OBJECT && sheetB == SHEET_BLOCKS) {
         int col_channelB = GDlayerB->col_channel;
         bool blendingB = channels[col_channelB].blending || GDlayerB->blending;
+
+        // Two colored objects must have both channels be blending
+        if (objB->object.main_col_channel > 0 && objB->object.detail_col_channel > 0) {
+            blendingB = GDlayerB->blending || (channels[objB->object.main_col_channel].blending && channels[objB->object.detail_col_channel].blending);
+        }
+
         if (blendingB ^ (zlayerB % 2 == 0)) {
             zlayerB--;
         }
