@@ -50,6 +50,8 @@ static InputBuffer input_buffer;
 
 static volatile u32 frames_processed = 0;
 
+int frame_skipped = 0;
+
 // Initialize the input buffer in game_loop before creating thread:
 void init_input_buffer() {
     LWP_MutexInit(&input_buffer.mutex, false);
@@ -194,15 +196,16 @@ int game_loop() {
         accumulator += frameTime;
 
         u64 t0 = gettime();
-        while (accumulator >= STEPS_DT) {
+        while (accumulator >= STEPS_DT_UNMOD) {
             if (complete_level_flag || input_buffer.read_index != input_buffer.write_index) {
+                
                 if (!complete_level_flag) {
                     LWP_MutexLock(input_buffer.mutex);
                     state.input = input_buffer.inputs[input_buffer.read_index];
                     input_buffer.read_index = (input_buffer.read_index + 1) & INPUT_BUFFER_MASK;
                     LWP_MutexUnlock(input_buffer.mutex);
                 }
-    
+                u64 start_physics = gettime();
                 state.old_player = state.player;
                 if (level_info.custom_song_id >= 0) {
                     amplitude = CLAMP(MP3Player_GetAmplitude(), 0.1f, 1.f);
@@ -254,9 +257,18 @@ int game_loop() {
 
                 frames_processed++;
 
-                if (state.dead) break;
+                u64 end_physics = gettime();
 
+                float physics_time = ticks_to_secs_float(end_physics - start_physics);
+
+                if (physics_time >= STEPS_DT_UNMOD) {
+                    frame_skipped = (int) (physics_time / STEPS_DT_UNMOD);
+                }
+                else frame_skipped = 0;
+                
                 accumulator -= STEPS_DT;
+                
+                if (state.dead) break;
             } else {
                  // No input available, wait
                 usleep(100);
