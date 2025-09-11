@@ -2017,8 +2017,6 @@ void slope_collide(GameObject *obj, Player *player) {
 
     bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
 
-    if (!gravSnap && player->is_cube_or_robot && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
-
     // Check if player inside slope
     if (orient == ORIENT_NORMAL_UP || orient == ORIENT_UD_UP) {
         bool internalCollidingSlope = intersect(
@@ -2105,6 +2103,9 @@ void slope_collide(GameObject *obj, Player *player) {
             return;
         }
     }
+
+    if (!gravSnap && player->is_cube_or_robot && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
+
     bool colliding = intersect(
         player->x, player->y, player->width, player->height, 0, 
         obj->x, obj->y, obj->width, obj->height, 0
