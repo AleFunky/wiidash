@@ -1562,10 +1562,12 @@ float get_rotation_speed(GameObject *obj) {
     return 0.f;
 }
 
-bool is_modifiable(int col_channel) {
+bool is_modifiable(int col_channel, int color_type) {
     switch(col_channel) {
         case BLACK:
         case WHITE:
+            if (color_type == COLOR_MAIN) return FALSE;
+            else return TRUE;
         case OBJ_BLENDING:
         case LBG_NO_LERP:
             return FALSE;
@@ -1573,11 +1575,29 @@ bool is_modifiable(int col_channel) {
     return TRUE;
 }
 
+const HSV lighter_hsv = {
+    .h = 0,
+    .s = 0.65,
+    .v = 1.30,
+    .sChecked = FALSE,
+    .vChecked = FALSE,
+};
+
 u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, float opacity) {
     Color color;
     color.r = channels[col_channel].color.r;
     color.g = channels[col_channel].color.g;
     color.b = channels[col_channel].color.b;
+
+    // Handle lighter color channel
+    if (col_channel == LIGHTER) {
+        color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
+        color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
+
+        if (obj->object.main_col_HSV_enabled) {
+            color = HSV_combine(color, obj->object.main_col_HSV);
+        }
+    }
 
     if (get_main_channel_id(obj->id) <= 0 && obj->object.main_col_HSV_enabled) {
         // Detail only objects use the main slot
@@ -1587,6 +1607,7 @@ u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, floa
     } else if (layer->layer->color_type == COLOR_DETAIL && obj->object.detail_col_HSV_enabled) {
         color = HSV_combine(color, obj->object.detail_col_HSV);
     }
+    
 
     if (layer->layer->color_type == COLOR_MAIN) {
         obj->object.main_color = color;

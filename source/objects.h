@@ -939,9 +939,131 @@ enum Objects {
     BLUE_TP_PORTAL = 747,
     ORANGE_TP_PORTAL = 749,
 
-    COL_TRIGGER = 899,
+    V2_0_TILESET_EDGE = 752,
+    V2_0_TILESET_CORNER,
+    V2_0_TILESET_INSIDE_CORNER,
+    V2_0_TILESET_FILLER,
+    V2_0_TILESET_PILLAR_END,
+    V2_0_TILESET_PILLAR,
+    V2_0_TILESET_DBL_INSIDE_CORNER,
+    V2_0_TILESET_FULL,
 
-    MOVE_TRIGGER = 901,
+    UNKNOWN_760,
+    UNKNOWN_761,
+
+    V2_0_TILESET_SLOPE_45,
+    V2_0_TILESET_SLOPE_22_66,
+    V2_0_TILESET_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_SLOPE_CONNECTOR_22_66_1,
+    V2_0_TILESET_SLOPE_CONNECTOR_22_66_2,
+
+    V2_0_TILESET_SLAB,
+    V2_0_TILESET_SLAB_EDGE,
+    V2_0_TILESET_SLAB_SLOPE_45,
+    V2_0_TILESET_SLAB_SLOPE_22_66,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_22_66_1,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_22_66_2,
+
+    V2_0_TILESET_2_EDGE = 807,
+    V2_0_TILESET_2_EDGE_ALT,
+    V2_0_TILESET_2_CORNER,
+    V2_0_TILESET_2_CORNER_ALT,
+    V2_0_TILESET_2_PILLAR,
+    V2_0_TILESET_2_PILLAR_ALT,
+    V2_0_TILESET_2_PILLAR_END,
+    V2_0_TILESET_2_PILLAR_END_ALT,
+    V2_0_TILESET_2_FULL,
+    V2_0_TILESET_2_FULL_ALT,
+
+    V2_0_TILESET_2_SLOPE_45,
+    V2_0_TILESET_2_SLOPE_45_ALT,
+    V2_0_TILESET_2_SLOPE_22_66,
+    V2_0_TILESET_2_SLOPE_22_66_ALT,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_45_ALT,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_22_66,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_22_66_ALT,
+
+    BLOCK_7B_CORNER = 841,
+    BLOCK_7B_THREE,
+    BLOCK_7B_LINE,
+    BLOCK_7B_LINE_ALT,
+    BLOCK_7B_FOUR,
+    BLOCK_7B_PILLAR_END,
+    BLOCK_7B_FULL,
+    BLOCK_7B_FULL_ALT,
+
+    UNKNOWN_849,
+
+    BLOCK_8_FULL,
+
+    UNKNOWN_851,
+    UNKNOWN_852,
+    
+    BLOCK_8_LINE,
+    BLOCK_8_CORNER,
+    BLOCK_8_CORNER_2,
+    BLOCK_8_CORNER_3,
+    BLOCK_8_EDGE,
+
+    UNKNOWN_858,
+
+    BLOCK_8_EDGE_2,
+
+    UNKNOWN_860,
+
+    BLOCK_8_TRIPLE,
+    BLOCK_8_TRIPLE_2,
+    BLOCK_8_CUADRUPLE,
+
+    UNKNOWN_864,
+    UNKNOWN_865,
+    UNKNOWN_866,
+
+    BLOCK_9_1,
+    BLOCK_9_2,
+    BLOCK_9_3,
+    BLOCK_9_4,
+    BLOCK_9_5,
+    BLOCK_9_6,
+
+    BLOCK_9_PART_1,
+    BLOCK_9_PART_2,
+
+    UNKNOWN_875,
+    UNKNOWN_876,
+
+    BLOCK_9_SLOPE_45,
+    BLOCK_9_SLOPE_22_66,
+
+    UNKNOWN_879,
+
+    BLOCK_9B_1,
+    BLOCK_9B_2,
+    BLOCK_9B_3,
+    BLOCK_9B_4,
+    BLOCK_9B_5,
+    BLOCK_9B_6,
+    BLOCK_9B_SLOPE_45,
+    BLOCK_9B_SLOPE_22_66,
+    BLOCK_9B_SLOPE_45_NO_OUT,
+    BLOCK_9B_SLOPE_22_66_NO_OUT,
+
+    BLOCK_9C_1,
+    BLOCK_9C_2,
+
+    UNKNOWN_892, // block 9c 3 is skipped for some reason in the textures, maybe this was block 9c 3?
+    
+    BLOCK_9C_4,
+    BLOCK_9C_5,
+
+    BLOCK_9C_SLOPE_45,
+    BLOCK_9C_SLOPE_22_66,
+
+    COL_TRIGGER = 899,
+    G_2_TRIGGER,
+    MOVE_TRIGGER,
     V2_0_LINE_TRIGGER = 915,
 
     PULSE_TRIGGER = 1006,
@@ -989,6 +1111,7 @@ enum ColChannels {
     G2,
     BLACK,
     WHITE,
+    LIGHTER,
     LBG_NO_LERP,
     COL_CHANNEL_COUNT
 };
@@ -1140,7 +1263,7 @@ void set_dual_bounds();
 void flip_other_player(int current_player);
 void do_ball_reflection();
 void set_particle_color(int template_id, int r, int g, int b);
-bool is_modifiable(int col_channel);
+bool is_modifiable(int col_channel, int color_type);
 void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);

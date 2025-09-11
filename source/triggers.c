@@ -786,6 +786,10 @@ void run_trigger(GameObject *obj) {
             p1_trail = FALSE;
             break;
 
+        case G_2_TRIGGER:
+            upload_to_buffer(obj, G2);
+            break;
+
         case COL_TRIGGER: // 2.0 color trigger
             upload_to_buffer(obj, obj->trigger.col_trigger.target_color_id);
             break;
