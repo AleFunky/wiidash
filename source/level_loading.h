@@ -158,6 +158,9 @@ typedef struct GameObject {
     short groups[MAX_GROUPS_PER_OBJECT]; // key 57
     
     float opacity;
+
+    bool has_two_channels;
+    bool both_channels_blending;
     
     union {
         NormalObject object;

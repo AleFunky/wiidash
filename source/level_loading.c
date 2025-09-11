@@ -1154,6 +1154,8 @@ GameObject *convert_to_game_object(const GDObject *obj) {
         object->height = hitbox.height * object->object.scale_y;
     }
 
+    object->has_two_channels = object->object.main_col_channel > 0 && object->object.detail_col_channel > 0;
+
     // Register its groups
     register_object(object);
 
@@ -1305,8 +1307,8 @@ int compare_sortable_layers(const void *a, const void *b) {
         bool blendingA = channels[col_channelA].blending || GDlayerA->blending;
 
         // Two colored objects must have both channels be blending
-        if (objA->object.main_col_channel > 0 && objA->object.detail_col_channel > 0) {
-            blendingA = GDlayerA->blending || (channels[objA->object.main_col_channel].blending && channels[objA->object.detail_col_channel].blending);
+        if (objA->has_two_channels) {
+            blendingA = GDlayerA->blending || objA->both_channels_blending;
         }
         
         if (blendingA ^ (zlayerA % 2 == 0)) {
@@ -1319,8 +1321,8 @@ int compare_sortable_layers(const void *a, const void *b) {
         bool blendingB = channels[col_channelB].blending || GDlayerB->blending;
 
         // Two colored objects must have both channels be blending
-        if (objB->object.main_col_channel > 0 && objB->object.detail_col_channel > 0) {
-            blendingB = GDlayerB->blending || (channels[objB->object.main_col_channel].blending && channels[objB->object.detail_col_channel].blending);
+        if (objB->has_two_channels) {
+            blendingB = GDlayerB->blending || objB->both_channels_blending;
         }
 
         if (blendingB ^ (zlayerB % 2 == 0)) {

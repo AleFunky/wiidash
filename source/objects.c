@@ -2102,13 +2102,19 @@ void draw_all_object_layers() {
             bool fade_edge = (fade_val == 255 || fade_val == 0);
             bool is_layer0 = (layer->layerNum == 0);
 
-            // Fade objects
-            if (is_layer0 && fade_edge) handle_special_fading(obj, calc_x, calc_y);
-            
-            // If saw, rotate
-            if (is_layer0 && (objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
-                obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
-            }
+            if (is_layer0) {
+                // Fade objects
+                if (fade_edge) handle_special_fading(obj, calc_x, calc_y);
+                // If saw, rotate
+                if ((objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
+                    obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
+                }
+                if (obj->has_two_channels && channels[obj->object.main_col_channel].blending && channels[obj->object.detail_col_channel].blending) {
+                    obj->both_channels_blending = TRUE;
+                } else {
+                    obj->both_channels_blending = FALSE;
+                }
+            } 
 
             handle_pre_draw_object_particles(obj, layer); 
             u64 t1 = gettime();
