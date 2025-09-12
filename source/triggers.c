@@ -12,11 +12,18 @@
 
 #include "math.h"
 
+#define MAX_DIRTY_OBJECTS 8192
+
+static GameObject *dirty_objects[MAX_DIRTY_OBJECTS];
+static int dirty_count = 0;
+
 struct ColTriggerBuffer col_trigger_buffer[COL_CHANNEL_COUNT];
 struct MoveTriggerBuffer move_trigger_buffer[MAX_MOVING_CHANNELS];
 struct AlphaTriggerBuffer alpha_trigger_buffer[MAX_ALPHA_CHANNELS];
 struct SpawnTriggerBuffer spawn_trigger_buffer[MAX_SPAWN_CHANNELS];
 struct PulseTriggerBuffer pulse_trigger_buffer[MAX_PULSE_CHANNELS];
+
+void process_dirty_objects();
 
 void update_triggers() {
     handle_spawn_triggers();
@@ -24,6 +31,14 @@ void update_triggers() {
     handle_col_triggers();
     handle_move_triggers();
     handle_alpha_triggers();
+    process_dirty_objects();
+}
+
+void mark_object_dirty(GameObject *obj) {
+    if (!obj->dirty) {
+        obj->dirty = TRUE;
+        dirty_objects[dirty_count++] = obj;
+    }
 }
 
 int obtain_free_pulse_slot() {
@@ -94,8 +109,6 @@ void handle_pulse_triggers() {
                 bool both = !buffer->main_only && !buffer->detail_only;
                 if (buffer->time_run <= buffer->fade_in) {
                     float fade_time = 1.f;
-
-                    
 
                     if (buffer->fade_in > 0) {
                         fade_time = buffer->time_run / buffer->fade_in;                
@@ -398,6 +411,20 @@ static void cache_move_group(int group_id) {
     move_groups[group_id].capacity = count;
 }
 
+void process_dirty_objects() {
+    for (int i = 0; i < dirty_count; i++) {
+        GameObject *obj = dirty_objects[i];
+        obj->dirty = false;
+        
+        float new_x = obj->x + obj->object.delta_x * STEPS_DT;
+        float new_y = obj->y + obj->object.delta_y * STEPS_DT;
+        
+        update_object_section(obj, new_x, new_y);
+    }
+
+    dirty_count = 0; // reset list
+}
+
 void handle_move_triggers() {
     number_of_moving_objects = 0;
     // Reset deltas first
@@ -452,13 +479,10 @@ void handle_move_triggers() {
             MovingObject* mobj = &group->objects[i];
             GameObject* obj = mobj->obj;
 
-            float new_x = obj->x + delta_x;
-            float new_y = obj->y + delta_y;
-
             obj->object.delta_x += delta_x / STEPS_DT;
             obj->object.delta_y += delta_y / STEPS_DT;
 
-            update_object_section(obj, new_x, new_y);
+            mark_object_dirty(obj);
 
             // Handle player collision
             if (obj->object.touching_player) {

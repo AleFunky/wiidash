@@ -187,6 +187,8 @@ typedef struct GameObject {
     Section *cur_section;
     int section_index;   // index in section->objects[]
 
+    bool dirty;
+
     int layer_count;
     GDLayerSortable *layers[MAX_OBJECT_LAYERS];
 } GameObject;
