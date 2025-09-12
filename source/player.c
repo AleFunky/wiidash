@@ -1088,7 +1088,7 @@ void init_variables() {
     MotionTrail_StopStroke(&trail_p1);
     MotionTrail_StopStroke(&trail_p2);
 
-    set_camera_x(-get_camera_x_scroll_pos());
+    set_camera_x(-get_camera_x_scroll_pos() + 25);
     state.camera_wall_timer = 0;
     state.camera_wall_initial_y = 0;
 
