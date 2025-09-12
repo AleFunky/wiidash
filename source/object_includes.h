@@ -739,6 +739,7 @@
 #include "persp_09_07_png.h"
 #include "persp_09_08_png.h"
 #include "persp_09_09_png.h"
+#include "persp_09_10_png.h"
 
 #include "persp_10_01_png.h"
 #include "persp_10_02_png.h"
@@ -1118,3 +1119,9 @@
 #include "block009c_slope_01_color_001_png.h"
 #include "block009c_slope_02_001_png.h"
 #include "block009c_slope_02_color_001_png.h"
+
+#include "block005_10_001_png.h"
+#include "block005_10_color_001_png.h"
+#include "block005_11_001_png.h"
+#include "block005_11_color_001_png.h"
+#include "block005_12_001_png.h"

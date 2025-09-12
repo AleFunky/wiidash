@@ -464,7 +464,8 @@
         "block009c_slope_01_001_png.h": "c",
         "block009c_slope_01_color_001_png.h": "c",
         "block009b_02_color_001_png.h": "c",
-        "block009c_05_001_png.h": "c"
+        "block009c_05_001_png.h": "c",
+        "block005_10_001_png.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

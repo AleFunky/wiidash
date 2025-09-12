@@ -5,8 +5,6 @@
 #include "math.h"
 #include "level_loading.h"
 
-#define MAX_OBJECT_LAYERS 4
-
 #define BACKGROUND_SCALE 0.9
 #define BG_DIMENSIONS 4
 #define BG_CHUNK ((1024/BG_DIMENSIONS) * BACKGROUND_SCALE)
@@ -1064,6 +1062,12 @@ enum Objects {
     COL_TRIGGER = 899,
     G_2_TRIGGER,
     MOVE_TRIGGER,
+
+    PERSP_08_10,
+    BLOCK_5_10,
+    BLOCK_5_11,
+    BLOCK_5_12,
+
     V2_0_LINE_TRIGGER = 915,
 
     PULSE_TRIGGER = 1006,

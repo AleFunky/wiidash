@@ -4,6 +4,12 @@
 
 #define MAX_GROUPS_PER_OBJECT 20
 
+#define MAX_OBJECT_LAYERS 4
+
+typedef struct Section Section;
+typedef struct GFXSection GFXSection;
+typedef struct GDLayerSortable GDLayerSortable;
+
 typedef enum {
     GD_VAL_INT,
     GD_VAL_FLOAT,
@@ -177,6 +183,12 @@ typedef struct GameObject {
     bool hide_sprite;
     float width;
     float height;
+
+    Section *cur_section;
+    int section_index;   // index in section->objects[]
+
+    int layer_count;
+    GDLayerSortable *layers[MAX_OBJECT_LAYERS];
 } GameObject;
 
 #pragma pack(push, 1)
@@ -211,11 +223,14 @@ typedef struct {
     int layerNum;
 } GDObjectLayer;
 
-typedef struct {
+typedef struct GDLayerSortable {
     GDObjectLayer *layer;
     int zlayer;
     int originalIndex;
     int layerNum;
+
+    GFXSection *cur_section;
+    int section_index;
 } GDLayerSortable;
 
 typedef struct {

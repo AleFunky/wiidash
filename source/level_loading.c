@@ -142,6 +142,9 @@ void assign_object_to_section(GameObject *obj) {
         sec->objects = realloc(sec->objects, sizeof(GameObject*) * sec->object_capacity);
     }
     sec->objects[sec->object_count++] = obj;
+    
+    obj->cur_section = sec;
+    obj->section_index = sec->object_count - 1;
 }
 
 void assign_layer_to_section(GDLayerSortable *layer) {
@@ -153,6 +156,43 @@ void assign_layer_to_section(GDLayerSortable *layer) {
         sec->layers = realloc(sec->layers, sizeof(GDLayerSortable*) * sec->layer_capacity);
     }
     sec->layers[sec->layer_count++] = layer;
+
+    layer->cur_section = sec;
+    layer->section_index = sec->layer_count - 1;
+}
+
+static inline void remove_object_from_section(GameObject *obj) {
+    Section *sec = obj->cur_section;
+    if (!sec) return;
+
+    int idx = obj->section_index;
+    int last_idx = sec->object_count - 1;
+
+    // Swap & pop
+    sec->objects[idx] = sec->objects[last_idx];
+    sec->objects[idx]->section_index = idx;
+
+    sec->object_count--;
+
+    obj->cur_section = NULL;
+    obj->section_index = -1;
+}
+
+static inline void remove_layer_from_gfx(GDLayerSortable *layer) {
+    GFXSection *sec = layer->cur_section;
+    if (!sec) return;
+
+    int idx = layer->section_index;
+    int last_idx = sec->layer_count - 1;
+
+    // Swap & pop
+    sec->layers[idx] = sec->layers[last_idx];
+    sec->layers[idx]->section_index = idx;
+
+    sec->layer_count--;
+
+    layer->cur_section = NULL;
+    layer->section_index = -1;
 }
 
 void update_object_section(GameObject *obj, float new_x, float new_y) {
@@ -167,61 +207,25 @@ void update_object_section(GameObject *obj, float new_x, float new_y) {
     int old_gfx_sy = (int)(obj->y / GFX_SECTION_SIZE);
     int new_gfx_sx = (int)(new_x / GFX_SECTION_SIZE);
     int new_gfx_sy = (int)(new_y / GFX_SECTION_SIZE);
-    
+
     // Update position
     obj->x = new_x;
     obj->y = new_y;
 
+    // Logic section update
     if (new_sx != old_sx || new_sy != old_sy) {
-        // remove from old
-        unsigned int old_h = section_hash_func(old_sx, old_sy);
-        Section *sec = section_hash[old_h];
-        while (sec) {
-            if (sec->x == old_sx && sec->y == old_sy) {
-                for (int i = 0; i < sec->object_count; i++) {
-                    if (sec->objects[i] == obj) {
-                        sec->objects[i] = sec->objects[sec->object_count - 1];
-                        sec->object_count--;
-                        break;
-                    }
-                }
-                break;
-            }
-            sec = sec->next;
-        }
+        remove_object_from_section(obj);
 
-        // reassign to new
         assign_object_to_section(obj);
     }
 
     if (new_gfx_sx != old_gfx_sx || new_gfx_sy != old_gfx_sy) {
-        unsigned int old_gfx_h = section_hash_func(old_gfx_sx, old_gfx_sy);
-
-        int count = 0;
-        GDLayerSortable *layers_to_update[MAX_OBJECT_LAYERS];
-
-        GFXSection *sec_gfx = section_gfx_hash[old_gfx_h];
-        while (sec_gfx) {
-            if (sec_gfx->x == old_gfx_sx && sec_gfx->y == old_gfx_sy) {
-                int i = 0;
-                while (i < sec_gfx->layer_count) {
-                    // Remove layers from old section
-                    if (sec_gfx->layers[i]->layer->obj == obj) {
-                        layers_to_update[count++] = sec_gfx->layers[i];
-                        // Shift elements down
-                        sec_gfx->layers[i] = sec_gfx->layers[sec_gfx->layer_count - 1];
-                        sec_gfx->layer_count--;
-                        continue;
-                    }
-                    i++;
-                }
-                break;
-            }
-            sec_gfx = sec_gfx->next;
+        // Remove all layers belonging to this object from old section
+        for (int i = 0; i < obj->layer_count; i++) {
+            remove_layer_from_gfx(obj->layers[i]);
         }
-        for (int i = 0; i < count; i++) {
-            // Reassign layers
-            assign_layer_to_section(layers_to_update[i]);
+        for (int i = 0; i < obj->layer_count; i++) {
+            assign_layer_to_section(obj->layers[i]);
         }
     }
 }
@@ -1361,14 +1365,22 @@ void make_sortable_layers(GDObjectLayerList *list) {
         output_log("Couldn't allocate sortable layer\n");
         return;
     }
+
+    for (int i = 0; i < list->count; i++) {
+        list->layers[i]->obj->layer_count = 0;
+    }
     
     for (int i = 0; i < list->count; i++) {
         sortable_list[i].layer = list->layers[i];
         
         sortable_list[i].originalIndex = i;
-        sortable_list[i].layerNum = list->layers[i]->layerNum;
+
+        int layer_num = list->layers[i]->layerNum;
+        sortable_list[i].layerNum = layer_num;
+
 
         GameObject *obj = sortable_list[i].layer->obj;
+        obj->layers[obj->layer_count++] = &sortable_list[i];
         sortable_list[i].zlayer = obj->object.zlayer;
 
         assign_layer_to_section(&sortable_list[i]);
@@ -1786,10 +1798,11 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
                 return NULL;
             }
             
+            
             // Copy old layer pointers
             memcpy(new_layers_array, layersArrayList->layers, 
                 sizeof(GDObjectLayer*) * old_count);
-            
+
             // Create and add new layers
             for (int i = 0; i < new_layers; i++) {
                 GDObjectLayer* layer = malloc(sizeof(GDObjectLayer));
