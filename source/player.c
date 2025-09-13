@@ -1666,7 +1666,6 @@ const float falls[SPEED_COUNT] = {
 
 void clear_slope_data(Player *player) {
     player->slope_data.slope = NULL;
-    player->slope_data.elapsed = 0.f;
     player->slope_data.snapDown = FALSE;
 }
 
@@ -1724,7 +1723,7 @@ float slope_snap_angle(GameObject *obj, Player *player) {
 }
 
 float expected_slope_y(GameObject *obj, Player *player) {
-    int flipping = grav_slope_orient(obj, player) >= 2;
+    int flipping = grav_slope_orient(obj, player) >= ORIENT_UD_DOWN;
     int mult = (player->upside_down ^ flipping) ? -1 : 1;
     
     float angle = slope_angle(obj, player);
@@ -2011,7 +2010,7 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
 void slope_collide(GameObject *obj, Player *player) {
     int clip = (player->gamemode == GAMEMODE_SHIP || player->gamemode == GAMEMODE_UFO) ? 7 : 10;
     int orient = grav_slope_orient(obj, player);  
-    int mult = orient >= 2 ? -1 : 1;
+    int mult = orient >= ORIENT_UD_DOWN ? -1 : 1;
 
     InternalHitbox internal = player->internal_hitbox;
 
@@ -2173,6 +2172,10 @@ void slope_collide(GameObject *obj, Player *player) {
                     player->slope_data.snapDown = TRUE;
                     player->vel_y = 0;
                 }
+            }
+
+            if (!state.old_player.slope_data.slope && !player->coyote_slope.slope) {
+                player->slope_data.elapsed = 0.f;
             }
 
             // If the player wasn't on an slope, initialize the time elapsed
