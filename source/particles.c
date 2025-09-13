@@ -795,17 +795,17 @@ void update_particles() {
     for (int i = 0; i < MAX_PARTICLES; i++) {
         Particle *p = &state.particles[i];
         if (p->active) {
-            p->velocity_angle += p->rotate_per_second * STEPS_DT;
+            p->velocity_angle += p->rotate_per_second * dt;
             if (p->rel_gravity) {
-                p->vx += (p->gravity_y * cosf(DegToRad(p->velocity_angle)) - p->gravity_x * sinf(DegToRad(p->velocity_angle))) * STEPS_DT;
-                p->vy += (p->gravity_y * sinf(DegToRad(p->velocity_angle)) + p->gravity_x * cosf(DegToRad(p->velocity_angle))) * STEPS_DT;
+                p->vx += (p->gravity_y * cosf(DegToRad(p->velocity_angle)) - p->gravity_x * sinf(DegToRad(p->velocity_angle))) * dt;
+                p->vy += (p->gravity_y * sinf(DegToRad(p->velocity_angle)) + p->gravity_x * cosf(DegToRad(p->velocity_angle))) * dt;
             } else {
-                p->vx += p->gravity_x * STEPS_DT;
-                p->vy += p->gravity_y * STEPS_DT;
+                p->vx += p->gravity_x * dt;
+                p->vy += p->gravity_y * dt;
             }
 
-            p->x += p->vx * STEPS_DT;
-            p->y += p->vy * STEPS_DT;
+            p->x += p->vx * dt;
+            p->y += p->vy * dt;
 
             if (p->lock_to_player) {
                 if (p->player_id == 0) {
@@ -818,9 +818,9 @@ void update_particles() {
             }
 
             p->scale = easeValue(EASE_OUT, p->start_scale, p->end_scale, p->elapsed, p->life, 2.f);
-            p->color.r += p->color_delta.r * STEPS_DT;
-            p->color.g += p->color_delta.g * STEPS_DT;
-            p->color.b += p->color_delta.b * STEPS_DT;
+            p->color.r += p->color_delta.r * dt;
+            p->color.g += p->color_delta.g * dt;
+            p->color.b += p->color_delta.b * dt;
             if (p->trifading) {
                 if (p->elapsed / p->life < 0.5f) {
                     p->color.a = easeValue(EASE_IN, p->start_color.a, p->end_color.a, p->elapsed, p->life / 2, 2.f);
@@ -830,7 +830,7 @@ void update_particles() {
             } else {
                 p->color.a = easeValue(EASE_OUT, p->start_color.a, p->end_color.a, p->elapsed, p->life, 2.f);
             }
-            p->elapsed += STEPS_DT;
+            p->elapsed += dt;
             if (p->elapsed >= p->life) {
                 p->active = FALSE;
             }

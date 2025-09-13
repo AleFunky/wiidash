@@ -245,11 +245,6 @@ int game_loop() {
                 u64 t3 = gettime();
                 triggers_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
 
-                t2 = gettime();
-                update_particles();
-                t3 = gettime();
-                particles_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
-
                 update_beat();
                 
                 update_percentage();
@@ -277,6 +272,12 @@ int game_loop() {
                 if (!input_thread_active) break;
             }
         }
+        
+        u64 t2 = gettime();
+        update_particles();
+        u64 t3 = gettime();
+        particles_time = ticks_to_microsecs(t3 - t2) / 1000.f;
+
         u64 t1 = gettime();
         physics_time = ticks_to_microsecs(t1 - t0) / 1000.f;
 
