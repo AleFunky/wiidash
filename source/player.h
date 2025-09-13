@@ -198,16 +198,16 @@ inline float gravInternalTop(Player *player) { return player->upside_down ? -get
 inline float grav(Player *player, float val) { return player->upside_down ? -val : val; }
 
 inline float obj_getTop(GameObject *object)  { 
-    return object->y + object->height / 2; 
+    return *soa_y(object) + object->height / 2; 
 }
 inline float obj_getBottom(GameObject *object)  { 
-    return object->y - object->height / 2; 
+    return *soa_y(object) - object->height / 2; 
 }
 inline float obj_getRight(GameObject *object)  {  
-    return object->x + object->width / 2; 
+    return *soa_x(object) + object->width / 2; 
 }
 inline float obj_getLeft(GameObject *object)  { 
-    return object->x - object->width / 2; 
+    return *soa_x(object) - object->width / 2; 
 }
 inline float obj_gravBottom(Player *player, GameObject *object) { return player->upside_down ? -obj_getTop(object) : obj_getBottom(object); }
 inline float obj_gravTop(Player *player, GameObject *object) { return player->upside_down ? -obj_getBottom(object) : obj_getTop(object); }

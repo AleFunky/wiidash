@@ -134,8 +134,8 @@ void free_gfx_sections(void) {
 }
 
 void assign_object_to_section(GameObject *obj) {
-    int sx = (int)(obj->x / SECTION_SIZE);
-    int sy = (int)(obj->y / SECTION_SIZE);
+    int sx = (int)(*soa_x(obj) / SECTION_SIZE);
+    int sy = (int)(*soa_y(obj) / SECTION_SIZE);
     Section *sec = get_or_create_section(sx, sy);
     if (sec->object_count >= sec->object_capacity) {
         sec->object_capacity *= 2;
@@ -148,8 +148,8 @@ void assign_object_to_section(GameObject *obj) {
 }
 
 void assign_layer_to_section(GDLayerSortable *layer) {
-    int sx = (int)(layer->layer->obj->x / GFX_SECTION_SIZE);
-    int sy = (int)(layer->layer->obj->y / GFX_SECTION_SIZE);
+    int sx = (int)(*soa_x(layer->layer->obj) / GFX_SECTION_SIZE);
+    int sy = (int)(*soa_y(layer->layer->obj) / GFX_SECTION_SIZE);
     GFXSection *sec = get_or_create_gfx_section(sx, sy);
     if (sec->layer_count >= sec->layer_capacity) {
         sec->layer_capacity *= 2;
@@ -198,19 +198,19 @@ static inline void remove_layer_from_gfx(GDLayerSortable *layer) {
 void update_object_section(GameObject *obj, float new_x, float new_y) {
     if (!obj) return;
 
-    int old_sx = (int)(obj->x / SECTION_SIZE);
-    int old_sy = (int)(obj->y / SECTION_SIZE);
+    int old_sx = (int)(*soa_x(obj) / SECTION_SIZE);
+    int old_sy = (int)(*soa_y(obj) / SECTION_SIZE);
     int new_sx = (int)(new_x / SECTION_SIZE);
     int new_sy = (int)(new_y / SECTION_SIZE);
 
-    int old_gfx_sx = (int)(obj->x / GFX_SECTION_SIZE);
-    int old_gfx_sy = (int)(obj->y / GFX_SECTION_SIZE);
+    int old_gfx_sx = (int)(*soa_x(obj) / GFX_SECTION_SIZE);
+    int old_gfx_sy = (int)(*soa_y(obj) / GFX_SECTION_SIZE);
     int new_gfx_sx = (int)(new_x / GFX_SECTION_SIZE);
     int new_gfx_sy = (int)(new_y / GFX_SECTION_SIZE);
 
     // Update position
-    obj->x = new_x;
-    obj->y = new_y;
+    *soa_x(obj) = new_x;
+    *soa_y(obj) = new_y;
 
     // Logic section update
     if (new_sx != old_sx || new_sy != old_sy) {
@@ -869,7 +869,7 @@ ObjectType obtain_type_from_id(int id) {
     return TYPE_NORMAL_OBJECT;
 }
 
-GameObject *convert_to_game_object(const GDObject *obj) {
+GameObject *convert_to_game_object(const GDObject *obj, int i) {
     GameObject *object = malloc(sizeof(GameObject));
     if (!object) return NULL;
 
@@ -1158,12 +1158,55 @@ GameObject *convert_to_game_object(const GDObject *obj) {
         object->height = hitbox.height * object->object.scale_y;
     }
 
+    
+    object->soa_index = i;
+    gameObjectSoA->x[i] = object->x;
+    gameObjectSoA->y[i] = object->y;
+    gameObjectSoA->delta_x[i] = 0;
+    gameObjectSoA->delta_y[i] = 0;
+
     object->has_two_channels = object->object.main_col_channel > 0 && object->object.detail_col_channel > 0;
 
     // Register its groups
     register_object(object);
 
     return object;
+}
+
+bool init_object_soa(int count, GameObjectSoA *soa) {
+    soa->x = malloc(sizeof(float) * count);    
+    if (!soa->x) return FALSE;
+
+    soa->y = malloc(sizeof(float) * count);
+    if (!soa->y) {
+        free(soa->x);
+        return FALSE;
+    }
+
+    soa->delta_x = malloc(sizeof(float) * count);
+    if (!soa->y) {
+        free(soa->x);
+        free(soa->y);
+        return FALSE;
+    }
+
+    soa->delta_y = malloc(sizeof(float) * count);
+    if (!soa->y) {
+        free(soa->x);
+        free(soa->y);
+        free(soa->delta_x);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+void free_soa(GameObjectSoA *soa) {
+    free(soa->x);
+    free(soa->y);
+    free(soa->delta_x);
+    free(soa->delta_y);
+    free(soa);
 }
 
 void free_game_object(GameObject *obj) {
@@ -1180,7 +1223,7 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
     output_log("Converting objects...\n");
 
     for (int i = 0; i < objList->objectCount; i++) {
-        objectArray[i] = convert_to_game_object(&objList->objects[i]);
+        objectArray[i] = convert_to_game_object(&objList->objects[i], i);
         assign_object_to_section(objectArray[i]);
         if (!objectArray[i]) {
             output_log("Failed to convert object %d\n", i);
@@ -1729,6 +1772,7 @@ GDGameObjectList *objectsArrayList = NULL;
 struct ObjectPos *origPositionsList = NULL;
 
 GDObjectLayerList *layersArrayList = NULL;
+GameObjectSoA *gameObjectSoA = NULL;
 int channelCount = 0;
 GDColorChannel *colorChannels = NULL;
 
@@ -1770,6 +1814,19 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     objectsArrayList->objects = realloc(objectsArrayList->objects, 
                                       sizeof(GameObject*) * objectsArrayList->count);
     objectsArrayList->objects[objectsArrayList->count - 1] = obj;
+
+    int new_index = objectsArrayList->count - 1;
+    // Realloc soa
+    gameObjectSoA->x = realloc(gameObjectSoA->x, sizeof(float) * objectsArrayList->count);
+    gameObjectSoA->y = realloc(gameObjectSoA->y, sizeof(float) * objectsArrayList->count);
+    gameObjectSoA->delta_x = realloc(gameObjectSoA->delta_x, sizeof(float) * objectsArrayList->count);
+    gameObjectSoA->delta_y = realloc(gameObjectSoA->delta_y, sizeof(float) * objectsArrayList->count);
+
+    gameObjectSoA->x[new_index] = x;
+    gameObjectSoA->y[new_index] = y;
+    gameObjectSoA->delta_x[new_index] = 0;
+    gameObjectSoA->delta_y[new_index] = 0;
+    obj->soa_index = new_index;
 
     // Add to sections
     assign_object_to_section(obj);
@@ -1839,7 +1896,7 @@ void create_extra_objects() {
         switch (obj->id) {
             case BLUE_TP_PORTAL:
                 float x_offset = 10 * fabsf(cosf(DegToRad(obj->rotation)));
-                obj->object.child_object = add_object(ORANGE_TP_PORTAL, obj->x - x_offset, obj->y + obj->object.orange_tp_portal_y_offset, adjust_angle_y(obj->rotation, obj->flippedH) + 180.f);
+                obj->object.child_object = add_object(ORANGE_TP_PORTAL, *soa_x(obj) - x_offset, *soa_y(obj) + obj->object.orange_tp_portal_y_offset, adjust_angle_y(obj->rotation, obj->flippedH) + 180.f);
                 break;
         }
     }
@@ -1953,6 +2010,14 @@ int load_level(char *data, bool is_custom) {
             output_log("Failed parsing the objects.\n");
             return 2;
         }
+        
+        gameObjectSoA = malloc(sizeof(GameObjectSoA));
+        bool success = init_object_soa(objectsList->objectCount, gameObjectSoA);
+        if (!gameObjectSoA || !success) {
+            output_log("Failed creating the SoA objects\n");
+            free(gameObjectSoA);
+            return 5;
+        }
 
         objectsArrayList = convert_all_to_game_objects(objectsList);
         free_gd_object_list(objectsList);
@@ -2055,6 +2120,11 @@ void unload_level() {
     free_gfx_sections();
     full_init_variables();
     unload_coin_texture();
+    
+
+    if (gameObjectSoA) {
+        free_soa(gameObjectSoA);
+    }
 }
 
 void reset_color_channels() {

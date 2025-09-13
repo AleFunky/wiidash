@@ -5,8 +5,13 @@
 Node *group_buckets[MAX_GROUPS] = {NULL};
 
 int compare_objects(const GameObject *a, const GameObject *b) {
-    if (a->x != b->x) return a->x - b->x;   // smaller x first
-    return b->y - a->y;                     // if x same, bigger y first
+    int a_x = *soa_x((GameObject *) a);
+    int b_x = *soa_x((GameObject *) b);
+    int a_y = *soa_y((GameObject *) a);
+    int b_y = *soa_y((GameObject *) b);
+
+    if (a_x != b_x) return a_x - b_x;   // smaller x first
+    return b_y - a_y;                   // if x same, bigger y first
 }
 
 // qsort wrapper for Object* inside array

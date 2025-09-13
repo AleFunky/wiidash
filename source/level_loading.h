@@ -151,8 +151,19 @@ typedef enum {
     TYPE_SPAWN_TRIGGER,
 } ObjectType;
 
+typedef struct GameObjectSoA {
+    float *x;
+    float *y;
+    float *delta_x;
+    float *delta_y;
+    unsigned char *touching_player;
+    unsigned char *prev_touching_player;
+} GameObjectSoA;
+
 typedef struct GameObject {
     int id;              // key 1
+
+    int soa_index;
 
     ObjectType type;     // Defines the type
 
@@ -310,6 +321,8 @@ typedef struct GFXSection {
     struct GFXSection *next; // For chaining in hash map
 } GFXSection;
 
+bool init_object_soa(int count, GameObjectSoA *soa);
+
 extern Section *section_hash[SECTION_HASH_SIZE];
 extern GFXSection *section_gfx_hash[SECTION_HASH_SIZE];
 unsigned int section_hash_func(int x, int y);
@@ -358,3 +371,10 @@ char *load_user_song(int id, size_t *out_size);
 
 bool check_song(int id);
 void update_percentage();
+
+extern GameObjectSoA *gameObjectSoA;
+
+inline float* soa_x(GameObject *obj) { return &gameObjectSoA->x[obj->soa_index]; }
+inline float* soa_y(GameObject *obj) { return &gameObjectSoA->y[obj->soa_index]; }
+inline float* soa_delta_x(GameObject *obj) { return &gameObjectSoA->delta_x[obj->soa_index]; }
+inline float* soa_delta_y(GameObject *obj) { return &gameObjectSoA->delta_y[obj->soa_index]; }

@@ -952,7 +952,7 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
 
     float fade_scale = 1.f;
     
-    float x = ((parent_obj->x - state.camera_x) * SCALE) - widthAdjust;
+    float x = ((*soa_x(parent_obj) - state.camera_x) * SCALE) - widthAdjust;
     get_fade_vars(parent_obj, x, &fade_x, &fade_y, &fade_scale);
 
     GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);

@@ -108,7 +108,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                 // Only do the funny grav snap if player is touching a gravity object and internal hitbox is touching block
                 bool internalCollidingBlock = intersect(
                     player->x, player->y, internal.width, internal.height, 0, 
-                    obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+                    *soa_x(obj), *soa_y(obj), hitbox->width, hitbox->height, obj->rotation
                 );
 
                 gravSnap = (!state.old_player.on_ground || player->ceiling_inv_time > 0) && internalCollidingBlock && obj_gravTop(player, obj) - gravInternalBottom(player) <= clip;
@@ -135,13 +135,13 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             
             if ((player->gamemode == GAMEMODE_WAVE || (!gravSnap && !safeZone)) && intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+                *soa_x(obj), *soa_y(obj), hitbox->width, hitbox->height, obj->rotation
             )) {
                 if (hitbox->type == HITBOX_BREAKABLE_BLOCK) {
                     // Spawn breakable brick particles
                     obj->hide_sprite = TRUE;
                     for (s32 i = 0; i < 10; i++) {
-                        spawn_particle(BREAKABLE_BRICK_PARTICLES, obj->x, obj->y, obj);
+                        spawn_particle(BREAKABLE_BRICK_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                     }
                 } else {
                     // Not a brick, die
@@ -210,8 +210,8 @@ void collide_with_obj(Player *player, GameObject *obj) {
         obj->object.touching_player = 0;
         obj->object.touching_side = 0;
 
-        float x = obj->x + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
-        float y = obj->y + get_rotated_y_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
+        float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
+        float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
         float width = hitbox->width * obj->object.scale_x;
         float height = hitbox->height * obj->object.scale_y;
 
@@ -271,7 +271,7 @@ void collide_with_slope(Player *player, GameObject *obj, bool has_slope) {
 
     if (intersect(
         player->x, player->y, player->width, player->height, 0, 
-        obj->x, obj->y, width, height, obj->rotation
+        *soa_x(obj), *soa_y(obj), width, height, obj->rotation
     )) {
         // The same check in handle_collision
         if (has_slope) {
@@ -333,9 +333,9 @@ void collide_with_objects(Player *player) {
         GameObject *obj = slope_buffer[i];
         if (intersect(
             player->x, player->y, player->width, player->height, 0, 
-            obj->x, obj->y, obj->width, obj->height, obj->rotation
+            *soa_x(obj), *soa_y(obj), obj->width, obj->height, obj->rotation
         )) {
-            float dist = fabsf(obj->y - player->y);
+            float dist = fabsf(*soa_y(obj) - player->y);
             if (dist < closestDist) {
                 player->touching_slope = TRUE;
                 player->potentialSlope = obj;
@@ -1833,7 +1833,7 @@ void slope_calc(GameObject *obj, Player *player) {
 
             vel *= time;
 
-            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, obj->y);
+            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, *soa_y(obj));
             player->vel_y = vel;
             player->inverse_rotation = TRUE;
             player->coyote_slope = player->slope_data;
@@ -1895,7 +1895,7 @@ void slope_calc(GameObject *obj, Player *player) {
             vel *= time;
 
             player->vel_y = -vel;
-            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, obj->y);
+            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, *soa_y(obj));
 
             player->inverse_rotation = TRUE;
             player->coyote_slope = player->slope_data;
@@ -1940,17 +1940,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_UD_DOWN:
-            x1 = obj->x - hw;
-            y1 = obj->y - hh;
-            x2 = obj->x + hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) - hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) + hw;
+            y2 = *soa_y(obj) + hh;
             break;
         case ORIENT_NORMAL_DOWN:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -1962,17 +1962,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x + hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) + hw;
+            y2 = *soa_y(obj) + hh;
             break;
         case ORIENT_NORMAL_DOWN:
         case ORIENT_UD_DOWN:
-            x1 = obj->x - hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) - hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -1985,17 +1985,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_NORMAL_DOWN:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y - hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) - hh;
             break;
         case ORIENT_UD_DOWN:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y + hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) + hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -2020,7 +2020,7 @@ void slope_collide(GameObject *obj, Player *player) {
     if (orient == ORIENT_NORMAL_UP || orient == ORIENT_UD_UP) {
         bool internalCollidingSlope = intersect(
             player->x, player->y, internal.width, internal.height, 0, 
-            obj_getRight(obj), obj->y, 1, obj->height, 0
+            obj_getRight(obj), *soa_y(obj), 1, obj->height, 0
         );
 
         // Die if so
@@ -2041,7 +2041,7 @@ void slope_collide(GameObject *obj, Player *player) {
         } else {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -2064,7 +2064,7 @@ void slope_collide(GameObject *obj, Player *player) {
         } else {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -2083,7 +2083,7 @@ void slope_collide(GameObject *obj, Player *player) {
         if (obj_gravTop(player, obj) - gravBottom(player) > clip) {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -2107,7 +2107,7 @@ void slope_collide(GameObject *obj, Player *player) {
 
     bool colliding = intersect(
         player->x, player->y, player->width, player->height, 0, 
-        obj->x, obj->y, obj->width, obj->height, 0
+        *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
     );
 
     GameObject *slope = player->slope_data.slope;
@@ -2300,8 +2300,8 @@ void draw_hitbox(GameObject *obj) {
 
     float angle = obj->rotation;
 
-    float x = obj->x + get_rotated_x_hitbox(hitbox.x_off, hitbox.y_off, angle);
-    float y = obj->y + get_rotated_y_hitbox(hitbox.x_off, hitbox.y_off, angle);
+    float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox.x_off, hitbox.y_off, angle);
+    float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox.x_off, hitbox.y_off, angle);
     float w = hitbox.width * obj->object.scale_x;
     float h = hitbox.height * obj->object.scale_y;
 

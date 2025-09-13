@@ -399,10 +399,10 @@ static void cache_move_group(int group_id) {
     int i = 0;
     for (Node* p = get_group(group_id); p; p = p->next) {
         objects[i].obj = p->obj;
-        objects[i].x = p->obj->x;
-        objects[i].y = p->obj->y;
-        objects[i].old_x = p->obj->x;
-        objects[i].old_y = p->obj->y;
+        objects[i].x = *soa_x(p->obj);
+        objects[i].y = *soa_y(p->obj);
+        objects[i].old_x = *soa_x(p->obj);
+        objects[i].old_y = *soa_y(p->obj);
         i++;
     }
 
@@ -416,8 +416,8 @@ void process_dirty_objects() {
         GameObject *obj = dirty_objects[i];
         obj->dirty = false;
         
-        float new_x = obj->x + obj->object.delta_x * STEPS_DT;
-        float new_y = obj->y + obj->object.delta_y * STEPS_DT;
+        float new_x = *soa_x(obj) + *soa_delta_x(obj) * STEPS_DT;
+        float new_y = *soa_y(obj) + *soa_delta_y(obj) * STEPS_DT;
         
         update_object_section(obj, new_x, new_y);
     }
@@ -438,8 +438,9 @@ void handle_move_triggers() {
         }
 
         for (int i = 0; i < group->count; i++) {
-            group->objects[i].obj->object.delta_x = 0;
-            group->objects[i].obj->object.delta_y = 0;
+            GameObject *obj = group->objects[i].obj;
+            *soa_delta_x(obj) = 0;
+            *soa_delta_y(obj) = 0;
         }
     }
 
@@ -479,8 +480,8 @@ void handle_move_triggers() {
             MovingObject* mobj = &group->objects[i];
             GameObject* obj = mobj->obj;
 
-            obj->object.delta_x += delta_x / STEPS_DT;
-            obj->object.delta_y += delta_y / STEPS_DT;
+            *soa_delta_x(obj) += delta_x / STEPS_DT;
+            *soa_delta_y(obj) += delta_y / STEPS_DT;
 
             mark_object_dirty(obj);
 
@@ -519,15 +520,15 @@ void handle_move_triggers() {
                     Player* player = (obj->object.touching_player == 1) ?
                                    &state.player : &state.player2;
 
-                    float delta_y = obj->object.delta_y * STEPS_DT;
+                    float delta_y = *soa_delta_y(obj) * STEPS_DT;
                     float grav_delta_y = grav(player, delta_y / STEPS_DT);
                     if (grav_delta_y > MOVE_SPEED_DIVIDER) {
                         player->vel_y = grav_delta_y;
                     }
                 }
                 
-                obj->object.delta_x = 0;
-                obj->object.delta_y = 0;
+                *soa_delta_x(obj) = 0;
+                *soa_delta_y(obj) = 0;
             }
         }
     }
@@ -850,12 +851,12 @@ void handle_triggers(GameObject *obj) {
         if (obj->trigger.touch_triggered) {
             if (intersect(
                 player->x, player->y, player->width, player->height, 0, 
-                obj->x, obj->y, 30, 30, obj->rotation
+                *soa_x(obj), *soa_y(obj), 30, 30, obj->rotation
             )) {
                 run_trigger(obj);
             }
         } else if (!obj->trigger.spawn_triggered) {
-            if (obj->x < state.player.x) {
+            if (*soa_x(obj) < state.player.x) {
                 run_trigger(obj);
             }
         }
