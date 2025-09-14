@@ -161,8 +161,13 @@ extern GRRLIB_texImg *cursor;
 
 extern AnimationLibrary robot_animations;
 
+void update_ir_cursor();
+void draw_ir_cursor();
 extern float ir_x;
 extern float ir_y;
+extern float ir_angle;
+extern float cursor_rotated_point_x;
+extern float cursor_rotated_point_y;
 
 extern float dt;
 
