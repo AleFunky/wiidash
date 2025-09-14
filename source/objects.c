@@ -26,6 +26,7 @@
 #include "groups.h"
 
 AnimationDefinition monster_1_anim;
+AnimationDefinition black_sludge_anim;
 
 GRRLIB_texImg *prev_tex = NULL;
 int prev_blending = GRRLIB_BLEND_ALPHA;
@@ -1036,6 +1037,7 @@ void load_spritesheet() {
     }
 
     monster_1_anim = prepare_monster_1_animation();
+    black_sludge_anim = prepare_black_sludge_animation();
 
     load_icons();
 }
@@ -1057,6 +1059,7 @@ void unload_spritesheet() {
     }
     
     unload_animation_definition(monster_1_anim);
+    unload_animation_definition(black_sludge_anim);
 
     unload_icons();
 }
@@ -1972,6 +1975,18 @@ int compare_by_layer_index(const void *a, const void *b) {
     return la->originalIndex - lb->originalIndex;
 }
 
+void play_object_animation(GameObject *obj) {
+    switch (obj->id) {
+        case MONSTER_1:
+            playObjAnimation(obj, monster_1_anim, obj->object.animation_timer);
+            break;
+        case BLACK_SLUDGE:
+            playObjAnimation(obj, black_sludge_anim, obj->object.animation_timer);
+            break;
+    }
+    obj->object.animation_timer += dt;
+}
+
 void draw_all_object_layers() {
     u64 t0 = gettime();
     if (GRRLIB_Settings.antialias == false) {
@@ -2128,7 +2143,7 @@ void draw_all_object_layers() {
 
             t0 = gettime();
             if (is_layer0 && objects[obj->id].has_movement) {
-                playObjAnimation(obj, monster_1_anim, obj->object.animation_timer += dt);
+                play_object_animation(obj);
             }
             else if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();
@@ -2263,6 +2278,7 @@ void unload_animation_definition(AnimationDefinition def) {
 
         if (part.texture) {
             GRRLIB_FreeTexture(part.texture);
+            part.texture = NULL;
         }
     }
 }

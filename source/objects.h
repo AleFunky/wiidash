@@ -1089,8 +1089,7 @@ enum Objects {
     PIXEL_BLOCK_2,
 
     MONSTER_1,
-
-
+    BLACK_SLUDGE,
 
     PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,

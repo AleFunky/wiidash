@@ -16752,7 +16752,19 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zorder = 2,
         .num_layers = 0,
     },
-
+    { // Black sludge
+        .layers = {},
+        .has_movement = TRUE,
+        .hitbox = {
+            .width = 25,
+            .height = 6,
+            .type = HITBOX_SPIKE
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 2,
+        .num_layers = 0,
+    },
     [PULSE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
     [GREEN_ORB] = {

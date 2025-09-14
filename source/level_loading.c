@@ -1447,7 +1447,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
         int obj_id = obj->id;
 
         if (obj_id < OBJECT_COUNT) {
-            if (objects[obj->id].has_movement) layerCount += 1;
+            if (objects[obj->id].has_movement) layerCount++;
             else layerCount += objects[obj->id].num_layers;
         }
     }
@@ -1496,6 +1496,8 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                 layers[count].layer =  (struct ObjectLayer *) &objects[PLAYER_OBJECT].layers[0]; // Only has to be valid
                 layers[count].obj = obj;
                 layers[count].layerNum = 0;
+                layers[count].blending = FALSE;
+                layers[count].col_channel = 0;
                 count++;
             }
 

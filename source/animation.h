@@ -43,6 +43,7 @@ typedef struct {
 } AnimationDefinition;
 
 AnimationDefinition prepare_monster_1_animation();
+AnimationDefinition prepare_black_sludge_animation();
 
 void playAnimation(Animation* anim, float time);
 void playObjAnimation(GameObject *obj, AnimationDefinition definition, float time);

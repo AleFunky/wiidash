@@ -1143,3 +1143,6 @@
 #include "GJBeast01_02_001_png.h"
 #include "GJBeast01_02_glow_001_png.h"
 #include "GJBeast01_03_001_png.h"
+
+#include "dA_blackSludge_01_001_png.h"
+#include "dA_blackSludge_02_001_png.h"

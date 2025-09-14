@@ -4,6 +4,10 @@
 #define M_PI 3.14159265358979323846
 #define M_PI_X2 (M_PI * 2)
 
+#ifndef M_PI_2
+    #define M_PI_2 (M_PI / 2)
+#endif
+
 
 float executeEase(EaseTypes ease, float time, float period) {
     switch (ease) {
@@ -156,12 +160,12 @@ float linear(float time)
 // Sine Ease
 float sineEaseIn(float time)
 {
-    return -1 * cosf(time * (float)M_PI_X2) + 1;
+    return -1 * cosf(time * (float)M_PI_2) + 1;
 }
 
 float sineEaseOut(float time)
 {
-    return sinf(time * (float)M_PI_X2);
+    return sinf(time * (float)M_PI_2);
 }
 
 float sineEaseInOut(float time)

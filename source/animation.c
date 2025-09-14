@@ -453,19 +453,17 @@ void playRobotAnimation(Player *player,
     }
 }
 
-AnimationLibrary tmp_library;
+AnimationLibrary monster_1_library;
+AnimationLibrary black_sludge_library;
 AnimationDefinition prepare_monster_1_animation() {
-    AnimationDefinition animation;
-
     char monster_plist_path[282];
-    
     snprintf(monster_plist_path, sizeof(monster_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "monster1.plist");
-    
-    parsePlist(monster_plist_path, &tmp_library);
-
-    animation.anim = getAnimation(&tmp_library, "GJBeast01_bite");
+    parsePlist(monster_plist_path, &monster_1_library);
     
     int part_index = 0;
+    
+    AnimationDefinition animation;
+    animation.anim = getAnimation(&monster_1_library, "GJBeast01_bite");
 
     AnimationPart part1;
     part1.texture = GRRLIB_LoadTexture(GJBeast01_01_glow_001_png);
@@ -509,3 +507,43 @@ AnimationDefinition prepare_monster_1_animation() {
 
     return animation;
 };
+
+AnimationDefinition prepare_black_sludge_animation() {
+    char black_sludge_plist_path[285];
+    snprintf(black_sludge_plist_path, sizeof(black_sludge_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "black_sludge.plist");
+    parsePlist(black_sludge_plist_path, &black_sludge_library);
+    
+    int part_index = 0;
+    
+    AnimationDefinition animation;
+    animation.anim = getAnimation(&black_sludge_library, "BlackSludge_loop");
+
+    AnimationPart part1;
+    part1.texture = GRRLIB_LoadTexture(dA_blackSludge_01_001_png);
+    part1.color_channel_type = COLOR_DETAIL;
+    part1.default_col_channel = BLACK;
+    part1.part_id = 0;
+    animation.parts[part_index++] = part1;
+
+    GRRLIB_texImg *triangle_tex = GRRLIB_LoadTexture(dA_blackSludge_02_001_png);
+
+    AnimationPart part2;
+    part2.texture = triangle_tex;
+    part2.color_channel_type = COLOR_DETAIL;
+    part2.default_col_channel = BLACK;
+    part2.part_id = 1;
+    animation.parts[part_index++] = part2;
+
+    AnimationPart part3;
+    part3.texture = triangle_tex;
+    part3.color_channel_type = COLOR_DETAIL;
+    part3.default_col_channel = BLACK;
+    part3.part_id = 2;
+    animation.parts[part_index++] = part3;
+
+    animation.part_count = part_index;
+    animation.has_detail = TRUE;
+    animation.fps = 20;
+
+    return animation;
+}
