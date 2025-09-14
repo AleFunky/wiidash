@@ -2139,13 +2139,18 @@ void unload_level() {
     }
 }
 
+HSV empty_hsv = { 0 };
+
 void reset_color_channels() {
-    for (s32 i = 0; i < 999; i++) {
+    for (s32 i = 0; i < COL_CHANNEL_COUNT; i++) {
         channels[i].color.r = 255;
         channels[i].color.g = 255;
         channels[i].color.b = 255;
         channels[i].alpha = 1.f;
         channels[i].blending = FALSE;
+        channels[i].hsv = empty_hsv;
+        channels[i].copy_color_id = 0;
+        channels[i].non_pulse_color = channels[i].color;
     }
 
     channels[BG].color.r = 56;
@@ -2159,18 +2164,6 @@ void reset_color_channels() {
     channels[GROUND].color.b = 255;
     channels[GROUND].alpha = 1.f;
     channels[GROUND].blending = FALSE;
-
-    channels[LINE].color.r = 255;
-    channels[LINE].color.g = 255;
-    channels[LINE].color.b = 255;
-    channels[LINE].alpha = 1.f;
-    channels[LINE].blending = TRUE;
-
-    channels[OBJ].color.r = 255;
-    channels[OBJ].color.g = 255;
-    channels[OBJ].color.b = 255;
-    channels[OBJ].alpha = 1.f;
-    channels[OBJ].blending = FALSE;
 
     channels[OBJ_BLENDING].alpha = 1.f;
     channels[OBJ_BLENDING].copy_color_id = OBJ;
@@ -2188,12 +2181,6 @@ void reset_color_channels() {
     channels[BLACK].color.b = 0;
     channels[BLACK].alpha = 1.f;
     channels[BLACK].blending = FALSE;
-
-    channels[WHITE].color.r = 255;
-    channels[WHITE].color.g = 255;
-    channels[WHITE].color.b = 255;
-    channels[WHITE].alpha = 1.f;
-    channels[WHITE].blending = FALSE;
 }
 
 void set_color_channels() {
