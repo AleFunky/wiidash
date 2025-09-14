@@ -703,7 +703,7 @@ int get_main_channel_id(int id) {
     ObjectDefinition obj = objects[id];
     for (int i = 0; i < obj.num_layers; i++) {
         int col_channel = obj.layers[i].col_channel;
-        if (obj.layers[i].color_type == COLOR_MAIN) return col_channel;
+        if (obj.layers[i].color_type == COLOR_MAIN || obj.layers[i].color_type == COLOR_UNMOD) return col_channel;
     }
     return -1;
 }
@@ -1520,7 +1520,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                             if (layer->color_type == COLOR_MAIN) {
                                 col_channel = obj->object.main_col_channel;  
                             } else {
-                                if (get_main_channel_id(obj_id) <= 0)col_channel = obj->object.main_col_channel; 
+                                if (get_main_channel_id(obj_id) <= 0) col_channel = obj->object.main_col_channel; 
                             }
                         }
                         if (obj->object.detail_col_channel > 0) {
