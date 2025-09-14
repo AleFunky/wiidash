@@ -574,7 +574,15 @@ int main_levels() {
         }
     }
 
-    GRRLIB_DrawImg(ir_x,ir_y, cursor,0,1,1,RGBA(255,255,255,255)); // draw cursor
+    char ir_data[64];
+    snprintf(ir_data, sizeof(ir_data), "x: %f, y: %f, a: %f", ir_x, ir_y, ir_angle);
+    draw_text(big_font, big_font_text, 20, 20, 0.25, ir_data);  // White tex
+
+    update_ir_cursor();
+    draw_ir_cursor();
+
+    
+
 
     if (state.input.pressedDir & INPUT_LEFT) {
         menu_go_left();
@@ -587,7 +595,7 @@ int main_levels() {
     if (state.input.pressedA) {
         // ale is no longer going to kill me
         for (int i = 0; i < button_count; i++){
-            if (GRRLIB_PtInRect(button_list[i].x,button_list[i].y,button_list[i].width,button_list[i].height,ir_x,ir_y)){
+            if (GRRLIB_PtInRect(button_list[i].x,button_list[i].y,button_list[i].width,button_list[i].height,cursor_rotated_point_x,cursor_rotated_point_y)){
             button_list[i].func();
             }
         }

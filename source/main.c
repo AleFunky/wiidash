@@ -85,6 +85,10 @@ int number_of_collisions_checks = 0;
 char launch_dir[256] = SDCARD_FOLDER;
 float ir_x;
 float ir_y;
+float ir_angle;
+float cursor_rotated_point_x;
+float cursor_rotated_point_y;
+int ir_is_valid;
 
 void draw_game() {
     draw_background(state.background_x / 8, -(state.camera_y / 8) + 416);
@@ -181,6 +185,8 @@ void draw_game() {
         GRRLIB_FillScreen(RGBA(0, 0, 0, 127));
         textOffset = (get_text_length(big_font, 0.5, "PAUSED")) / 2;
         draw_text(big_font, big_font_text, screenWidth / 2 - textOffset, screenHeight / 2 - 15, 0.5, "PAUSED");
+        update_ir_cursor();
+        draw_ir_cursor();
     }
     layersDrawn = 0;
 }
@@ -224,12 +230,6 @@ void update_external_input(KeyInput *input) {
     input->pressedJump = input->pressedA || input->pressed2orY || input->pressedB;
     input->holdJump = input->holdA || input->hold2orY || input->holdB;
 
-    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
-
-    WPADData* data = WPAD_Data(0);
-    ir_x = data->ir.x;
-    ir_y = data->ir.y;
-
 }
 
 void set_launch_dir(const char* path) {
@@ -243,6 +243,23 @@ void set_launch_dir(const char* path) {
 
     strncpy(launch_dir, path, dir_len);
     launch_dir[dir_len] = '\0';
+}
+
+void update_ir_cursor() {
+    WPADData* data = WPAD_Data(0);
+    ir_x = data->ir.sx;
+    ir_y = data->ir.sy;
+    ir_angle = data->ir.angle;
+    ir_is_valid = data->ir.smooth_valid;
+    float converted_angle = ir_angle * (M_PI / 180.0);
+    cursor_rotated_point_x = (ir_x * cosf(converted_angle) - ir_y * sinf(converted_angle));
+    cursor_rotated_point_y = (ir_x * sinf(converted_angle) + ir_y * cosf(converted_angle));
+}
+
+void draw_ir_cursor() {
+    if (ir_is_valid) {
+        GRRLIB_DrawImg(ir_x, ir_y, cursor, ir_angle,1,1,RGBA(255,255,255,255)); // draw cursor
+    }
 }
 
 int main(int argc, char **argv) {
@@ -283,10 +300,12 @@ int main(int argc, char **argv) {
     font = GRRLIB_LoadTexturePNG(font_png);
     GRRLIB_InitTileSet(font, 24, 36, 32);
     cursor = GRRLIB_LoadTexturePNG(cursor_png);
+    GRRLIB_SetHandle(cursor, 14, 22);
     big_font_text = GRRLIB_LoadTexturePNG(bigFont_png);
 
     // hopefully this fixes the ir position
     WPAD_SetVRes(WPAD_CHAN_0,screenWidth,screenHeight);
+    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
 
     full_init_variables();
     while(1) {
@@ -314,4 +333,6 @@ static void ExitGame(void) {
     // Exit application
     exit(0);
 }
+
+
 

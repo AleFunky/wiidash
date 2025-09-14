@@ -155,8 +155,13 @@ extern GRRLIB_texImg *big_font_text;
 extern GRRLIB_texImg *font;
 extern GRRLIB_texImg *cursor;
 
+void update_ir_cursor();
+void draw_ir_cursor();
 extern float ir_x;
 extern float ir_y;
+extern float ir_angle;
+extern float cursor_rotated_point_x;
+extern float cursor_rotated_point_y;
 
 extern float dt;
 
