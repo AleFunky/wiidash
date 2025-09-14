@@ -68,6 +68,7 @@ const ObjectDefinition trigger = {
 
 const struct ObjectLayer player_layer = {
     .col_channel = WHITE,
+    .color_type = COLOR_UNMOD,
     .zlayer_offset = 0,
     .texture = NULL
 };
@@ -87,6 +88,7 @@ const struct ObjectLayer secret_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_01_001_png
     },
@@ -94,6 +96,7 @@ const struct ObjectLayer secret_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_01_002_png
     },
@@ -101,6 +104,7 @@ const struct ObjectLayer secret_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_01_003_png
     },
@@ -108,6 +112,7 @@ const struct ObjectLayer secret_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_01_004_png
     }
@@ -118,6 +123,7 @@ const struct ObjectLayer user_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_2_01_001_png
     },
@@ -125,6 +131,7 @@ const struct ObjectLayer user_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_2_01_002_png
     },
@@ -132,6 +139,7 @@ const struct ObjectLayer user_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_2_01_003_png
     },
@@ -139,6 +147,7 @@ const struct ObjectLayer user_coin_layer[] = {
         .x_offset = 0,
         .y_offset = 0,
         .col_channel = WHITE,
+        .color_type = COLOR_UNMOD,
         .zlayer_offset = 0,
         .texture = secretCoin_2_01_004_png
     }
@@ -357,6 +366,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_01_001_png
             },
@@ -364,6 +374,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_02_001_png
             },
@@ -371,6 +382,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_03_001_png
             }
@@ -391,6 +403,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_01_back_001_png
             },
@@ -398,6 +411,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_01_front_001_png
             }
@@ -414,6 +428,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_02_back_001_png
             },
@@ -421,6 +436,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_02_front_001_png
             }
@@ -437,6 +453,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_03_back_001_png
             },
@@ -444,6 +461,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_03_front_001_png
             }
@@ -460,6 +478,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_04_back_001_png
             },
@@ -467,6 +486,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_04_front_001_png
             }
@@ -484,6 +504,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = rod_01_001_png
             },
@@ -524,6 +545,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = rod_02_001_png
             },
@@ -548,6 +570,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = rod_03_001_png
             },
@@ -653,6 +676,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = bump_01_001_png
             }
@@ -673,6 +697,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = ring_01_001_png
             }
@@ -729,6 +754,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_color_001_png
             },
@@ -792,6 +818,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_05_back_001_png
             },
@@ -799,6 +826,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_05_front_001_png
             }
@@ -815,6 +843,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_06_back_001_png
             },
@@ -822,6 +851,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_06_front_001_png
             }
@@ -838,6 +868,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_07_back_001_png
             },
@@ -845,6 +876,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_07_front_001_png
             }
@@ -1002,6 +1034,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_001_png
             }
@@ -1029,6 +1062,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_01_001_png
             },
@@ -1056,6 +1090,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_02_001_png
             },
@@ -1083,6 +1118,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_03_001_png
             },
@@ -1117,6 +1153,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_04_001_png
             },
@@ -1151,6 +1188,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_05_001_png
             },
@@ -1178,6 +1216,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = gravbump_01_001_png
             }
@@ -1205,6 +1244,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_b_06_001_png
             },
@@ -1239,6 +1279,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1273,6 +1314,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1307,6 +1349,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1341,6 +1384,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1391,6 +1435,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1425,6 +1470,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_c_05_001_png
             },
@@ -1459,6 +1505,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_d_05_001_png
             },
@@ -1493,6 +1540,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_d_05_001_png
             },
@@ -1527,6 +1575,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_d_05_001_png
             },
@@ -1578,6 +1627,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_d_05_001_png
             },
@@ -1612,6 +1662,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_d_05_001_png
             },
@@ -1666,6 +1717,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = gravring_01_001_png
             }
@@ -1740,6 +1792,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = sawblade_01_001_png
             }
@@ -1761,6 +1814,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = sawblade_02_001_png
             }
@@ -1789,6 +1843,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -1823,6 +1878,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -1857,6 +1913,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -1891,6 +1948,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -1918,6 +1976,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             }
@@ -1945,6 +2004,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -1979,6 +2039,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lightsquare_01_02_color_001_png
             },
@@ -2024,6 +2085,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = sawblade_03_001_png
             }
@@ -2045,6 +2107,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_08_back_001_png
             },
@@ -2052,6 +2115,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_08_front_001_png
             }
@@ -2069,6 +2133,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_09_back_001_png
             },
@@ -2076,6 +2141,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_09_front_001_png
             }
@@ -2175,6 +2241,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_10_back_001_png
             },
@@ -2182,6 +2249,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_10_front_001_png
             }
@@ -2338,6 +2406,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_f_05_001_png
             },
@@ -2365,6 +2434,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_f_05_001_png
             }
@@ -2639,6 +2709,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_b_01_001_png
             },
@@ -2646,6 +2717,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_b_02_001_png
             },
@@ -2653,6 +2725,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_b_03_001_png
             },
@@ -2660,6 +2733,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_b_04_001_png
             }
@@ -2751,6 +2825,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = bump_03_001_png
             }
@@ -2771,6 +2846,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = ring_03_001_png
             }
@@ -2791,6 +2867,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = secretCoin_01_001_png
             }
@@ -3988,6 +4065,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = fakeSpike_01_001_png
             }
@@ -4081,6 +4159,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_01_small_color_001_png
             },
@@ -4115,6 +4194,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_small_color_001_png
             },
@@ -4169,6 +4249,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = fakeSpike_02_001_png
             }
@@ -4185,6 +4266,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = fakeSpike_03_001_png
             }
@@ -4208,6 +4290,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = boost_01_001_png
             },
@@ -4235,6 +4318,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = boost_02_001_png
             },
@@ -4262,6 +4346,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = boost_03_001_png
             },
@@ -4289,6 +4374,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = boost_04_001_png
             },
@@ -5192,6 +5278,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_02_001_png
             }
@@ -5212,6 +5299,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_03_001_png
             }
@@ -5232,6 +5320,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_f_brick01_001_png
             }
@@ -5248,6 +5337,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = square_f_brick02_001_png
             }
@@ -6327,6 +6417,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_11_back_001_png
             },
@@ -6334,6 +6425,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_11_front_001_png
             }
@@ -6350,6 +6442,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_12_back_001_png
             },
@@ -6357,6 +6450,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_12_front_001_png
             }
@@ -6454,6 +6548,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = triangle_b_01_001_png
             },
@@ -6489,6 +6584,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = triangle_b_02_001_png
             },
@@ -6517,6 +6613,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = triangle_b_square_01_001_png
             },
@@ -6540,6 +6637,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = triangle_b_square_02_001_png
             },
@@ -6717,6 +6815,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lighttriangle_01_02_color_001_png
             },
@@ -6753,6 +6852,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lighttriangle_01_04_color_001_png
             },
@@ -7469,6 +7569,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_01_slope_01_001_png
             }
@@ -7490,6 +7591,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_01_slope_02_001_png
             }
@@ -7511,6 +7613,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_01_low_001_png
             }
@@ -7531,6 +7634,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_slope_01_001_png
             }
@@ -7552,6 +7656,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_slope_02_001_png
             }
@@ -7573,6 +7678,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_04_low_001_png
             }
@@ -7600,6 +7706,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_color_001_png
             },
@@ -7634,6 +7741,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_color_001_png
             },
@@ -7668,6 +7776,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_slope_01_color_001_png
             },
@@ -7703,6 +7812,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_slope_02_color_001_png
             },
@@ -7738,6 +7848,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_square_01_color_001_png
             },
@@ -7769,6 +7880,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = plank_01_square_02_color_001_png
             },
@@ -7905,6 +8017,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 1,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = fakeSpike_04_001_png
             }
@@ -7975,6 +8088,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = darkblade_01_001_png
             },
@@ -8004,6 +8118,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = darkblade_02_001_png
             },
@@ -8033,6 +8148,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = darkblade_03_001_png
             },
@@ -8310,6 +8426,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_05_001_png
             }
@@ -8330,6 +8447,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_05_02_001_png
             }
@@ -8373,6 +8491,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_06_001_png
             }
@@ -8393,6 +8512,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_06_2_001_png
             }
@@ -12421,6 +12541,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_13_back_001_png
             },
@@ -12428,6 +12549,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_13_front_001_png
             }
@@ -12608,6 +12730,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_07_001_png
             }
@@ -12628,6 +12751,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_001_002_png
             }
@@ -12644,6 +12768,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_002_002_png
             }
@@ -12660,6 +12785,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_003_002_png
             }
@@ -12676,6 +12802,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_004_002_png
             }
@@ -12692,6 +12819,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_005_002_png
             }
@@ -12773,6 +12901,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .color_type = COLOR_DETAIL,
                 .zlayer_offset = 0,
                 .texture = blackCogwheel_01_color_001_png
@@ -12809,6 +12938,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .color_type = COLOR_DETAIL,
                 .texture = blackCogwheel_02_color_001_png
@@ -12845,6 +12975,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .color_type = COLOR_DETAIL,
                 .texture = blackCogwheel_03_color_001_png
@@ -13078,6 +13209,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lighttriangle_01_02_color_001_png
             }
@@ -13094,6 +13226,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = lighttriangle_01_04_color_001_png
             }
@@ -13716,6 +13849,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_07_2_001_png
             }
@@ -14086,6 +14220,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = d_pixelArt01_006_002_png
             }
@@ -14225,6 +14360,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_14_back_001_png
             },
@@ -14232,6 +14368,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_14_front_001_png
             }
@@ -14248,6 +14385,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_15_back_001_png
             },
@@ -14255,6 +14393,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_15_front_001_png
             }
@@ -14271,6 +14410,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = -1,
                 .texture = portal_16_back_001_png
             },
@@ -14278,6 +14418,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = portal_16_front_001_png
             }
@@ -14610,6 +14751,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = pit_05_03_001_png
             }
@@ -14799,6 +14941,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_01_002_png
             }
@@ -14823,6 +14966,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_01_003_png
             }
@@ -14847,6 +14991,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_02_002_png
             }
@@ -14871,6 +15016,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_02_003_png
             }
@@ -14895,6 +15041,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_03_002_png
             }
@@ -14919,6 +15066,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_03_003_png
             }
@@ -14943,6 +15091,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_04_002_png
             }
@@ -14967,6 +15116,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_04_003_png
             }
@@ -14991,6 +15141,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_05_002_png
             }
@@ -15015,6 +15166,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_05_003_png
             }
@@ -15039,6 +15191,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_06_002_png
             }
@@ -15063,6 +15216,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_06_003_png
             }
@@ -15087,6 +15241,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_07_002_png
             }
@@ -15111,6 +15266,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_07_003_png
             }
@@ -15135,6 +15291,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_08_002_png
             }
@@ -15159,6 +15316,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_08_003_png
             }
@@ -15175,6 +15333,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_09_002_png
             }
@@ -15191,6 +15350,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_09_003_png
             }
@@ -15215,6 +15375,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_09_001_png
             }
@@ -15239,6 +15400,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_01_002_png
             }
@@ -15263,6 +15425,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_01_003_png
             }
@@ -15287,6 +15450,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_02_002_png
             }
@@ -15311,6 +15475,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_02_003_png
             }
@@ -15335,6 +15500,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_square_01_002_png
             }
@@ -15359,6 +15525,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_square_01_003_png
             }
@@ -15383,6 +15550,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_square_02_002_png
             }
@@ -15407,6 +15575,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = BLACK,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = block007_slope_square_02_003_png
             }
@@ -16773,6 +16942,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = WHITE,
+                .color_type = COLOR_UNMOD,
                 .zlayer_offset = 0,
                 .texture = gravJumpRing_01_001_png
             }

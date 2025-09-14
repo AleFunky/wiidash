@@ -1510,7 +1510,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                 int col_channel = layer->col_channel;
 
                 // Get layer's color channel
-                if (is_modifiable(layer->col_channel, obj->id)) {
+                if (is_modifiable(layer->col_channel, layer->color_type)) {
                     if (obj->object.u1p9_col_channel > 0) {
                         // Get 1.9 color channel
                         if (layer->color_type == COLOR_DETAIL) col_channel = obj->object.u1p9_col_channel;

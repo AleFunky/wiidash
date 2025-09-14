@@ -1212,6 +1212,7 @@ struct ObjectLayer {
 enum ColorTypes {
     COLOR_MAIN,
     COLOR_DETAIL,
+    COLOR_UNMOD,
     COLOR_GLOW,
 };
 
@@ -1293,7 +1294,7 @@ void set_dual_bounds();
 void flip_other_player(int current_player);
 void do_ball_reflection();
 void set_particle_color(int template_id, int r, int g, int b);
-bool is_modifiable(int col_channel, int obj_id);
+bool is_modifiable(int col_channel, int color_type);
 void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);

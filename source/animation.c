@@ -468,14 +468,14 @@ AnimationDefinition prepare_monster_1_animation() {
     AnimationPart part1;
     part1.texture = GRRLIB_LoadTexture(GJBeast01_01_glow_001_png);
     part1.color_channel_type = COLOR_GLOW;
-    part1.default_col_channel = OBJ_BLENDING;
+    part1.default_col_channel = LBG_NO_LERP;
     part1.part_id = 1;
     animation.parts[part_index++] = part1;
     
     AnimationPart part2;
     part2.texture = GRRLIB_LoadTexture(GJBeast01_02_glow_001_png);
     part2.color_channel_type = COLOR_GLOW;
-    part2.default_col_channel = OBJ_BLENDING;
+    part2.default_col_channel = LBG_NO_LERP;
     part2.part_id = 0;
     animation.parts[part_index++] = part2;
 
