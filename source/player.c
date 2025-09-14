@@ -2326,14 +2326,11 @@ void draw_hitbox(GameObject *obj) {
         get_corners(x, y, w, h, 0, rect);
 
         draw_triangle_from_rect(rect, 3 - obj->object.orientation,color);
-    } else if (objects[obj->id].is_saw) {
-        if (hitbox.radius == 0) return;
-
+    } else if (hitbox.radius != 0) {
         float calc_radius = hitbox.radius * MAX(obj->object.scale_x, obj->object.scale_y) * SCALE;
 
         custom_circunference(calc_x_on_screen(x), calc_y_on_screen(y), calc_radius, color, 2.f);
-    } else {
-        if (w == 0 || h == 0) return;
+    } else if (w != 0 && h != 0) {
 
         get_corners(x, y, w, h, angle, rect);
         draw_square(rect, color);

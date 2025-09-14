@@ -465,7 +465,17 @@
         "block009c_slope_01_color_001_png.h": "c",
         "block009b_02_color_001_png.h": "c",
         "block009c_05_001_png.h": "c",
-        "block005_10_001_png.h": "c"
+        "block005_10_001_png.h": "c",
+        "persp_09_01_png.h": "c",
+        "persp_09_10_png.h": "c",
+        "persp_08_09_png.h": "c",
+        "d_grassart_01_001_png.h": "c",
+        "d_whiteblock_01_001_png.h": "c",
+        "d_whiteblock_02_001_png.h": "c",
+        "gjbeast01_01_001_png.h": "c",
+        "gjbeast01_02_001_png.h": "c",
+        "gjbeast01_03_001_png.h": "c",
+        "gjbeast01_02_glow_001_png.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

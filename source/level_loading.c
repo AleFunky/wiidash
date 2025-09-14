@@ -1446,8 +1446,10 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
 
         int obj_id = obj->id;
 
-        if (obj_id < OBJECT_COUNT)
-            layerCount += objects[obj->id].num_layers;
+        if (obj_id < OBJECT_COUNT) {
+            if (objects[obj->id].has_movement) layerCount += 1;
+            else layerCount += objects[obj->id].num_layers;
+        }
     }
 
     output_log("Allocating %d bytes for %d layers\n", sizeof(GDObjectLayer) * layerCount, layerCount);
@@ -1489,7 +1491,14 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
         int obj_id = obj->id;
         int obj_type = obj->type;
 
-        if (obj_id < OBJECT_COUNT && obj_type == TYPE_NORMAL_OBJECT)
+        if (obj_id < OBJECT_COUNT && obj_type == TYPE_NORMAL_OBJECT) {
+            if (objects[obj->id].has_movement) {
+                layers[count].layer =  (struct ObjectLayer *) &objects[PLAYER_OBJECT].layers[0]; // Only has to be valid
+                layers[count].obj = obj;
+                layers[count].layerNum = 0;
+                count++;
+            }
+
             for (int j = 0; j < objects[obj->id].num_layers; j++) {
                 struct ObjectLayer *layer = (struct ObjectLayer *) &objects[obj->id].layers[j];
                 layers[count].layer = layer;
@@ -1530,6 +1539,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                 layers[count].col_channel = col_channel;
                 count++;
             }
+        }
     }
     
     output_log("Finished filling %d layers\n", count);

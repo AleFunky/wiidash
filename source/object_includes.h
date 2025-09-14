@@ -729,6 +729,7 @@
 #include "persp_08_07_png.h"
 #include "persp_08_08_png.h"
 #include "persp_08_09_png.h"
+#include "persp_08_10_png.h"
 
 #include "persp_09_01_png.h"
 #include "persp_09_02_png.h"
@@ -739,7 +740,6 @@
 #include "persp_09_07_png.h"
 #include "persp_09_08_png.h"
 #include "persp_09_09_png.h"
-#include "persp_09_10_png.h"
 
 #include "persp_10_01_png.h"
 #include "persp_10_02_png.h"
@@ -1125,3 +1125,21 @@
 #include "block005_11_001_png.h"
 #include "block005_11_color_001_png.h"
 #include "block005_12_001_png.h"
+
+#include "d_grass_05_001_png.h"
+
+#include "d_grassArt_01_001_png.h"
+#include "d_grassArt_02_001_png.h"
+#include "d_grassArt_03_001_png.h"
+#include "d_grassArt_04_001_png.h"
+
+#include "block005_13_001_png.h"
+
+#include "d_whiteBlock_01_001_png.h"
+#include "d_whiteBlock_02_001_png.h"
+
+#include "GJBeast01_01_001_png.h"
+#include "GJBeast01_01_glow_001_png.h"
+#include "GJBeast01_02_001_png.h"
+#include "GJBeast01_02_glow_001_png.h"
+#include "GJBeast01_03_001_png.h"

@@ -134,6 +134,8 @@ typedef struct {
     float orange_tp_portal_y_offset; // key 54
     GameObject *child_object;
 
+    float animation_timer;
+
     unsigned char touching_player;
     unsigned char prev_touching_player;
     unsigned char touching_side;

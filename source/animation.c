@@ -8,6 +8,7 @@
 #include "main.h"
 #include <math.h>
 #include "game.h"
+#include "object_includes.h"
 
 void extractAnimName(const char* frameName, char* outAnimName) {
     strcpy(outAnimName, frameName);
@@ -230,6 +231,126 @@ void lerpSpritePart(SpritePart* out, SpritePart* a, SpritePart* b, float t) {
     out->z = a->z;
 }
 
+void playObjAnimation(GameObject *obj, AnimationDefinition definition, float time) 
+{
+    Animation *anim = definition.anim;
+
+    if (!anim) {
+        printf("Animation is null\n");
+        return;
+    }
+
+    float frameTime = time * anim->fps;
+    int currentFrame = (int)frameTime % anim->frameCount;
+    int nextFrame = (currentFrame + 1) % anim->frameCount;
+    
+    // Get fractional part for interpolation
+    float frameLerp = frameTime - (int)frameTime; 
+    
+    AnimationFrame* frame = &anim->frames[currentFrame];
+    AnimationFrame* nextFrameData = &anim->frames[nextFrame];
+
+    float rotationRad = DegToRad(-obj->rotation);
+    float cosRot = cosf(rotationRad);
+    float sinRot = sinf(rotationRad);
+
+    int x_flip_mult = (obj->flippedH ? -1 : 1);
+    int y_flip_mult = (obj->flippedV ? -1 : 1);
+
+    SpritePart interpolatedPart;
+
+    for (int i = 0; i < definition.part_count; i++) {
+        AnimationPart part = definition.parts[i];
+        SpritePart* currentPart = &frame->parts[part.part_id];
+        SpritePart* nextPart = &nextFrameData->parts[part.part_id];
+        
+        // Interpolate between current and next frame
+        lerpSpritePart(&interpolatedPart, currentPart, nextPart, frameLerp);
+        
+        float part_x = interpolatedPart.x * x_flip_mult;
+        float part_y = interpolatedPart.y * y_flip_mult;
+
+        float rotated_x = (part_x * cosRot - part_y * sinRot) * obj->object.scale_x;
+        float rotated_y = (part_x * sinRot + part_y * cosRot) * obj->object.scale_y;
+
+        float calc_x = ((*soa_x(obj) + rotated_x - state.camera_x) * SCALE) - widthAdjust;
+        float calc_y = screenHeight - ((*soa_y(obj) + rotated_y - state.camera_y) * SCALE);
+
+        float rotation = interpolatedPart.rotation;
+        if (obj->flippedH) rotation = -rotation;
+        if (obj->flippedV) rotation = -rotation;
+        float final_rotation = (rotation + obj->rotation) * state.mirror_mult;
+        
+        // Put layer
+        GRRLIB_texImg *tex = part.texture;
+        u8 color_type = part.color_channel_type;
+        
+        int col_channel = part.default_col_channel;
+
+        // 2.0+ color channels
+        if (obj->object.main_col_channel > 0) {
+            if (color_type == COLOR_MAIN) {
+                col_channel = obj->object.main_col_channel;  
+            } else {
+                if (!definition.has_main) col_channel = obj->object.main_col_channel; 
+            }
+        }
+        if (obj->object.detail_col_channel > 0) {
+            if (color_type == COLOR_DETAIL) {
+                if (definition.has_main) col_channel = obj->object.detail_col_channel;  
+            }    
+        }
+
+        int blending;
+        if (channels[col_channel].blending) {
+            blending = GRRLIB_BLEND_ADD;
+        } else {
+            blending = GRRLIB_BLEND_ALPHA;
+        }
+
+        int opacity = get_fade_value(calc_x, screenWidth);
+        int unmodified_opacity = opacity;
+
+        u32 color = get_layer_color(obj, color_type, col_channel, opacity);
+
+        // If it is invisible because of blending, skip
+        if ((blending == GRRLIB_BLEND_ADD && !(color & ~0xff)) || opacity == 0) continue;
+
+        int fade_x = 0;
+        int fade_y = 0;
+
+        float fade_scale = 1.f;
+
+        get_fade_vars(obj, calc_x, &fade_x, &fade_y, &fade_scale);
+
+        // Handle special fade types
+        if (obj->transition_applied == FADE_DOWN_STATIONARY || obj->transition_applied == FADE_UP_STATIONARY) {
+            if (unmodified_opacity < 255) {
+                if (calc_x > screenWidth / 2) {
+                    calc_x = screenWidth - FADE_WIDTH;
+                } else {
+                    calc_x = FADE_WIDTH;
+                }
+            }
+        }
+        
+        if (tex) {
+            set_texture(tex); 
+            GRRLIB_SetBlend(blending);
+            GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
+            custom_drawImg(
+                /* X        */ get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2 + fade_x,
+                /* Y        */ calc_y + 6 - (tex->h) / 2 + fade_y,
+                /* Texture  */ tex, 
+                /* Rotation */ final_rotation, 
+                /* Scale X  */ BASE_SCALE * x_flip_mult * interpolatedPart.sx * fade_scale * state.mirror_mult * obj->object.scale_x, 
+                /* Scale Y  */ BASE_SCALE * y_flip_mult * interpolatedPart.sy * fade_scale * obj->object.scale_y, 
+                /* Color    */ color
+            );
+        }
+    }
+}
+
 void playRobotAnimation(Player *player, 
                         Animation* fromAnim, 
                         Animation* toAnim,
@@ -338,3 +459,58 @@ void playRobotAnimation(Player *player,
     }
 }
 
+AnimationLibrary tmp_library;
+AnimationDefinition prepare_monster_1_animation() {
+    AnimationDefinition animation;
+
+    char monster_plist_path[282];
+    
+    snprintf(monster_plist_path, sizeof(monster_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "monster1.plist");
+    
+    parsePlist(monster_plist_path, &tmp_library);
+
+    animation.anim = getAnimation(&tmp_library, "GJBeast01_bite");
+    
+    int part_index = 0;
+
+    AnimationPart part1;
+    part1.texture = GRRLIB_LoadTexture(GJBeast01_01_glow_001_png);
+    part1.color_channel_type = COLOR_GLOW;
+    part1.default_col_channel = OBJ_BLENDING;
+    part1.part_id = 1;
+    animation.parts[part_index++] = part1;
+    
+    AnimationPart part2;
+    part2.texture = GRRLIB_LoadTexture(GJBeast01_02_glow_001_png);
+    part2.color_channel_type = COLOR_GLOW;
+    part2.default_col_channel = OBJ_BLENDING;
+    part2.part_id = 0;
+    animation.parts[part_index++] = part2;
+
+    AnimationPart part3;
+    part3.texture = GRRLIB_LoadTexture(GJBeast01_01_001_png);
+    part3.color_channel_type = COLOR_MAIN;
+    part3.default_col_channel = BLACK;
+    part3.part_id = 1;
+    animation.parts[part_index++] = part3;
+
+    AnimationPart part4;
+    part4.texture = GRRLIB_LoadTexture(GJBeast01_03_001_png);
+    part4.color_channel_type = COLOR_DETAIL;
+    part4.default_col_channel = WHITE;
+    part4.part_id = 1;
+    animation.parts[part_index++] = part4;
+
+    AnimationPart part5;
+    part5.texture = GRRLIB_LoadTexture(GJBeast01_02_001_png);
+    part5.color_channel_type = COLOR_MAIN;
+    part5.default_col_channel = BLACK;
+    part5.part_id = 0;
+    animation.parts[part_index++] = part5;
+    
+    animation.part_count = part_index;
+    animation.has_main = TRUE;
+    animation.has_detail = TRUE;
+
+    return animation;
+};

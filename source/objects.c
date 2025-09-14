@@ -25,6 +25,8 @@
 
 #include "groups.h"
 
+AnimationDefinition monster_1_anim;
+
 GRRLIB_texImg *prev_tex = NULL;
 int prev_blending = GRRLIB_BLEND_ALPHA;
 
@@ -1033,6 +1035,8 @@ void load_spritesheet() {
         }
     }
 
+    monster_1_anim = prepare_monster_1_animation();
+
     load_icons();
 }
 
@@ -1052,6 +1056,8 @@ void unload_spritesheet() {
         }
     }
     
+    unload_animation_definition(monster_1_anim);
+
     unload_icons();
 }
 void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
@@ -1583,7 +1589,7 @@ const HSV lighter_hsv = {
     .vChecked = FALSE,
 };
 
-u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, float opacity) {
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity) {
     Color color;
     color.r = channels[col_channel].color.r;
     color.g = channels[col_channel].color.g;
@@ -1602,22 +1608,22 @@ u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, floa
     if (get_main_channel_id(obj->id) <= 0 && obj->object.main_col_HSV_enabled) {
         // Detail only objects use the main slot
         color = HSV_combine(color, obj->object.main_col_HSV);
-    } else if (layer->layer->color_type == COLOR_MAIN && obj->object.main_col_HSV_enabled) {
+    } else if (color_type == COLOR_MAIN && obj->object.main_col_HSV_enabled) {
         color = HSV_combine(color, obj->object.main_col_HSV);
-    } else if (layer->layer->color_type == COLOR_DETAIL && obj->object.detail_col_HSV_enabled) {
+    } else if (color_type == COLOR_DETAIL && obj->object.detail_col_HSV_enabled) {
         color = HSV_combine(color, obj->object.detail_col_HSV);
     }
     
 
-    if (layer->layer->color_type == COLOR_MAIN) {
+    if (color_type == COLOR_MAIN) {
         obj->object.main_color = color;
-    } else if (layer->layer->color_type == COLOR_DETAIL) {
+    } else if (color_type == COLOR_DETAIL) {
         obj->object.detail_color = color;
     }
 
-    if (obj->object.main_being_pulsed && layer->layer->color_type == COLOR_MAIN) {
+    if (obj->object.main_being_pulsed && color_type == COLOR_MAIN) {
         color = obj->object.main_col_pulse;
-    } else if (obj->object.detail_being_pulsed && layer->layer->color_type == COLOR_DETAIL) {
+    } else if (obj->object.detail_being_pulsed && color_type == COLOR_DETAIL) {
         color = obj->object.detail_col_pulse;
     }
 
@@ -1628,7 +1634,7 @@ u32 get_layer_color(GameObject *obj, GDObjectLayer *layer, int col_channel, floa
     return RGBA(color.r, color.g, color.b, transformed_opacity);
 }
 
-static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
+void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
     int obj_id = obj->id;
 
     int layer_index = layer->layerNum;
@@ -1661,7 +1667,7 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
         opacity *= get_fading_obj_fade(obj, x, screenWidth);
     }
 
-    u32 color = get_layer_color(obj, layer, col_channel, opacity);
+    u32 color = get_layer_color(obj, objectLayer->color_type, col_channel, opacity);
 
     // If it is invisible because of blending, skip
     if ((blending == GRRLIB_BLEND_ADD && !(color & ~0xff)) || opacity == 0) return;
@@ -2121,7 +2127,10 @@ void draw_all_object_layers() {
             obj_particles_time += t1 - t0;
 
             t0 = gettime();
-            if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
+            if (is_layer0 && objects[obj->id].has_movement) {
+                playObjAnimation(obj, monster_1_anim, obj->object.animation_timer += dt);
+            }
+            else if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();
             draw_time += t1 - t0;
             
@@ -2144,15 +2153,15 @@ void draw_all_object_layers() {
         GX_SetVtxDesc(GX_VA_TEX0,   GX_NONE);
         for (int dx = -width; dx <= width; dx++) {
             for (int dy = -height; dy <= height; dy++) {
-                GFXSection *sec = get_or_create_gfx_section(cam_sx + dx, cam_sy + dy);
-                for (int i = 0; i < sec->layer_count; i++) {
-                    GameObject *obj = sec->layers[i]->layer->obj;
+                Section *sec = get_or_create_section(cam_sx + dx, cam_sy + dy);
+                for (int i = 0; i < sec->object_count; i++) {
+                    GameObject *obj = sec->objects[i];
                     
                     float calc_x = ((*soa_x(obj) - state.camera_x) * SCALE) - widthAdjust;
                     float calc_y = screenHeight - ((*soa_y(obj) - state.camera_y) * SCALE);  
                     if (calc_x > -90 && calc_x < screen_x_max) {        
                         if (calc_y > -90 && calc_y < screen_y_max) {    
-                            if (sec->layers[i]->layerNum == 0) draw_hitbox(obj);
+                            draw_hitbox(obj);
                         }
                     }
                 }
@@ -2246,4 +2255,14 @@ bool is_object_unimplemented(int id) {
         }
     }
     return TRUE;
+}
+
+void unload_animation_definition(AnimationDefinition def) {
+    for (int i = 0; i < def.part_count; i++) {
+        AnimationPart part = def.parts[i];
+
+        if (part.texture) {
+            GRRLIB_FreeTexture(part.texture);
+        }
+    }
 }

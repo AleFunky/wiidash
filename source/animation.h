@@ -1,7 +1,6 @@
 #pragma once
 #include <mxml.h>
 #include "player.h"
-
 typedef struct {
     float x, y;
     float sx, sy;
@@ -27,7 +26,26 @@ typedef struct {
     int animCount;
 } AnimationLibrary;
 
+
+typedef struct {
+    GRRLIB_texImg *texture;
+    int default_col_channel;
+    u8 color_channel_type;
+    u8 part_id;
+} AnimationPart;
+
+typedef struct {
+    AnimationPart parts[10];
+    Animation *anim;
+    u8 part_count;
+    u8 has_main;
+    u8 has_detail;
+} AnimationDefinition;
+
+AnimationDefinition prepare_monster_1_animation();
+
 void playAnimation(Animation* anim, float time);
+void playObjAnimation(GameObject *obj, AnimationDefinition definition, float time);
 void playRobotAnimation(Player *player, 
                                Animation* fromAnim, 
                                Animation* toAnim,

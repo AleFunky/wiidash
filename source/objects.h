@@ -4,6 +4,7 @@
 #include "player.h"
 #include "math.h"
 #include "level_loading.h"
+#include "animation.h"
 
 #define BACKGROUND_SCALE 0.9
 #define BG_DIMENSIONS 4
@@ -1068,7 +1069,28 @@ enum Objects {
     BLOCK_5_11,
     BLOCK_5_12,
 
-    V2_0_LINE_TRIGGER = 915,
+    D_GRASS_05,
+
+    GRASSART_01,
+    GRASSART_02,
+    GRASSART_03,
+    GRASSART_04,
+
+    BLOCK_5_13,
+
+    UNKNOWN_912,
+    UNKNOWN_913,
+
+    TEXT_OBJ,
+
+    V2_0_LINE_TRIGGER,
+
+    PIXEL_BLOCK_1,
+    PIXEL_BLOCK_2,
+
+    MONSTER_1,
+
+
 
     PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,
@@ -1143,6 +1165,7 @@ enum SpriteSheets {
     SHEET_BLOCKS,
     SHEET_SPEED_PORTALS,
     SHEET_PORTALS,
+    SHEET_ANIMATED,
     SHEET_COUNT
 };
 
@@ -1190,6 +1213,7 @@ struct ObjectLayer {
 enum ColorTypes {
     COLOR_MAIN,
     COLOR_DETAIL,
+    COLOR_GLOW,
 };
 
 typedef struct {
@@ -1202,6 +1226,7 @@ typedef struct {
     u8 is_saw:1;
     u8 is_slope:1;
     u8 fades:1;
+    u8 has_movement:1;
     ObjectHitbox hitbox;
 } ObjectDefinition;
 
@@ -1236,6 +1261,8 @@ extern GRRLIB_texImg *prev_tex;
 
 extern GRRLIB_texImg *bg;
 extern GRRLIB_texImg *ground;
+
+extern AnimationDefinition monster_1_anim;
 
 void update_beat();
 void draw_end_wall();
@@ -1272,3 +1299,8 @@ void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);
 void run_trigger(GameObject *obj);
+
+AnimationDefinition prepare_monster_1_animation();
+void unload_animation_definition(AnimationDefinition def);
+void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer);
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity);
