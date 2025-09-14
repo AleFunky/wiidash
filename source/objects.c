@@ -1571,11 +1571,12 @@ float get_rotation_speed(GameObject *obj) {
     return 0.f;
 }
 
-bool is_modifiable(int col_channel, int color_type) {
+bool is_modifiable(int col_channel, int obj_id) {
     switch(col_channel) {
         case BLACK:
         case WHITE:
-            if (color_type == COLOR_MAIN) return FALSE;
+            // Objects pre 2.0 with black or white are not modifiable
+            if (obj_id < ROBOT_PORTAL) return FALSE;
             else return TRUE;
         case OBJ_BLENDING:
         case LBG_NO_LERP:

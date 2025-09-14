@@ -1293,7 +1293,7 @@ void set_dual_bounds();
 void flip_other_player(int current_player);
 void do_ball_reflection();
 void set_particle_color(int template_id, int r, int g, int b);
-bool is_modifiable(int col_channel, int color_type);
+bool is_modifiable(int col_channel, int obj_id);
 void set_intended_ceiling();
 
 bool is_object_unimplemented(int id);
