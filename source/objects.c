@@ -2144,6 +2144,8 @@ void draw_all_object_layers() {
             t0 = gettime();
             if (is_layer0 && objects[obj->id].has_movement) {
                 play_object_animation(obj);
+                set_texture(prev_tex);
+                GRRLIB_SetBlend(prev_blending);
             }
             else if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();

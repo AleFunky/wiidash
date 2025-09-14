@@ -462,7 +462,7 @@ AnimationDefinition prepare_monster_1_animation() {
     
     int part_index = 0;
     
-    AnimationDefinition animation;
+    AnimationDefinition animation = { 0 };
     animation.anim = getAnimation(&monster_1_library, "GJBeast01_bite");
 
     AnimationPart part1;
@@ -515,7 +515,7 @@ AnimationDefinition prepare_black_sludge_animation() {
     
     int part_index = 0;
     
-    AnimationDefinition animation;
+    AnimationDefinition animation = { 0 };
     animation.anim = getAnimation(&black_sludge_library, "BlackSludge_loop");
 
     AnimationPart part1;
