@@ -33,7 +33,6 @@ Animation* getOrCreateAnimation(AnimationLibrary* lib, const char* animName) {
     Animation* a = &lib->animations[lib->animCount++];
     strncpy(a->name, animName, sizeof(a->name));
     a->frameCount = 0;
-    a->fps = 30.0f;
     return a;
 }
 
@@ -209,11 +208,6 @@ Animation* getAnimation(AnimationLibrary* lib, const char* name) {
     return NULL;
 }
 
-bool robotAnimFinished(Animation *anim, float time) {
-    int frameIndex = (int)(time * anim->fps);
-    return frameIndex >= anim->frameCount;
-}
-
 #include "math.h"
 
 void lerpSpritePart(SpritePart* out, SpritePart* a, SpritePart* b, float t) {
@@ -240,7 +234,7 @@ void playObjAnimation(GameObject *obj, AnimationDefinition definition, float tim
         return;
     }
 
-    float frameTime = time * anim->fps;
+    float frameTime = time * definition.fps;
     int currentFrame = (int)frameTime % anim->frameCount;
     int nextFrame = (currentFrame + 1) % anim->frameCount;
     
@@ -371,7 +365,7 @@ void playRobotAnimation(Player *player,
     };
 
     // Prev anim
-    float frameTimeFrom = time * fromAnim->fps;
+    float frameTimeFrom = time * 30;
     int curFrameFrom = (int)frameTimeFrom % fromAnim->frameCount;
     int nextFrameFrom = (curFrameFrom + 1) % fromAnim->frameCount;
     float frameLerpFrom = frameTimeFrom - (int)frameTimeFrom;
@@ -380,7 +374,7 @@ void playRobotAnimation(Player *player,
     AnimationFrame* nextFrameFromData = &fromAnim->frames[nextFrameFrom];
 
     // This anim
-    float frameTimeTo = time * toAnim->fps;
+    float frameTimeTo = time * 30;
     int curFrameTo = (int)frameTimeTo % toAnim->frameCount;
     int nextFrameTo = (curFrameTo + 1) % toAnim->frameCount;
     float frameLerpTo = frameTimeTo - (int)frameTimeTo;
@@ -511,6 +505,7 @@ AnimationDefinition prepare_monster_1_animation() {
     animation.part_count = part_index;
     animation.has_main = TRUE;
     animation.has_detail = TRUE;
+    animation.fps = 38;
 
     return animation;
 };

@@ -18,7 +18,6 @@ typedef struct Animation {
     char name[64];
     AnimationFrame frames[64];
     int frameCount;
-    float fps;
 } Animation;
 
 typedef struct {
@@ -37,6 +36,7 @@ typedef struct {
 typedef struct {
     AnimationPart parts[10];
     Animation *anim;
+    float fps;
     u8 part_count;
     u8 has_main;
     u8 has_detail;
@@ -55,4 +55,3 @@ void playRobotAnimation(Player *player,
                                float blendFactor);
 void parsePlist(const char* filename, AnimationLibrary* lib);
 Animation* getAnimation(AnimationLibrary* lib, const char* name);
-bool robotAnimFinished(Animation *anim, float time);
