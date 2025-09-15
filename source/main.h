@@ -165,6 +165,8 @@ extern float cursor_rotated_point_y;
 
 extern float dt;
 
+bool is_dolphin();
+
 void draw_game();
 void update_input();
 void update_external_input(KeyInput *input);
