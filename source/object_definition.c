@@ -17037,6 +17037,42 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zorder = 2,
         .num_layers = 2,
     },
+
+    // Rainbow arcs
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = d_rainbow_01_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = 2,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = d_rainbow_02_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = 2,
+        .num_layers = 1,
+    },
     [PULSE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
     [GREEN_ORB] = {

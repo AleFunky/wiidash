@@ -1331,6 +1331,13 @@ float get_out_scale_fade(float x, int right_edge) {
 }
 
 void get_fade_vars(GameObject *obj, float x, int *fade_x, int *fade_y, float *fade_scale) {
+    switch (obj->id) {
+        case RAINBOW_ARC_SMALL:
+        case RAINBOW_ARC_BIG:
+            // Those are hardcoded to not fade
+            return;
+    }
+    
     switch (obj->transition_applied) {
         case FADE_NONE:
             break;
@@ -1514,6 +1521,10 @@ int get_opacity(GameObject *obj, float x) {
             bool blending = channels[obj->object.detail_col_channel].blending;
             if (!blending && obj->transition_applied == FADE_NONE) opacity = 255;
             break;
+        case RAINBOW_ARC_SMALL:
+        case RAINBOW_ARC_BIG:
+            // Those are hardcoded to not fade
+            return 255;
     }
 
     return opacity;
@@ -2030,9 +2041,6 @@ void draw_all_object_layers() {
     } else {
         GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
     }
-    
-    float screen_x_max = screenWidth + 90.0f;
-    float screen_y_max = screenHeight + 90.0f;
 
     int cam_sx = (int)((state.camera_x + SCREEN_WIDTH_AREA / 2) / GFX_SECTION_SIZE);
     int cam_sy = (int)((state.camera_y + SCREEN_HEIGHT_AREA / 2) / GFX_SECTION_SIZE);
@@ -2054,8 +2062,21 @@ void draw_all_object_layers() {
                 
                 float calc_x = ((*soa_x(obj) - state.camera_x) * SCALE) - widthAdjust;
                 float calc_y = screenHeight - ((*soa_y(obj) - state.camera_y) * SCALE);  
-                if (!obj->toggled && calc_x > -90 && calc_x < screen_x_max) {        
-                    if (calc_y > -90 && calc_y < screen_y_max) {    
+                
+                int offscreen_area = 90;
+
+                // Those are way bigger
+                switch (obj->id) {
+                    case RAINBOW_ARC_SMALL:
+                        offscreen_area = 120;
+                        break;
+                    case RAINBOW_ARC_BIG:
+                        offscreen_area = 240;
+                        break;
+                }
+
+                if (!obj->toggled && calc_x > -offscreen_area && calc_x < screenWidth + offscreen_area) {        
+                    if (calc_y > -offscreen_area && calc_y < screenHeight + offscreen_area) {    
                         if (visible_count < MAX_VISIBLE_LAYERS) {
                             // Add to visible layers, as it can be seen
                             visible_layers[visible_count++] = sec->layers[i];
@@ -2204,6 +2225,9 @@ void draw_all_object_layers() {
     prev_tex = NULL;
     prev_blending = GRRLIB_BLEND_ALPHA;
     GRRLIB_SetBlend(GRRLIB_BLEND_ALPHA);
+
+    float screen_x_max = screenWidth + 90.0f;
+    float screen_y_max = screenHeight + 90.0f;
 
     if (state.hitbox_display) { 
         GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);

@@ -1230,3 +1230,6 @@
 #include "Fire_02_2_looped_007_png.h"
 #include "Fire_02_2_looped_008_png.h"
 #include "Fire_02_2_looped_009_png.h"
+
+#include "d_rainbow_01_001_png.h"
+#include "d_rainbow_02_001_png.h"

@@ -1099,6 +1099,9 @@ enum Objects {
     FIRE_3,
     FIRE_4,
 
+    RAINBOW_ARC_SMALL,
+    RAINBOW_ARC_BIG,
+
     PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,
 
