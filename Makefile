@@ -106,7 +106,15 @@ $(BUILD):
 	@echo
 	@echo "Please install libvorbisidec using (dkp-)pacman -S ppc-libvorbisidec"
 	@echo
-	@echo "See https://devkitpro.org/viewtopic.php?f=13&t=8702 for details"
+	@echo "*------------------------------------------------------------------------------------------*"
+	@echo
+else ifeq (,$(wildcard $(DEVKITPRO)/portlibs/ppc/include/mxml.h))
+
+$(BUILD):
+	@echo
+	@echo "*------------------------------------------------------------------------------------------*"
+	@echo
+	@echo "Please install mxml using (dkp-)pacman -S ppc-mxml"
 	@echo
 	@echo "*------------------------------------------------------------------------------------------*"
 	@echo
