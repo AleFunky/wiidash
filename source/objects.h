@@ -1091,6 +1091,14 @@ enum Objects {
     MONSTER_1,
     BLACK_SLUDGE,
 
+    FIRE_1,
+    FIRE_2,
+
+    UNKNOWN_922,
+
+    FIRE_3,
+    FIRE_4,
+
     PULSE_TRIGGER = 1006,
     ALPHA_TRIGGER = 1007,
 
@@ -1227,6 +1235,7 @@ typedef struct {
     u8 is_slope:1;
     u8 fades:1;
     u8 has_movement:1;
+    u8 frame_animation:1;
     ObjectHitbox hitbox;
 } ObjectDefinition;
 
@@ -1301,6 +1310,5 @@ bool is_object_unimplemented(int id);
 void run_trigger(GameObject *obj);
 
 AnimationDefinition prepare_monster_1_animation();
-void unload_animation_definition(AnimationDefinition def);
 void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer);
-u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity);
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity, int def_col_channel);

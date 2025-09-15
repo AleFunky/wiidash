@@ -28,6 +28,11 @@
 AnimationDefinition monster_1_anim;
 AnimationDefinition black_sludge_anim;
 
+FramesDefinition fire1_anim;
+FramesDefinition fire2_anim;
+FramesDefinition fire3_anim;
+FramesDefinition fire4_anim;
+
 GRRLIB_texImg *prev_tex = NULL;
 int prev_blending = GRRLIB_BLEND_ALPHA;
 
@@ -1038,6 +1043,10 @@ void load_spritesheet() {
 
     monster_1_anim = prepare_monster_1_animation();
     black_sludge_anim = prepare_black_sludge_animation();
+    fire1_anim = prepare_fire_1_animation();
+    fire2_anim = prepare_fire_2_animation();
+    fire3_anim = prepare_fire_3_animation();
+    fire4_anim = prepare_fire_4_animation();
 
     load_icons();
 }
@@ -1060,6 +1069,11 @@ void unload_spritesheet() {
     
     unload_animation_definition(monster_1_anim);
     unload_animation_definition(black_sludge_anim);
+    unload_frame_definition(fire1_anim);
+    unload_frame_definition(fire2_anim);
+    unload_frame_definition(fire3_anim);
+    unload_frame_definition(fire4_anim);
+
 
     unload_icons();
 }
@@ -1573,11 +1587,6 @@ float get_rotation_speed(GameObject *obj) {
 
 bool is_modifiable(int col_channel, int color_type) {
     switch(col_channel) {
-        case BLACK:
-        case WHITE:
-            // Objects pre 2.0 with black or white are
-            if (color_type == COLOR_UNMOD) return FALSE;
-            else return TRUE;
         case OBJ_BLENDING:
         case LBG_NO_LERP:
             return FALSE;
@@ -1593,7 +1602,7 @@ const HSV lighter_hsv = {
     .vChecked = FALSE,
 };
 
-u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity) {
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity, int def_col_channel) {
     Color color;
     color.r = channels[col_channel].color.r;
     color.g = channels[col_channel].color.g;
@@ -1631,11 +1640,30 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
         color = obj->object.detail_col_pulse;
     }
 
+    // Force unmodifiable channels to default channel color
+    if (color_type == COLOR_UNMOD) {
+        color = channels[def_col_channel].color;
+    }
+
     float new_opacity = opacity * channels[col_channel].alpha * obj->opacity;
     float transformed_opacity = new_opacity;
 
     if (channels[col_channel].blending) transformed_opacity = CLAMP((0.175656971639325 * powf(7.06033051530761, new_opacity / 255.f) - 0.213355914301931), 0, 1) * 255;
     return RGBA(color.r, color.g, color.b, transformed_opacity);
+}
+
+GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale_out) {
+    switch (obj->id) {
+        case FIRE_1:
+            return get_frame(fire1_anim, layer_num, obj->object.animation_timer, scale_out);
+        case FIRE_2:
+            return get_frame(fire2_anim, layer_num, obj->object.animation_timer, scale_out);
+        case FIRE_3:
+            return get_frame(fire3_anim, layer_num, obj->object.animation_timer, scale_out);
+        case FIRE_4:
+            return get_frame(fire4_anim, layer_num, obj->object.animation_timer, scale_out);
+    }
+    return NULL;
 }
 
 void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
@@ -1651,6 +1679,11 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
     float y_offset = objectLayer->y_offset * y_flip_mult;
 
     GRRLIB_texImg *tex = get_randomized_texture(object_images[obj_id][layer_index], obj, layer);
+    float default_scale = 1;
+
+    if (objects[obj_id].frame_animation) {
+        tex = get_animated_texture(obj, layer->layerNum, &default_scale);
+    }
 
     int width = tex->w;
     int height = tex->h;
@@ -1671,7 +1704,7 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
         opacity *= get_fading_obj_fade(obj, x, screenWidth);
     }
 
-    u32 color = get_layer_color(obj, objectLayer->color_type, col_channel, opacity);
+    u32 color = get_layer_color(obj, objectLayer->color_type, col_channel, opacity, objectLayer->col_channel);
 
     // If it is invisible because of blending, skip
     if ((blending == GRRLIB_BLEND_ADD && !(color & ~0xff)) || opacity == 0) return;
@@ -1699,6 +1732,8 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
         }
         fade_scale *= obj->ampl_scaling;
     }
+
+    fade_scale *= default_scale;
 
     float rotation = adjust_angle(obj->rotation, 0, state.mirror_mult < 0);
 
@@ -2131,6 +2166,11 @@ void draw_all_object_layers() {
                 if ((objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
                     obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
                 }
+
+                if (objects[obj_id].frame_animation) {
+                    obj->object.animation_timer += dt;
+                }
+
                 if (obj->has_two_channels && channels[obj->object.main_col_channel].blending && channels[obj->object.detail_col_channel].blending) {
                     obj->both_channels_blending = TRUE;
                 } else {
@@ -2273,15 +2313,4 @@ bool is_object_unimplemented(int id) {
         }
     }
     return TRUE;
-}
-
-void unload_animation_definition(AnimationDefinition def) {
-    for (int i = 0; i < def.part_count; i++) {
-        AnimationPart part = def.parts[i];
-
-        if (part.texture) {
-            GRRLIB_FreeTexture(part.texture);
-            part.texture = NULL;
-        }
-    }
 }

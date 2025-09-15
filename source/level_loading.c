@@ -1517,7 +1517,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                     } else { 
                         // 2.0+ color channels
                         if (obj->object.main_col_channel > 0) {
-                            if (layer->color_type == COLOR_MAIN) {
+                            if (layer->color_type == COLOR_MAIN || layer->color_type == COLOR_UNMOD) {
                                 col_channel = obj->object.main_col_channel;  
                             } else {
                                 if (get_main_channel_id(obj_id) <= 0) col_channel = obj->object.main_col_channel; 

@@ -42,8 +42,33 @@ typedef struct {
     u8 has_detail;
 } AnimationDefinition;
 
+typedef struct {
+    GRRLIB_texImg *texture;
+    int layer_num;
+    float scale;
+} FrameLayer;
+
+typedef struct {
+    FrameLayer layers[MAX_OBJECT_LAYERS];
+    int layer_count;
+} Frame;
+
+typedef struct {
+    Frame frames[11];
+    int frame_count;
+    float fps;
+} FramesDefinition;
+
+FramesDefinition prepare_fire_1_animation();
+FramesDefinition prepare_fire_2_animation();
+FramesDefinition prepare_fire_3_animation();
+FramesDefinition prepare_fire_4_animation();
+
 AnimationDefinition prepare_monster_1_animation();
 AnimationDefinition prepare_black_sludge_animation();
+
+void unload_animation_definition(AnimationDefinition def);
+void unload_frame_definition(FramesDefinition def);
 
 void playAnimation(Animation* anim, float time);
 void playObjAnimation(GameObject *obj, AnimationDefinition definition, float time);
@@ -56,3 +81,4 @@ void playRobotAnimation(Player *player,
                                float blendFactor);
 void parsePlist(const char* filename, AnimationLibrary* lib);
 Animation* getAnimation(AnimationLibrary* lib, const char* name);
+GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out);

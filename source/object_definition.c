@@ -16934,6 +16934,109 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zorder = 2,
         .num_layers = 0,
     },
+
+    // Fires
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = Fire_03_2_looped_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = Fire_03_looped_001_png
+            }
+        },
+        .frame_animation = TRUE,
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_ANIMATED,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 2,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = Fire_04_2_looped_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = Fire_04_looped_001_png
+            }
+        },
+        .frame_animation = TRUE,
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_ANIMATED,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 2,
+        .num_layers = 2,
+    },
+    unknown,
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = Fire_01_2_looped_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = Fire_01_looped_001_png
+            }
+        },
+        .frame_animation = TRUE,
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_ANIMATED,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 2,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = Fire_02_2_looped_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .zlayer_offset = 0,
+                .texture = Fire_02_looped_001_png
+            }
+        },
+        .frame_animation = TRUE,
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_ANIMATED,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 2,
+        .num_layers = 2,
+    },
     [PULSE_TRIGGER] = trigger,
     [ALPHA_TRIGGER] = trigger,
     [GREEN_ORB] = {

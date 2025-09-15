@@ -305,7 +305,7 @@ void playObjAnimation(GameObject *obj, AnimationDefinition definition, float tim
         int opacity = get_fade_value(calc_x, screenWidth);
         int unmodified_opacity = opacity;
 
-        u32 color = get_layer_color(obj, color_type, col_channel, opacity);
+        u32 color = get_layer_color(obj, color_type, col_channel, opacity, part.default_col_channel);
 
         // If it is invisible because of blending, skip
         if ((blending == GRRLIB_BLEND_ADD && !(color & ~0xff)) || opacity == 0) continue;
@@ -331,7 +331,6 @@ void playObjAnimation(GameObject *obj, AnimationDefinition definition, float tim
         if (tex) {
             set_texture(tex); 
             GRRLIB_SetBlend(blending);
-            GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
             custom_drawImg(
                 /* X        */ get_mirror_x(calc_x, state.mirror_factor) + 6 - (tex->w) / 2 + fade_x,
                 /* Y        */ calc_y + 6 - (tex->h) / 2 + fade_y,
@@ -453,6 +452,268 @@ void playRobotAnimation(Player *player,
     }
 }
 
+GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out) {
+    float frameTime = time * definition.fps;
+    int currentFrame = (int)frameTime % definition.frame_count;
+
+    Frame frame = definition.frames[currentFrame];
+
+    for (int i = 0; i < frame.layer_count; i++) {
+        FrameLayer layer = frame.layers[i];
+        if (layer.layer_num == layer_num) {
+            *scale_out = layer.scale; // Output scale
+            return layer.texture;
+        }
+    }
+
+    // Not found
+    return NULL;
+}
+
+const uint8_t *fire_1_layers[] = {
+    Fire_03_2_looped_001_png,
+    Fire_03_looped_001_png,
+    
+    Fire_03_2_looped_002_png,
+    Fire_03_looped_002_png,
+
+    Fire_03_2_looped_003_png,
+    Fire_03_looped_003_png,
+    
+    Fire_03_2_looped_004_png,
+    Fire_03_looped_004_png,
+
+    Fire_03_2_looped_005_png,
+    Fire_03_looped_005_png,
+    
+    Fire_03_2_looped_006_png,
+    Fire_03_looped_006_png,
+    
+    Fire_03_2_looped_007_png,
+    Fire_03_looped_007_png,
+    
+    Fire_03_2_looped_008_png,
+    Fire_03_looped_008_png,
+    
+    Fire_03_2_looped_009_png,
+    Fire_03_looped_009_png,
+};
+
+const uint8_t *fire_2_layers[] = {
+    Fire_04_2_looped_001_png,
+    Fire_04_looped_001_png,
+    
+    Fire_04_2_looped_002_png,
+    Fire_04_looped_002_png,
+
+    Fire_04_2_looped_003_png,
+    Fire_04_looped_003_png,
+    
+    Fire_04_2_looped_004_png,
+    Fire_04_looped_004_png,
+
+    Fire_04_2_looped_005_png,
+    Fire_04_looped_005_png,
+    
+    Fire_04_2_looped_006_png,
+    Fire_04_looped_006_png,
+    
+    Fire_04_2_looped_007_png,
+    Fire_04_looped_007_png,
+    
+    Fire_04_2_looped_008_png,
+    Fire_04_looped_008_png,
+    
+    Fire_04_2_looped_009_png,
+    Fire_04_looped_009_png,
+    
+    Fire_04_2_looped_010_png,
+    Fire_04_looped_010_png,
+
+    Fire_04_2_looped_011_png,
+    Fire_04_looped_011_png,
+};
+
+const uint8_t *fire_3_layers[] = {
+    Fire_01_2_looped_001_png,
+    Fire_01_looped_001_png,
+    
+    Fire_01_2_looped_002_png,
+    Fire_01_looped_002_png,
+
+    Fire_01_2_looped_003_png,
+    Fire_01_looped_003_png,
+    
+    Fire_01_2_looped_004_png,
+    Fire_01_looped_004_png,
+
+    Fire_01_2_looped_005_png,
+    Fire_01_looped_005_png,
+    
+    Fire_01_2_looped_006_png,
+    Fire_01_looped_006_png,
+    
+    Fire_01_2_looped_007_png,
+    Fire_01_looped_007_png,
+    
+    Fire_01_2_looped_008_png,
+    Fire_01_looped_008_png,
+    
+    Fire_01_2_looped_009_png,
+    Fire_01_looped_009_png,
+};
+
+const uint8_t *fire_4_layers[] = {
+    Fire_02_2_looped_001_png,
+    Fire_02_looped_001_png,
+    
+    Fire_02_2_looped_002_png,
+    Fire_02_looped_002_png,
+
+    Fire_02_2_looped_003_png,
+    Fire_02_looped_003_png,
+    
+    Fire_02_2_looped_004_png,
+    Fire_02_looped_004_png,
+
+    Fire_02_2_looped_005_png,
+    Fire_02_looped_005_png,
+    
+    Fire_02_2_looped_006_png,
+    Fire_02_looped_006_png,
+    
+    Fire_02_2_looped_007_png,
+    Fire_02_looped_007_png,
+    
+    Fire_02_2_looped_008_png,
+    Fire_02_looped_008_png,
+    
+    Fire_02_2_looped_009_png,
+    Fire_02_looped_009_png,
+};
+
+GRRLIB_texImg *load_png(const u8 *data) {
+    GRRLIB_texImg *tex = GRRLIB_LoadTexturePNG(data);
+    GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
+    return tex;
+}
+
+FramesDefinition prepare_fire_1_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 18; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(fire_1_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 2;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(fire_1_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 12;
+
+    return animation;
+}
+
+
+FramesDefinition prepare_fire_2_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 22; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(fire_2_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 2;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(fire_2_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 12;
+
+    return animation;
+}
+
+FramesDefinition prepare_fire_3_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 18; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(fire_3_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 2;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(fire_3_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 12;
+
+    return animation;
+}
+FramesDefinition prepare_fire_4_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 18; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(fire_4_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 2;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(fire_4_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 12;
+
+    return animation;
+}
+
 AnimationLibrary monster_1_library;
 AnimationLibrary black_sludge_library;
 AnimationDefinition prepare_monster_1_animation() {
@@ -466,35 +727,35 @@ AnimationDefinition prepare_monster_1_animation() {
     animation.anim = getAnimation(&monster_1_library, "GJBeast01_bite");
 
     AnimationPart part1;
-    part1.texture = GRRLIB_LoadTexture(GJBeast01_01_glow_001_png);
+    part1.texture = load_png(GJBeast01_01_glow_001_png);
     part1.color_channel_type = COLOR_GLOW;
     part1.default_col_channel = LBG_NO_LERP;
     part1.part_id = 1;
     animation.parts[part_index++] = part1;
     
     AnimationPart part2;
-    part2.texture = GRRLIB_LoadTexture(GJBeast01_02_glow_001_png);
+    part2.texture = load_png(GJBeast01_02_glow_001_png);
     part2.color_channel_type = COLOR_GLOW;
     part2.default_col_channel = LBG_NO_LERP;
     part2.part_id = 0;
     animation.parts[part_index++] = part2;
 
     AnimationPart part3;
-    part3.texture = GRRLIB_LoadTexture(GJBeast01_01_001_png);
+    part3.texture = load_png(GJBeast01_01_001_png);
     part3.color_channel_type = COLOR_MAIN;
     part3.default_col_channel = BLACK;
     part3.part_id = 1;
     animation.parts[part_index++] = part3;
 
     AnimationPart part4;
-    part4.texture = GRRLIB_LoadTexture(GJBeast01_03_001_png);
+    part4.texture = load_png(GJBeast01_03_001_png);
     part4.color_channel_type = COLOR_DETAIL;
     part4.default_col_channel = WHITE;
     part4.part_id = 1;
     animation.parts[part_index++] = part4;
 
     AnimationPart part5;
-    part5.texture = GRRLIB_LoadTexture(GJBeast01_02_001_png);
+    part5.texture = load_png(GJBeast01_02_001_png);
     part5.color_channel_type = COLOR_MAIN;
     part5.default_col_channel = BLACK;
     part5.part_id = 0;
@@ -519,13 +780,13 @@ AnimationDefinition prepare_black_sludge_animation() {
     animation.anim = getAnimation(&black_sludge_library, "BlackSludge_loop");
 
     AnimationPart part1;
-    part1.texture = GRRLIB_LoadTexture(dA_blackSludge_01_001_png);
+    part1.texture = load_png(dA_blackSludge_01_001_png);
     part1.color_channel_type = COLOR_DETAIL;
     part1.default_col_channel = BLACK;
     part1.part_id = 0;
     animation.parts[part_index++] = part1;
 
-    GRRLIB_texImg *triangle_tex = GRRLIB_LoadTexture(dA_blackSludge_02_001_png);
+    GRRLIB_texImg *triangle_tex = load_png(dA_blackSludge_02_001_png);
 
     AnimationPart part2;
     part2.texture = triangle_tex;
@@ -546,4 +807,29 @@ AnimationDefinition prepare_black_sludge_animation() {
     animation.fps = 20;
 
     return animation;
+}
+
+void unload_animation_definition(AnimationDefinition def) {
+    for (int i = 0; i < def.part_count; i++) {
+        AnimationPart *part = &def.parts[i];
+
+        if (part->texture) {
+            GRRLIB_FreeTexture(part->texture);
+            part->texture = NULL;
+        }
+    }
+}
+
+void unload_frame_definition(FramesDefinition def) {
+    for (int i = 0; i < def.frame_count; i++) {
+        Frame *frame = &def.frames[i];
+
+        for (int j = 0; j < frame->layer_count; j++) {
+            FrameLayer *layer = &frame->layers[j];
+            if (layer->texture) {
+                GRRLIB_FreeTexture(layer->texture);
+                layer->texture = NULL;
+            }
+        }
+    }
 }
