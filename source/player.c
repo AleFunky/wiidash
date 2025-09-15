@@ -545,13 +545,13 @@ void ball_gamemode(Player *player) {
 
     // Jump
     if ((state.input.holdJump) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {        
-        float delta_y = grav(player, (player->y - state.old_player.y) * STEPS_HZ);
+        float delta_y = player->vel_y;
 
         player->upside_down ^= 1;
 
         set_p_velocity(player, ballJumpHeights[state.speed]);
 
-        player->vel_y -= CLAMP(delta_y, 0, delta_y);
+        player->vel_y -= (delta_y < 0) ? 0 : delta_y;
         player->buffering_state = BUFFER_END;
         
         player->ball_rotation_speed = -1.f;

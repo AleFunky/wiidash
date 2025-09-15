@@ -1233,3 +1233,66 @@
 
 #include "d_rainbow_01_001_png.h"
 #include "d_rainbow_02_001_png.h"
+
+#include "block010_01_001_png.h"
+#include "block010_02_001_png.h"
+#include "block010_03_001_png.h"
+#include "block010_04_001_png.h"
+#include "block010_05_001_png.h"
+#include "block010_06_001_png.h"
+#include "block010_07_001_png.h"
+#include "block010_08_001_png.h"
+#include "block010_09_001_png.h"
+
+#include "d_artCloud_01_001_png.h"
+#include "d_artCloud_02_001_png.h"
+#include "d_artCloud_03_001_png.h"
+
+#include "d_flower01_01_001_png.h"
+#include "d_flower01_01_color_001_png.h"
+
+#include "d_grassDetail_01_001_png.h"
+#include "d_grassDetail_02_001_png.h"
+#include "d_grassDetail_03_001_png.h"
+
+#include "persp_15_01_png.h"
+#include "persp_15_02_png.h"
+#include "persp_15_03_png.h"
+#include "persp_15_04_png.h"
+#include "persp_15_05_png.h"
+#include "persp_15_06_png.h"
+#include "persp_15_07_png.h"
+#include "persp_15_08_png.h"
+#include "persp_15_09_png.h"
+
+#include "block005b_02_001_png.h"
+#include "block005b_03_001_png.h"
+#include "block005b_04_001_png.h"
+#include "block005b_05_001_png.h"
+#include "block005b_06_001_png.h"
+#include "block005b_07_001_png.h"
+#include "block005b_08_001_png.h"
+#include "block005b_09_001_png.h"
+
+#include "block005b_slope_01_001_png.h"
+#include "block005b_slope_02_001_png.h"
+
+#include "block005b_slope_square_01_001_png.h"
+#include "block005b_slope_square_02_001_png.h"
+#include "block005b_slope_square_03_001_png.h"
+#include "block005b_slope_square_04_001_png.h"
+#include "block005b_slope_square_05_001_png.h"
+
+#include "plank005b_slope_01_001_png.h"
+#include "plank005b_slope_02_001_png.h"
+#include "plank005b_slope_square_01_001_png.h"
+#include "plank005b_slope_square_02_001_png.h"
+#include "plank005b_slope_square_03_001_png.h"
+
+#include "block005b_10_001_png.h"
+#include "block005b_11_001_png.h"
+#include "block005b_12_001_png.h"
+#include "block005b_13_001_png.h"
+
+#include "plank005b_01_001_png.h"
+#include "plank005b_02_001_png.h"
