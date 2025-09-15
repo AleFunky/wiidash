@@ -253,8 +253,13 @@ void set_launch_dir(const char* path) {
 
 void update_ir_cursor() {
     WPADData* data = WPAD_Data(0);
-    ir_x = data->ir.sx;
-    ir_y = data->ir.sy;
+    if (is_dolphin()) {
+        ir_x = data->ir.x;
+        ir_y = data->ir.y;
+    } else {
+        ir_x = data->ir.sx;
+        ir_y = data->ir.sy;
+    }
     ir_angle = data->ir.angle;
     ir_is_valid = data->ir.smooth_valid;
     float converted_angle = ir_angle * (M_PI / 180.0);
