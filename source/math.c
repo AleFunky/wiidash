@@ -194,7 +194,7 @@ float lerp(float from, float to, float alpha) {
 }
 
 float iLerp(float a, float b, float ratio, float dt) {
-	const float rDelta = dt / STEPS_DT;
+	const float rDelta = dt * STEPS_HZ;
 	const float s	  = 1.f - ratio;
 
 	float iRatio = 1.f - powf(s, rDelta);
@@ -203,7 +203,7 @@ float iLerp(float a, float b, float ratio, float dt) {
 }
 
 float iSlerp(float a, float b, float ratio, float dt) {
-	const float rDelta = dt / STEPS_DT;
+	const float rDelta = dt * STEPS_HZ;
 	const float s	  = 1.f - ratio;
 
 	float iRatio = 1.f - powf(s, rDelta);

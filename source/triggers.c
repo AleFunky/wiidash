@@ -416,8 +416,8 @@ void process_dirty_objects() {
         GameObject *obj = dirty_objects[i];
         obj->dirty = false;
         
-        float new_x = *soa_x(obj) + *soa_delta_x(obj) * STEPS_DT;
-        float new_y = *soa_y(obj) + *soa_delta_y(obj) * STEPS_DT;
+        float new_x = *soa_x(obj) + *soa_delta_x(obj);
+        float new_y = *soa_y(obj) + *soa_delta_y(obj);
         
         update_object_section(obj, new_x, new_y);
     }
@@ -480,8 +480,8 @@ void handle_move_triggers() {
             MovingObject* mobj = &group->objects[i];
             GameObject* obj = mobj->obj;
 
-            *soa_delta_x(obj) += delta_x / STEPS_DT;
-            *soa_delta_y(obj) += delta_y / STEPS_DT;
+            *soa_delta_x(obj) += delta_x;
+            *soa_delta_y(obj) += delta_y;
 
             mark_object_dirty(obj);
 
@@ -490,16 +490,9 @@ void handle_move_triggers() {
                 Player* player = (obj->object.touching_player == 1) ? 
                                &state.player : &state.player2;
 
-                float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
+                float grav_delta_y = grav(player, delta_y * STEPS_HZ);
+                if (grav_delta_y >= -MOVE_SPEED_DIVIDER && (player->on_ground || player->on_ceiling || player->slope_data.slope)) {
                     player->y += delta_y;
-                }
-            } else if (obj->object.prev_touching_player) {
-                Player* player = (obj->object.prev_touching_player == 1) ?
-                               &state.player : &state.player2;
-
-                float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                if (grav_delta_y > MOVE_SPEED_DIVIDER) {
                     player->vel_y = grav_delta_y;
                 }
             }
@@ -515,18 +508,6 @@ void handle_move_triggers() {
             // Clear final deltas
             for (int i = 0; i < group->count; i++) {
                 GameObject* obj = group->objects[i].obj;
-                
-                if (obj->object.touching_player) {
-                    Player* player = (obj->object.touching_player == 1) ?
-                                   &state.player : &state.player2;
-
-                    float delta_y = *soa_delta_y(obj) * STEPS_DT;
-                    float grav_delta_y = grav(player, delta_y / STEPS_DT);
-                    if (grav_delta_y > MOVE_SPEED_DIVIDER) {
-                        player->vel_y = grav_delta_y;
-                    }
-                }
-                
                 *soa_delta_x(obj) = 0;
                 *soa_delta_y(obj) = 0;
             }

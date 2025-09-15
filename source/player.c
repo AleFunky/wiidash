@@ -148,7 +148,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                     state.dead = TRUE;
                 }
             // Check snap for player bottom
-            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y <= CLAMP(obj->object.delta_y, 3000, 0) && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
+            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y <= *soa_delta_y(obj) * STEPS_HZ && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
                 player->y = grav(player, obj_gravTop(player, obj)) + grav(player, player->height / 2);
                 player->vel_y = 0;
                 obj->object.touching_player = state.current_player + 1;
@@ -164,7 +164,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                 }
                 // Behave normally
                 if (!player->is_cube_or_robot || gravSnap) {
-                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y > obj->object.delta_y) || gravSnap) && !slope_condition) {
+                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y >= *soa_delta_y(obj) * STEPS_HZ) || gravSnap) && !slope_condition) {
                         if (!gravSnap) player->on_ceiling = TRUE;
                         player->inverse_rotation = FALSE;
                         player->time_since_ground = 0;
@@ -544,13 +544,19 @@ void ball_gamemode(Player *player) {
     }
 
     // Jump
-    if ((state.input.holdJump) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {
+    if ((state.input.holdJump) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {        
+        float delta_y = grav(player, (player->y - state.old_player.y) * STEPS_HZ);
+
         player->upside_down ^= 1;
+
         set_p_velocity(player, ballJumpHeights[state.speed]);
 
+        player->vel_y -= CLAMP(delta_y, 0, delta_y);
         player->buffering_state = BUFFER_END;
         
         player->ball_rotation_speed = -1.f;
+
+        player->on_ground = FALSE;
     }
     
     player->rotation += player->ball_rotation_speed * mult * (player_speeds[state.speed] / player_speeds[SPEED_NORMAL]) / (player->mini ? 0.8 : 1);

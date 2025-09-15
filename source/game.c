@@ -257,7 +257,7 @@ int game_loop() {
                 float physics_time = ticks_to_secs_float(end_physics - start_physics);
 
                 if (physics_time >= STEPS_DT_UNMOD) {
-                    frame_skipped = (int) (physics_time / STEPS_DT_UNMOD);
+                    frame_skipped = (int) (physics_time * STEPS_HZ);
                 }
                 else frame_skipped = 0;
                 
