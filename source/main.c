@@ -279,7 +279,7 @@ int main(int argc, char **argv) {
 
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
-    output_log("grrlib status %d\n", GRRLIB_Init());
+    output_log("grrlib status %d, is dolphin %d\n", GRRLIB_Init(), is_dolphin());
     
     WPAD_Init();
     PAD_Init();
@@ -409,5 +409,8 @@ static void ExitGame(void) {
     exit(0);
 }
 
-
+#define SPR_ECID_U        924
+bool is_dolphin() {        
+    return (mfspr(SPR_ECID_U) == 0x0d96e200);
+}
 
