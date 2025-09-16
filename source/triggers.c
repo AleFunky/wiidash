@@ -69,7 +69,7 @@ void handle_pulse_triggers() {
                         fade_time = buffer->time_run / buffer->fade_in;
                     }
 
-                    Color channel_color = channels[buffer->target_color_id].non_pulse_color;
+                    Color channel_color = buffer->prefade_color;
                     
                     float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (1.f - fade_time));
                     float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (1.f - fade_time));
@@ -266,6 +266,8 @@ void upload_to_pulse_buffer(GameObject *obj) {
                 }
                 obj->object.num_pulses++;
             }
+        } else {
+            buffer->prefade_color = channels[channel].color;
         }
 
 

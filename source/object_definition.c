@@ -20260,8 +20260,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = BLACK,
-                .color_type = COLOR_UNMOD,
+                .col_channel = OBJ,
                 .zlayer_offset = 0,
                 .texture = plank007_03_001_png
             }
