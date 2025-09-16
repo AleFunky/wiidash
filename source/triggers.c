@@ -226,7 +226,7 @@ void upload_to_pulse_buffer(GameObject *obj) {
     if (slot >= 0) {
         int channel = obj->trigger.pulse_trigger.target_group; // Pulse uses this for color id
         if (channel == 0) return;
-        
+
         struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[slot];
         buffer->target_group = obj->trigger.pulse_trigger.target_group;
 
@@ -475,6 +475,7 @@ void handle_move_triggers() {
             delta_y = after_y - before_y;
             buffer->move_last_y = after_y;
         }
+        
 
         // Update all objects in group
         for (int i = 0; i < group->count; i++) {
@@ -494,6 +495,13 @@ void handle_move_triggers() {
                 float grav_delta_y = grav(player, delta_y * STEPS_HZ);
                 if (grav_delta_y >= -MOVE_SPEED_DIVIDER && (player->on_ground || player->on_ceiling || player->slope_data.slope)) {
                     player->y += delta_y;
+                }
+            } else if (obj->object.prev_touching_player) {
+                Player* player = (obj->object.prev_touching_player == 1) ?
+                               &state.player : &state.player2;
+
+                float grav_delta_y = grav(player, delta_y * STEPS_HZ);
+                if (grav_delta_y > MOVE_SPEED_DIVIDER) {
                     player->vel_y = grav_delta_y;
                 }
             }
@@ -509,6 +517,17 @@ void handle_move_triggers() {
             // Clear final deltas
             for (int i = 0; i < group->count; i++) {
                 GameObject* obj = group->objects[i].obj;
+
+                if (obj->object.touching_player) {
+                    Player* player = (obj->object.touching_player == 1) ?
+                                   &state.player : &state.player2;
+
+                    float delta_y = *soa_delta_y(obj);
+                    float grav_delta_y = grav(player, delta_y * STEPS_HZ);
+                    if (grav_delta_y > MOVE_SPEED_DIVIDER) {
+                        player->vel_y = grav_delta_y;
+                    }
+                }
                 *soa_delta_x(obj) = 0;
                 *soa_delta_y(obj) = 0;
             }

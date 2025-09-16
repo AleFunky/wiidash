@@ -150,7 +150,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             // Check snap for player bottom
             } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y <= *soa_delta_y(obj) * STEPS_HZ && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
                 player->y = grav(player, obj_gravTop(player, obj)) + grav(player, player->height / 2);
-                player->vel_y = 0;
+                if (player->vel_y <= 0) player->vel_y = 0;
                 obj->object.touching_player = state.current_player + 1;
                 obj->object.touching_side = 1;
                 player->on_ground = TRUE;
@@ -172,7 +172,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                         obj->object.touching_player = state.current_player + 1;
                         obj->object.touching_side = 2;
                         player->y = grav(player, obj_gravBottom(player, obj)) - grav(player, player->height / 2);
-                        player->vel_y = 0;
+                        if (player->vel_y >= 0) player->vel_y = 0;
                     }
                 }
             }
