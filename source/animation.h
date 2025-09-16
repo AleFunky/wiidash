@@ -46,6 +46,7 @@ typedef struct {
     GRRLIB_texImg *texture;
     int layer_num;
     float scale;
+    bool flip_x;
 } FrameLayer;
 
 typedef struct {
@@ -54,7 +55,7 @@ typedef struct {
 } Frame;
 
 typedef struct {
-    Frame frames[11];
+    Frame frames[16];
     int frame_count;
     float fps;
 } FramesDefinition;
@@ -63,6 +64,13 @@ FramesDefinition prepare_fire_1_animation();
 FramesDefinition prepare_fire_2_animation();
 FramesDefinition prepare_fire_3_animation();
 FramesDefinition prepare_fire_4_animation();
+
+FramesDefinition prepare_water_1_animation();
+FramesDefinition prepare_water_2_animation();
+FramesDefinition prepare_water_3_animation();
+
+FramesDefinition prepare_loading_1_animation();
+FramesDefinition prepare_loading_2_animation();
 
 AnimationDefinition prepare_monster_1_animation();
 AnimationDefinition prepare_black_sludge_animation();
@@ -81,4 +89,4 @@ void playRobotAnimation(Player *player,
                                float blendFactor);
 void parsePlist(const char* filename, AnimationLibrary* lib);
 Animation* getAnimation(AnimationLibrary* lib, const char* name);
-GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out);
+GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out, bool *flip_x);

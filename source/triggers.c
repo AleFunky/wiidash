@@ -224,6 +224,9 @@ void upload_to_pulse_buffer(GameObject *obj) {
     int slot = obtain_free_pulse_slot();
 
     if (slot >= 0) {
+        int channel = obj->trigger.pulse_trigger.target_group; // Pulse uses this for color id
+        if (channel == 0) return;
+        
         struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[slot];
         buffer->target_group = obj->trigger.pulse_trigger.target_group;
 
@@ -242,8 +245,6 @@ void upload_to_pulse_buffer(GameObject *obj) {
         buffer->pulse_mode = obj->trigger.pulse_trigger.pulse_mode;
         buffer->pulse_target_type = obj->trigger.pulse_trigger.pulse_target_type;
 
-        int channel = obj->trigger.pulse_trigger.target_group; // Pulse uses this for color id
-        if (channel == 0) channel = 1;
         buffer->target_color_id = channel;
 
         //output_log("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);

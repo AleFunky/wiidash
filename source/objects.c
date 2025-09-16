@@ -33,6 +33,12 @@ FramesDefinition fire2_anim;
 FramesDefinition fire3_anim;
 FramesDefinition fire4_anim;
 
+FramesDefinition water_1_anim;
+FramesDefinition water_2_anim;
+FramesDefinition water_3_anim;
+FramesDefinition loading_1_anim;
+FramesDefinition loading_2_anim;
+
 GRRLIB_texImg *prev_tex = NULL;
 int prev_blending = GRRLIB_BLEND_ALPHA;
 
@@ -1047,6 +1053,13 @@ void load_spritesheet() {
     fire2_anim = prepare_fire_2_animation();
     fire3_anim = prepare_fire_3_animation();
     fire4_anim = prepare_fire_4_animation();
+    
+    water_1_anim = prepare_water_1_animation();
+    water_2_anim = prepare_water_2_animation();
+    water_3_anim = prepare_water_3_animation();
+
+    loading_1_anim = prepare_loading_1_animation();
+    loading_2_anim = prepare_loading_2_animation();
 
     load_icons();
 }
@@ -1073,7 +1086,11 @@ void unload_spritesheet() {
     unload_frame_definition(fire2_anim);
     unload_frame_definition(fire3_anim);
     unload_frame_definition(fire4_anim);
-
+    unload_frame_definition(water_1_anim);
+    unload_frame_definition(water_2_anim);
+    unload_frame_definition(water_3_anim);
+    unload_frame_definition(loading_1_anim);
+    unload_frame_definition(loading_2_anim);
 
     unload_icons();
 }
@@ -1591,7 +1608,16 @@ float get_rotation_speed(GameObject *obj) {
         case ROTATING_HEXAGON_MEDIUM:
         case ROTATING_HEXAGON_TINY:
         case GREEN_ORB:
+        case RING_SEG_01:
+        case RING_SEG_02:
+        case RING_SEG_03:
+        case RING_SEG_04:
+        case FLASH_RING_1:
             return 180.f;
+        case FLASH_RING_2:
+            return 100.f;
+        case FLASH_RING_3:
+            return 80.f;
     }
     return 0.f;
 }
@@ -1663,16 +1689,26 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
     return RGBA(color.r, color.g, color.b, transformed_opacity);
 }
 
-GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale_out) {
+GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale_out, bool *flip_x) {
     switch (obj->id) {
         case FIRE_1:
-            return get_frame(fire1_anim, layer_num, obj->object.animation_timer, scale_out);
+            return get_frame(fire1_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
         case FIRE_2:
-            return get_frame(fire2_anim, layer_num, obj->object.animation_timer, scale_out);
+            return get_frame(fire2_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
         case FIRE_3:
-            return get_frame(fire3_anim, layer_num, obj->object.animation_timer, scale_out);
+            return get_frame(fire3_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
         case FIRE_4:
-            return get_frame(fire4_anim, layer_num, obj->object.animation_timer, scale_out);
+            return get_frame(fire4_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
+        case ANIMATED_WATER_1:
+            return get_frame(water_1_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_WATER_2:
+            return get_frame(water_2_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_WATER_3:
+            return get_frame(water_3_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_LOADING_1:
+            return get_frame(loading_1_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_LOADING_2:
+            return get_frame(loading_2_anim, layer_num, state.timer, scale_out, flip_x);
     }
     return NULL;
 }
@@ -1682,19 +1718,22 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
 
     int layer_index = layer->layerNum;
 
-    int x_flip_mult = (obj->flippedH ? -1 : 1);
-    int y_flip_mult = (obj->flippedV ? -1 : 1);
-
     struct ObjectLayer *objectLayer = layer->layer;
-    float x_offset = objectLayer->x_offset * x_flip_mult;
-    float y_offset = objectLayer->y_offset * y_flip_mult;
 
     GRRLIB_texImg *tex = get_randomized_texture(object_images[obj_id][layer_index], obj, layer);
     float default_scale = 1;
+    bool flip_x = FALSE;
 
     if (objects[obj_id].frame_animation) {
-        tex = get_animated_texture(obj, layer->layerNum, &default_scale);
+        tex = get_animated_texture(obj, layer->layerNum, &default_scale, &flip_x);
     }
+
+
+    int x_flip_mult = (obj->flippedH ^ flip_x ? -1 : 1);
+    int y_flip_mult = (obj->flippedV ? -1 : 1);
+
+    float x_offset = objectLayer->x_offset * x_flip_mult;
+    float y_offset = objectLayer->y_offset * y_flip_mult;
 
     int width = tex->w;
     int height = tex->h;
@@ -2185,7 +2224,7 @@ void draw_all_object_layers() {
                 if (fade_edge) handle_special_fading(obj, calc_x, calc_y);
                 // If saw, rotate
                 if ((objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
-                    obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
+                    obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt / obj->object.scale_x;
                 }
 
                 if (objects[obj_id].frame_animation) {

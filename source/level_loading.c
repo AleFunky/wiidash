@@ -730,7 +730,7 @@ int convert_1p9_channel(int channel) {
     return 0;
 }
 
-// Convert some 2.0 objects into the 1.9 ones, blame robtop for making GD convert those to 2.0
+// Convert some 2.1 objects into the 1.9 ones, blame robtop for making GD convert those to 2.1
 int convert_object(int id) {
     switch (id) {
         // Saws
@@ -834,6 +834,10 @@ int convert_object(int id) {
             return FAKE_MEDIUM_SPIKE;
         case 1892:
             return MINI_FAKE_SPIKE;
+
+        // Mini glow (REMOVE WHEN IT IS ADDED)
+        case 1292:
+            return GLOW_MINI_01;
         
     }
     return id;

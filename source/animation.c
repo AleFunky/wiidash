@@ -452,7 +452,7 @@ void playRobotAnimation(Player *player,
     }
 }
 
-GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out) {
+GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time, float *scale_out, bool *flip_x) {
     float frameTime = time * definition.fps;
     int currentFrame = (int)frameTime % definition.frame_count;
 
@@ -462,6 +462,7 @@ GRRLIB_texImg *get_frame(FramesDefinition definition, int layer_num, float time,
         FrameLayer layer = frame.layers[i];
         if (layer.layer_num == layer_num) {
             *scale_out = layer.scale; // Output scale
+            *flip_x = layer.flip_x;
             return layer.texture;
         }
     }
@@ -685,6 +686,7 @@ FramesDefinition prepare_fire_3_animation() {
 
     return animation;
 }
+
 FramesDefinition prepare_fire_4_animation() {
     FramesDefinition animation = { 0 };
 
@@ -710,6 +712,219 @@ FramesDefinition prepare_fire_4_animation() {
     }
 
     animation.fps = 12;
+
+    return animation;
+}
+
+const uint8_t *water_1_layers[] = {
+    d_animWave_01_001_png,
+    d_animWave_01_002_png,
+    d_animWave_01_003_png,
+    d_animWave_01_004_png,
+    d_animWave_01_005_png,
+    d_animWave_01_006_png,
+    d_animWave_01_007_png,
+    d_animWave_01_008_png,
+    d_animWave_01_009_png,
+    d_animWave_01_008_png,
+    d_animWave_01_007_png,
+};
+
+const uint8_t *water_2_layers[] = {
+    d_animWave_02_001_png,
+    d_animWave_02_002_png,
+    d_animWave_02_003_png,
+    d_animWave_02_004_png,
+    d_animWave_02_005_png,
+    d_animWave_02_006_png,
+    d_animWave_02_005_png,
+    d_animWave_02_004_png,
+    d_animWave_02_003_png,
+    d_animWave_02_002_png,
+};
+
+const uint8_t *water_3_layers[] = {
+    d_animWave_03_001_png,
+    d_animWave_03_002_png,
+    d_animWave_03_003_png,
+    d_animWave_03_004_png,
+    d_animWave_03_005_png,
+    d_animWave_03_006_png,
+    d_animWave_03_005_png,
+    d_animWave_03_004_png,
+    d_animWave_03_003_png,
+    d_animWave_03_002_png,
+};
+
+FramesDefinition prepare_water_1_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 11; i++) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(water_1_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 1;
+        layer1.flip_x = i > 8;
+        
+        frame.layers[0] = layer1; 
+        frame.layer_count = 1; 
+        
+        animation.frames[i] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 20;
+
+    return animation;
+}
+
+FramesDefinition prepare_water_2_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 10; i++) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(water_2_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 1;
+        layer1.flip_x = i > 5;
+        
+        frame.layers[0] = layer1; 
+        frame.layer_count = 1;
+        
+        animation.frames[i] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 20;
+
+    return animation;
+}
+
+FramesDefinition prepare_water_3_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 10; i++) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(water_3_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 1;
+        layer1.flip_x = i > 5;
+        
+        frame.layers[0] = layer1; 
+        frame.layer_count = 1;
+        
+        animation.frames[i] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 20;
+
+    return animation;
+}
+
+const uint8_t *loading_1_layers[] = {
+    d_animLoading_01_color_001_png,
+    d_animLoading_01_001_png,
+    
+    d_animLoading_01_color_002_png,
+    d_animLoading_01_002_png,
+    
+    d_animLoading_01_color_003_png,
+    d_animLoading_01_003_png,
+    
+    d_animLoading_01_color_004_png,
+    d_animLoading_01_004_png,
+    
+    d_animLoading_01_color_005_png,
+    d_animLoading_01_005_png,
+    
+    d_animLoading_01_color_006_png,
+    d_animLoading_01_006_png,
+};
+
+const uint8_t *loading_2_layers[] = {
+    d_animLoading_02_color_001_png,
+    d_animLoading_02_001_png,
+    
+    d_animLoading_02_color_002_png,
+    d_animLoading_02_002_png,
+    
+    d_animLoading_02_color_003_png,
+    d_animLoading_02_003_png,
+    
+    d_animLoading_02_color_004_png,
+    d_animLoading_02_004_png,
+    
+    d_animLoading_02_color_005_png,
+    d_animLoading_02_005_png,
+    
+    d_animLoading_02_color_006_png,
+    d_animLoading_02_006_png,
+    
+    d_animLoading_02_color_007_png,
+    d_animLoading_02_007_png,
+};
+
+FramesDefinition prepare_loading_1_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 12; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(loading_1_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 1;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(loading_1_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 20;
+
+    return animation;
+}
+
+FramesDefinition prepare_loading_2_animation() {
+    FramesDefinition animation = { 0 };
+
+    for (int i = 0; i < 14; i += 2) {
+        Frame frame = { 0 };
+
+        FrameLayer layer1;
+        layer1.texture = load_png(loading_2_layers[i]);
+        layer1.layer_num = 0;
+        layer1.scale = 1;
+        
+        FrameLayer layer2;
+        layer2.texture = load_png(loading_2_layers[i + 1]);
+        layer2.layer_num = 1;
+        layer2.scale = 1;
+        
+        frame.layer_count = 2;
+        frame.layers[0] = layer1; 
+        frame.layers[1] = layer2;
+        
+        animation.frames[i >> 1] = frame;
+        animation.frame_count++;
+    }
+
+    animation.fps = 20;
 
     return animation;
 }
