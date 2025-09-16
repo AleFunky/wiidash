@@ -538,7 +538,27 @@
         "d_animloading_01_001_png.h": "c",
         "d_animloading_02_001_png.h": "c",
         "d_animloading_01_002_png.h": "c",
-        "d_animloading_02_006_png.h": "c"
+        "d_animloading_02_006_png.h": "c",
+        "d_pickupcircle_01_001_png.h": "c",
+        "d_spiral_01_001_png.h": "c",
+        "d_spiral_02_001_png.h": "c",
+        "d_spiral_03_001_png.h": "c",
+        "persp_16_05_png.h": "c",
+        "persp_18_09_png.h": "c",
+        "persp_18_01_png.h": "c",
+        "block003_part01_006_png.h": "c",
+        "block003_part02_006_png.h": "c",
+        "plank007_01_002_png.h": "c",
+        "plank007_03_002_png.h": "c",
+        "block007_color_009_001_png.h": "c",
+        "block007_color_011_001_png.h": "c",
+        "block007_color_010_001_png.h": "c",
+        "block003_part01_004_png.h": "c",
+        "block007_bgcolor_006_001_png.h": "c",
+        "block007_color_012_001_png.h": "c",
+        "plank007_01_001_png.h": "c",
+        "plank007_03_001_png.h": "c",
+        "block007_01_small_001_png.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

@@ -39,6 +39,8 @@ struct PulseTriggerBuffer {
     bool main_only;        // key 65
     bool detail_only;      // key 66
 
+    bool started_fade_out;
+
     float seconds;
     float time_run;
     float fade_contribution;  // How much this pulse contributes to final color

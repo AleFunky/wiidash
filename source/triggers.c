@@ -115,8 +115,6 @@ void handle_pulse_triggers() {
                     }
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
-                            if (obj->object.main_being_pulsed) obj->object.main_color = obj->object.main_col_pulse;
-                            if (obj->object.detail_being_pulsed) obj->object.detail_color = obj->object.detail_col_pulse;
 
                         if (both || buffer->main_only) {
                             Color channel_color = obj->object.main_color;
@@ -155,6 +153,14 @@ void handle_pulse_triggers() {
                     }
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
+
+                        if (!buffer->started_fade_out) {
+                            if (obj->object.num_pulses > 1) {
+                                obj->object.main_color = obj->object.main_col_pulse;
+                                obj->object.detail_color = obj->object.detail_col_pulse;
+                            }
+                            buffer->started_fade_out = TRUE;
+                        }
 
                         if (both || buffer->main_only) {
                             Color channel_color = obj->object.main_color;
@@ -213,6 +219,8 @@ void handle_pulse_triggers() {
                         GameObject *obj = p->obj;
                         obj->object.main_being_pulsed = FALSE;
                         obj->object.detail_being_pulsed = FALSE;
+
+                        obj->object.num_pulses--;
                     }
                 }
             }
@@ -244,8 +252,22 @@ void upload_to_pulse_buffer(GameObject *obj) {
 
         buffer->pulse_mode = obj->trigger.pulse_trigger.pulse_mode;
         buffer->pulse_target_type = obj->trigger.pulse_trigger.pulse_target_type;
+        
+        buffer->started_fade_out = FALSE;
 
         buffer->target_color_id = channel;
+
+        if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
+            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
+                GameObject *obj = p->obj;
+                if (obj->object.num_pulses > 0) {
+                    if (obj->object.main_being_pulsed) obj->object.main_color = obj->object.main_col_pulse;
+                    if (obj->object.detail_being_pulsed) obj->object.detail_color = obj->object.detail_col_pulse;
+                }
+                obj->object.num_pulses++;
+            }
+        }
+
 
         //output_log("type %d mode %d\n", buffer->pulse_target_type, buffer->pulse_mode);
         //output_log("fade in %.2f hold %.2f fade out %.2f\n", buffer->fade_in, buffer->hold, buffer->fade_out);

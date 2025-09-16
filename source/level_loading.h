@@ -141,6 +141,9 @@ typedef struct {
     unsigned char touching_side;
     // Slope
     unsigned char orientation;
+
+    unsigned char num_pulses;
+    
 } NormalObject;
 
 typedef enum {

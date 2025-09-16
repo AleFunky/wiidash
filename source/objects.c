@@ -1612,12 +1612,21 @@ float get_rotation_speed(GameObject *obj) {
         case RING_SEG_02:
         case RING_SEG_03:
         case RING_SEG_04:
-        case FLASH_RING_1:
+        case PICKUP_CIRCLE_1:
+        case PICKUP_CIRCLE_2:
+        case PICKUP_CIRCLE_3:
             return 180.f;
+        case FLASH_RING_1:
+            return 180.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
         case FLASH_RING_2:
-            return 100.f;
+            return 100.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
         case FLASH_RING_3:
-            return 80.f;
+            return 80.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
+        case SPIRAL_1:
+        case SPIRAL_2:
+        case SPIRAL_3:
+        case SPIRAL_4:
+            return 300.f;
     }
     return 0.f;
 }
@@ -1663,12 +1672,14 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
     } else if (color_type == COLOR_DETAIL && obj->object.detail_col_HSV_enabled) {
         color = HSV_combine(color, obj->object.detail_col_HSV);
     }
-    
 
-    if (color_type == COLOR_MAIN) {
-        obj->object.main_color = color;
-    } else if (color_type == COLOR_DETAIL) {
-        obj->object.detail_color = color;
+    if (obj->object.num_pulses < 2) {
+        // Proceed to reset color
+        if (color_type == COLOR_MAIN) {
+            obj->object.main_color = color;
+        } else if (color_type == COLOR_DETAIL) {
+            obj->object.detail_color = color;
+        }
     }
 
     if (obj->object.main_being_pulsed && color_type == COLOR_MAIN) {
@@ -2224,7 +2235,7 @@ void draw_all_object_layers() {
                 if (fade_edge) handle_special_fading(obj, calc_x, calc_y);
                 // If saw, rotate
                 if ((objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
-                    obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt / obj->object.scale_x;
+                    obj->rotation += (((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj))) * dt ;
                 }
 
                 if (objects[obj_id].frame_animation) {
