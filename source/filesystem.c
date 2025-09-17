@@ -18,7 +18,7 @@ char *read_file(const char *filepath, size_t *out_size) {
 
     char *buffer = malloc(size + 1);
     if (!buffer) {
-        output_log("Failed to allocate buffer\n");
+        output_log("Failed to allocate file\n");
         fclose(f);
         return NULL;
     }

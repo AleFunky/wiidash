@@ -312,7 +312,12 @@ int menu_loop() {
     // Read first gmd
     char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
     if (level_data) {
-        snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+        char *level_name = get_level_name(level_data);
+        char *author_name = get_author_name(level_data);
+        snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+        free(level_name);
+        free(author_name);
+
         free(level_data);
     }
 
@@ -373,7 +378,11 @@ int menu_loop() {
                 // Read first gmd
                 char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
                 if (level_data) {
-                    snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+                    char *level_name = get_level_name(level_data);
+                    char *author_name = get_author_name(level_data);
+                    snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+                    free(level_name);
+                    free(author_name);
                     
                     check_custom_song(level_data);
                     
@@ -436,7 +445,11 @@ void refresh_sdcard_levels() {
 
     char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
     if (level_data) {
-        snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+        char *level_name = get_level_name(level_data);
+        char *author_name = get_author_name(level_data);
+        snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+        free(level_name);
+        free(author_name);
         
         check_custom_song(level_data);
 

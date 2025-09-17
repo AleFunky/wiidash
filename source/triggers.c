@@ -627,6 +627,7 @@ void upload_to_alpha_buffer(GameObject *obj) {
         }
         return;
     }
+    
     int slot = obtain_free_alpha_slot();
 
     if (slot >= 0) {

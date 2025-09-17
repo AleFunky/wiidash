@@ -323,6 +323,9 @@ int game_loop() {
     unload_level();
     cleanup_move_triggers();
 
+#ifdef REPORT_LEAKS
+    report_leaks();
+#endif
     return FALSE;
 }
 

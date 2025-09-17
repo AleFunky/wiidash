@@ -1,5 +1,8 @@
 #pragma once
 
+// Enable printing of mallocs and frees
+//#define REPORT_LEAKS
+
 #include "player.h"
 #include "particles.h"
 
@@ -172,6 +175,15 @@ extern float cursor_rotated_point_y;
 extern float dt;
 
 bool is_dolphin();
+#ifdef REPORT_LEAKS
+void* dbg_malloc(size_t size, const char* file, int line);
+void* dbg_realloc(void* ptr, size_t size, const char* file, int line);
+void dbg_free(void* ptr, const char* file, int line);
+#define malloc(x) dbg_malloc(x, __FILE__, __LINE__)
+#define realloc(p, s) dbg_realloc(p, s, __FILE__, __LINE__)
+#define free(x)   dbg_free(x, __FILE__, __LINE__)
+void report_leaks(void);
+#endif
 
 void draw_game();
 void update_input();

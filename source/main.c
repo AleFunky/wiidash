@@ -38,6 +38,8 @@
 
 #include <fat.h>
 
+#include <system.h>
+
 // Declare Static Functions
 static void ExitGame(void);
 
@@ -178,7 +180,7 @@ void draw_game() {
         float cpu_time = ticks_to_microsecs(last_frame - start_frame) / 1000.f;
         
         char cpu_usage[64];
-        snprintf(cpu_usage, sizeof(cpu_usage), "CPU: %.2f%%%%", (cpu_time / 16.666666) * 100);
+        snprintf(cpu_usage, sizeof(cpu_usage), "CPU: %.2f%%%% Free MEM1: %d Free MEM2: %d", (cpu_time / 16.666666) * 100, SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
         draw_text(big_font, big_font_text, 20, 400, 0.25, cpu_usage);
     }
     
@@ -419,3 +421,99 @@ bool is_dolphin() {
     return (mfspr(SPR_ECID_U) == 0x0d96e200);
 }
 
+unsigned long allocation = 0;
+
+#ifdef REPORT_LEAKS
+
+#ifdef malloc
+    #undef malloc
+#endif
+#ifdef realloc
+    #undef realloc
+#endif
+#ifdef free
+    #undef free
+#endif
+#include <malloc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct AllocInfo {
+    void* ptr;
+    size_t size;
+    const char* file;
+    int line;
+    struct AllocInfo* next;
+} AllocInfo;
+
+static AllocInfo* allocList = NULL;
+
+void add_alloc(void* ptr, size_t size, const char* file, int line) {
+    AllocInfo* info = (AllocInfo*)malloc(sizeof(AllocInfo));
+    info->ptr = ptr;
+    info->size = size;
+    info->file = file;
+    info->line = line;
+    info->next = allocList;
+    allocList = info;
+}
+
+void remove_alloc(void* ptr) {
+    AllocInfo** current = &allocList;
+    while (*current) {
+        if ((*current)->ptr == ptr) {
+            AllocInfo* toDelete = *current;
+            *current = toDelete->next;
+            free(toDelete);
+            return;
+        }
+        current = &(*current)->next;
+    }
+}
+
+void* dbg_malloc(size_t size, const char* file, int line) {
+    void* ptr = malloc(size);
+    if (ptr) add_alloc(ptr, size, file, line);
+    //printf("[malloc] %zu bytes at %p (%s:%d)\n", size, ptr, file, line);
+    return ptr;
+}
+
+void dbg_free(void* ptr, const char* file, int line) {
+    remove_alloc(ptr);
+    //printf("[free] %p (%s:%d)\n", ptr, file, line);
+    free(ptr);
+}
+
+void* dbg_realloc(void* ptr, size_t size, const char* file, int line) {
+    void *old_ptr = ptr;
+    void* new_ptr = realloc(ptr, size);
+    if (new_ptr) {
+        remove_alloc(old_ptr);  // old one
+        add_alloc(new_ptr, size, file, line);  // new one
+    }
+    //printf("[realloc] %p -> %p (%zu bytes, %s:%d)\n",
+    //       old_ptr, new_ptr, size, file, line);
+    return new_ptr;
+}
+
+void report_leaks(void) {
+    AllocInfo* current = allocList;
+    while (current) {
+        printf("[LEAK] %zu bytes at %p allocated in %s:%d\n",
+               current->size, current->ptr,
+               current->file, current->line);
+        current = current->next;
+    }
+}
+#ifndef malloc
+    #define malloc(x) dbg_malloc(x, __FILE__, __LINE__)
+#endif
+#ifndef realloc
+    #define realloc(p, s)   dbg_realloc(p, s, __FILE__, __LINE__)
+#endif
+#ifndef free
+    #define free(x)   dbg_free(x, __FILE__, __LINE__)
+#endif
+
+#endif

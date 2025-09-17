@@ -120,6 +120,7 @@ void free_sections(void) {
         section_hash[i] = NULL;
     }
 }
+
 void free_gfx_sections(void) {
     for (int i = 0; i < SECTION_HASH_SIZE; i++) {
         GFXSection *sec2 = section_gfx_hash[i];
@@ -517,6 +518,7 @@ HSV parse_hsv_string(const char *string) {
     obtained.v = atof(hsv_string[2]);
     obtained.sChecked = parse_bool(hsv_string[3]);
     obtained.sChecked = parse_bool(hsv_string[4]);
+    free_string_array(hsv_string, count);
     return obtained;
 }
 
@@ -528,6 +530,8 @@ void parse_ints(short *int_array, const char *string) {
         if (j < count) int_array[j] = (short) atoi(ints[j]);
         else int_array[j] = 0;
     }
+
+    free_string_array(ints, count);
 }
 
 void parse_color_channel(GDColorChannel *channels, int i, char *channel_string) {
@@ -1188,14 +1192,14 @@ bool init_object_soa(int count, GameObjectSoA *soa) {
     }
 
     soa->delta_x = malloc(sizeof(float) * count);
-    if (!soa->y) {
+    if (!soa->delta_x) {
         free(soa->x);
         free(soa->y);
         return FALSE;
     }
 
     soa->delta_y = malloc(sizeof(float) * count);
-    if (!soa->y) {
+    if (!soa->delta_y) {
         free(soa->x);
         free(soa->y);
         free(soa->delta_x);
@@ -1399,7 +1403,7 @@ int compare_sortable_layers(const void *a, const void *b) {
 void make_sortable_layers(GDObjectLayerList *list) {
     if (!list || list->count <= 1) return;
 
-    output_log("Sorting layer list\n");
+    output_log("Making sortable layers\n");
     
     if (sortable_list) {
         free(sortable_list);
@@ -1583,6 +1587,7 @@ void free_layer_list(GDObjectLayerList *list) {
     if (!list) return;
     if (list->layers) {
         // No need to free each layer as it has been allocated as the layer list
+        free(list->layers[0]);
         free(list->layers);
     }
     free(list);
@@ -1863,38 +1868,39 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
         if (new_layers > 0) {
             int old_count = layersArrayList->count;
             layersArrayList->count += new_layers;
-            
-            // Allocate new layer memory
-            GDObjectLayer** new_layers_array = malloc(sizeof(GDObjectLayer*) * layersArrayList->count);
-            if (!new_layers_array) {
-                output_log("Couldn't allocate new layer array\n");
+
+        
+            // First object is at the start of the layer array
+            layersArrayList->layers[0] = realloc(layersArrayList->layers[0], sizeof(GDObjectLayer) * layersArrayList->count);
+            if (!layersArrayList->layers[0]) {
+                output_log("Couldn't reallocate new layer array\n");
                 return NULL;
             }
             
-            
-            // Copy old layer pointers
-            memcpy(new_layers_array, layersArrayList->layers, 
-                sizeof(GDObjectLayer*) * old_count);
+            // Rellocate new layer memory
+            layersArrayList->layers = realloc(layersArrayList->layers, sizeof(GDObjectLayer*) * layersArrayList->count);
+            if (!layersArrayList->layers) {
+                output_log("Couldn't reallocate new layer list\n");
+                return NULL;
+            }
+
+            // Resync layers
+            for (int i = 0; i < layersArrayList->count; i++) {
+                layersArrayList->layers[i] = &layersArrayList->layers[0][i];
+            }
 
             // Create and add new layers
             for (int i = 0; i < new_layers; i++) {
-                GDObjectLayer* layer = malloc(sizeof(GDObjectLayer));
-                if (!layer) {
-                    output_log("Couldn't allocate new layer\n");
-                    return NULL;
-                }
+                GDObjectLayer* layer = &layersArrayList->layers[0][old_count + i];
                 
                 layer->obj = obj;
                 layer->layer = (struct ObjectLayer*)&objects[object_id].layers[i];
                 layer->layerNum = i;
                 layer->col_channel = layer->layer->col_channel;
                 layer->blending = FALSE;
-                
-                new_layers_array[old_count + i] = layer;
+
+                layersArrayList->layers[old_count + i] = layer;
             }
-            
-            free(layersArrayList->layers);
-            layersArrayList->layers = new_layers_array;
             
             free_gfx_sections();
             // Resort layers
@@ -1924,6 +1930,7 @@ void load_level_info(char *data, char *level_string) {
         level_info.song_id = 0; // Stereo Madness
     } else {
         level_info.song_id = atoi(gmd_song_id); // Official song id
+        free(gmd_song_id);
     }
 
     char *gmd_custom_song_id = extract_gmd_key((const char *) data, "k45", "i");
@@ -1931,11 +1938,13 @@ void load_level_info(char *data, char *level_string) {
         level_info.custom_song_id = -1;
     } else {
         level_info.custom_song_id = atoi(gmd_custom_song_id); // Custom song id
+        free(gmd_custom_song_id);
     }
     
     char *gmd_song_offset = get_metadata_value(level_string, "kA13");
     if (gmd_song_offset) {
         level_info.song_offset = atof(gmd_song_offset);
+        free(gmd_song_offset);
     } else {
         level_info.song_offset = 0;
     }
@@ -1943,6 +1952,7 @@ void load_level_info(char *data, char *level_string) {
     char *background_data = get_metadata_value(level_string, "kA6");
     if (background_data) {
         level_info.background_id = CLAMP(atoi(background_data) - 1, 0, BG_COUNT - 1);
+        free(background_data);
     } else {
         level_info.background_id = 0;
     }
@@ -1950,6 +1960,7 @@ void load_level_info(char *data, char *level_string) {
     char *ground_data = get_metadata_value(level_string, "kA7");
     if (ground_data) {
         level_info.ground_id = CLAMP(atoi(ground_data) - 1, 0, G_COUNT - 1);
+        free(ground_data);
     } else {
         level_info.ground_id = 0;
     }
@@ -1957,13 +1968,15 @@ void load_level_info(char *data, char *level_string) {
     char *gamemode_data = get_metadata_value(level_string, "kA2");
     if (gamemode_data) {
         level_info.initial_gamemode = CLAMP(atoi(gamemode_data), 0, GAMEMODE_COUNT - 1);
+        free(gamemode_data);
     } else {
         level_info.initial_gamemode = GAMEMODE_CUBE;
     }
 
     char *mini_data = get_metadata_value(level_string, "kA3");
-    if (gamemode_data) {
-        level_info.initial_mini = atoi(mini_data) != 0;
+    if (mini_data) {
+        level_info.initial_mini = atoi(mini_data) != 0;    
+        free(mini_data);
     } else {
         level_info.initial_mini = 0; 
     }
@@ -1973,6 +1986,7 @@ void load_level_info(char *data, char *level_string) {
         level_info.initial_speed = CLAMP(atoi(speed_data), 0, SPEED_COUNT - 1);
         if (level_info.initial_speed == 0) level_info.initial_speed = SPEED_NORMAL;
         else if (level_info.initial_speed == 1) level_info.initial_speed = SPEED_SLOW;
+        free(speed_data);
     } else {
         level_info.initial_speed = SPEED_NORMAL;
     }
@@ -1980,6 +1994,7 @@ void load_level_info(char *data, char *level_string) {
     char *dual_data = get_metadata_value(level_string, "kA8");
     if (dual_data) {
         level_info.initial_dual = atoi(dual_data) != 0;
+        free(dual_data);
     } else {
         level_info.initial_dual = 0; 
     }
@@ -1987,6 +2002,7 @@ void load_level_info(char *data, char *level_string) {
     char *upsidedown_data = get_metadata_value(level_string, "kA11");
     if (upsidedown_data) {
         level_info.initial_upsidedown = atoi(upsidedown_data) != 0;
+        free(upsidedown_data);
     } else {
         level_info.initial_upsidedown = 0; 
     }
@@ -2076,6 +2092,7 @@ int load_level(char *data, bool is_custom) {
     memset(move_trigger_buffer, 0, sizeof(move_trigger_buffer));
     memset(alpha_trigger_buffer, 0, sizeof(alpha_trigger_buffer));
     memset(pulse_trigger_buffer, 0, sizeof(pulse_trigger_buffer));
+    memset(spawn_trigger_buffer, 0, sizeof(spawn_trigger_buffer));
 
     level_info.pulsing_type = random_int(0,2);
 
@@ -2137,9 +2154,19 @@ void unload_level() {
     full_init_variables();
     unload_coin_texture();
     
-
     if (gameObjectSoA) {
         free_soa(gameObjectSoA);
+        gameObjectSoA = NULL;
+    }
+    
+    if (player_game_object) {
+        free(player_game_object);
+        player_game_object = NULL;
+    }
+
+    if (gfx_player_layer.layer) {
+        free(gfx_player_layer.layer);
+        gfx_player_layer.layer = NULL;
     }
 }
 
