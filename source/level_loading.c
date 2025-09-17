@@ -2109,6 +2109,10 @@ int load_level(char *data, bool is_custom) {
     level_info.wall_y = 0;
     full_init_variables();
 
+    // Load end wall textures
+    load_obj_textures(GLOW);
+    load_obj_textures(CHECKER_EDGE);
+
     reset_color_channels();
     set_color_channels();
 
