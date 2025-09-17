@@ -246,7 +246,7 @@ void handle_pulse_triggers() {
                                 // Shift pulses down
                                 for (int k = idx; k < channels[target_buffer->target_color_id].num_pulses - 1; k++) {
                                     channel->pulses[k] = channel->pulses[k + 1];
-                                    if (k < MAX_PULSE_CHANNELS) printf("%d <- %d\n", k, k + 1);
+                                    //if (k < MAX_PULSE_CHANNELS) printf("%d <- %d\n", k, k + 1);
                                 }
                                 
                                 target_buffer->pulse_index--;
@@ -495,17 +495,13 @@ static void cache_move_group(int group_id) {
     if (count == 0) return;
 
     // Allocate exactly what we need
-    MovingObject* objects = malloc(count * sizeof(MovingObject));
+    GameObject **objects = malloc(count * sizeof(GameObject*));
     if (!objects) return;
 
     // Fill the cache
     int i = 0;
     for (Node* p = get_group(group_id); p; p = p->next) {
-        objects[i].obj = p->obj;
-        objects[i].x = *soa_x(p->obj);
-        objects[i].y = *soa_y(p->obj);
-        objects[i].old_x = *soa_x(p->obj);
-        objects[i].old_y = *soa_y(p->obj);
+        objects[i] = p->obj;
         i++;
     }
 
@@ -528,6 +524,13 @@ void process_dirty_objects() {
     dirty_count = 0; // reset list
 }
 
+int obtain_free_move_slot() {
+    for (int i = 0; i < MAX_MOVING_CHANNELS; i++) {
+        if (!move_trigger_buffer[i].active) return i;
+    }
+    return -1;
+}
+
 void handle_move_triggers() {
     number_of_moving_objects = 0;
     // Reset deltas first
@@ -541,7 +544,7 @@ void handle_move_triggers() {
         }
 
         for (int i = 0; i < group->count; i++) {
-            GameObject *obj = group->objects[i].obj;
+            GameObject *obj = group->objects[i];
             *soa_delta_x(obj) = 0;
             *soa_delta_y(obj) = 0;
         }
@@ -581,8 +584,7 @@ void handle_move_triggers() {
 
         // Update all objects in group
         for (int i = 0; i < group->count; i++) {
-            MovingObject* mobj = &group->objects[i];
-            GameObject* obj = mobj->obj;
+            GameObject* obj = group->objects[i];
 
             *soa_delta_x(obj) += delta_x;
             *soa_delta_y(obj) += delta_y;
@@ -607,9 +609,9 @@ void handle_move_triggers() {
                     player->vel_y = grav_delta_y;
                 }
             }
-
-            number_of_moving_objects++;
         }
+        
+        number_of_moving_objects += group->count;
 
         // Update timer and check completion
         buffer->time_run += STEPS_DT;
@@ -618,7 +620,7 @@ void handle_move_triggers() {
 
             // Clear final deltas
             for (int i = 0; i < group->count; i++) {
-                GameObject* obj = group->objects[i].obj;
+                GameObject* obj = group->objects[i];
 
                 if (obj->object.touching_player) {
                     Player* player = (obj->object.touching_player == 1) ?
@@ -630,10 +632,42 @@ void handle_move_triggers() {
                         player->vel_y = grav_delta_y;
                     }
                 }
+                obj->dirty = false;
+        
+                float new_x = *soa_x(obj) + *soa_delta_x(obj);
+                float new_y = *soa_y(obj) + *soa_delta_y(obj);
+                
+                update_object_section(obj, new_x, new_y);
+
                 *soa_delta_x(obj) = 0;
                 *soa_delta_y(obj) = 0;
             }
         }
+    }
+}
+
+void upload_to_move_buffer(GameObject *obj) {
+    int slot = obtain_free_move_slot();
+    if (slot >= 0) {
+        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
+
+        buffer->easing = obj->trigger.move_trigger.easing;
+
+        buffer->offsetX = obj->trigger.move_trigger.offsetX;
+        buffer->offsetY = obj->trigger.move_trigger.offsetY;
+
+        buffer->lock_to_player_x = obj->trigger.move_trigger.lock_to_player_x;
+        buffer->lock_to_player_y = obj->trigger.move_trigger.lock_to_player_y;
+
+        buffer->target_group = obj->trigger.move_trigger.target_group;
+
+        buffer->time_run = 0;
+        buffer->seconds = obj->trigger.trig_duration;
+
+        buffer->move_last_x = 0;
+        buffer->move_last_y = 0;
+        
+        buffer->active = TRUE;
     }
 }
 
@@ -786,39 +820,6 @@ void handle_alpha_triggers() {
                 free(buffer->initial_opacities);
             }
         }
-    }
-}
-
-
-int obtain_free_move_slot() {
-    for (int i = 0; i < MAX_MOVING_CHANNELS; i++) {
-        if (!move_trigger_buffer[i].active) return i;
-    }
-    return -1;
-}
-
-void upload_to_move_buffer(GameObject *obj) {
-    int slot = obtain_free_move_slot();
-    if (slot >= 0) {
-        struct MoveTriggerBuffer *buffer = &move_trigger_buffer[slot];
-
-        buffer->easing = obj->trigger.move_trigger.easing;
-
-        buffer->offsetX = obj->trigger.move_trigger.offsetX;
-        buffer->offsetY = obj->trigger.move_trigger.offsetY;
-
-        buffer->lock_to_player_x = obj->trigger.move_trigger.lock_to_player_x;
-        buffer->lock_to_player_y = obj->trigger.move_trigger.lock_to_player_y;
-
-        buffer->target_group = obj->trigger.move_trigger.target_group;
-
-        buffer->time_run = 0;
-        buffer->seconds = obj->trigger.trig_duration;
-
-        buffer->move_last_x = 0;
-        buffer->move_last_y = 0;
-        
-        buffer->active = TRUE;
     }
 }
 

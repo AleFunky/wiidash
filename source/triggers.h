@@ -98,13 +98,7 @@ struct SpawnTriggerBuffer {
 #define MAX_TOTAL_MOVING_OBJECTS 4096
 
 typedef struct {
-    float x, y;
-    float old_x, old_y;
-    GameObject* obj;
-} MovingObject __attribute__((aligned(32)));
-
-typedef struct {
-    MovingObject* objects;
+    GameObject **objects;
     int count;
     int capacity;
 } MovingGroup;
