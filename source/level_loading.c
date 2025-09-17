@@ -1178,6 +1178,8 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     // Register its groups
     register_object(object);
 
+    load_obj_textures(object->id);
+
     return object;
 }
 
@@ -1852,6 +1854,8 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     // Add to sections
     assign_object_to_section(obj);
 
+    load_obj_textures(obj->id);
+
     // Update original positions list
     origPositionsList = realloc(origPositionsList, 
                                sizeof(struct ObjectPos) * objectsArrayList->count);
@@ -2168,6 +2172,8 @@ void unload_level() {
         free(gfx_player_layer.layer);
         gfx_player_layer.layer = NULL;
     }
+
+    unload_obj_textures();
 }
 
 HSV empty_hsv = { 0 };

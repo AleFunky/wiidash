@@ -1504,6 +1504,9 @@ extern GRRLIB_texImg *ground;
 
 extern AnimationDefinition monster_1_anim;
 
+void load_obj_textures(int object);
+void unload_obj_textures();
+
 void update_beat();
 void draw_end_wall();
 void setup_dual();

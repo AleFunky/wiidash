@@ -16,7 +16,7 @@ typedef struct {
 
 typedef struct Animation {
     char name[64];
-    AnimationFrame frames[64];
+    AnimationFrame frames[32];
     int frameCount;
 } Animation;
 
@@ -24,7 +24,6 @@ typedef struct {
     Animation animations[16];
     int animCount;
 } AnimationLibrary;
-
 
 typedef struct {
     GRRLIB_texImg *texture;
@@ -74,6 +73,8 @@ FramesDefinition prepare_loading_2_animation();
 
 AnimationDefinition prepare_monster_1_animation();
 AnimationDefinition prepare_black_sludge_animation();
+
+#define deeznutsfamitracker sizeof(AnimationLibrary)
 
 void unload_animation_definition(AnimationDefinition def);
 void unload_frame_definition(FramesDefinition def);

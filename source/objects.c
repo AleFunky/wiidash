@@ -1018,35 +1018,6 @@ void load_spritesheet() {
     // Load Textures 
     ground_line = GRRLIB_LoadTexturePNG(ground_line_png);
     level_complete_texture = GRRLIB_LoadTexturePNG(levelCompleteText_png);
-
-    for (s32 object = 1; object < OBJECT_COUNT; object++) {
-        for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
-            // Skip unused layers
-            const unsigned char *texture = objects[object].layers[layer].texture;
-            if (!texture) continue;
-
-            output_log("Loading texture of object %d layer %d\n", object, layer);
-            
-            int existing = find_existing_texture(object, texture);
-            if (existing < 0) {
-                GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8 *) texture);
-                if (image == NULL || image->data == NULL) {
-                    printf("Couldn't load texture of object %d layer %d\n", object, layer);
-                } else {
-                    printf("Loaded texture of object %d layer %d\n", object, layer);
-                    GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
-                    object_images[object][layer] = image;
-                }
-            } else {
-                int object_found = existing / MAX_OBJECT_LAYERS;
-                int layer_found = existing % MAX_OBJECT_LAYERS;
-
-                output_log("Texture already loaded in object %d layer %d\n", object_found, layer_found);
-                object_images[object][layer] = object_images[object_found][layer_found];
-            }
-        }
-    }
-
     monster_1_anim = prepare_monster_1_animation();
     black_sludge_anim = prepare_black_sludge_animation();
     fire1_anim = prepare_fire_1_animation();
@@ -1064,11 +1035,47 @@ void load_spritesheet() {
     load_icons();
 }
 
-void unload_spritesheet() {
-    // Free all memory used by textures.
-    GRRLIB_FreeTexture(ground_line);
-    GRRLIB_FreeTexture(big_font_text);
+void load_layer_texture(const u8 *texture, int object, int layer) {
+    GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8 *) texture);
+    if (image == NULL || image->data == NULL) {
+        printf("Couldn't load texture of object %d layer %d\n", object, layer);
+    } else {
+        printf("Loaded texture of object %d layer %d\n", object, layer);
+        GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
+        object_images[object][layer] = image;
+    }
+}
 
+void load_obj_textures(int object) {
+    // Skip unused layers
+    for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
+        const unsigned char *texture = objects[object].layers[layer].texture;
+        if (!texture) continue;
+
+        // Skip if already loaded
+        if (object_images[object][layer]) continue;
+
+        output_log("Loading texture of object %d layer %d\n", object, layer);
+        
+        int existing = find_existing_texture(object, texture);
+
+        if (existing < 0) {
+            load_layer_texture((const u8 *) texture, object, layer);
+        } else {
+            int object_found = existing / MAX_OBJECT_LAYERS;
+            int layer_found = existing % MAX_OBJECT_LAYERS;
+
+            if (object_images[object_found][layer_found]) {
+                object_images[object][layer] = object_images[object_found][layer_found];
+            } else {
+                const unsigned char *texture = objects[object_found].layers[layer_found].texture;
+                load_layer_texture((const u8 *) texture, object_found, layer_found);
+            }
+        }
+    }
+}
+
+void unload_obj_textures() {
     for (s32 object = 0; object < OBJECT_COUNT; object++) {
         for (s32 layer = 0; layer < objects[object].num_layers; layer++) {
             const unsigned char *texture = objects[object].layers[layer].texture;
@@ -1077,8 +1084,15 @@ void unload_spritesheet() {
             if (existing < 0) {
                 GRRLIB_FreeTexture(object_images[object][layer]);
             }
+            object_images[object][layer] = NULL;
         }
     }
+}
+
+void unload_spritesheet() {
+    // Free all memory used by textures.
+    GRRLIB_FreeTexture(ground_line);
+    GRRLIB_FreeTexture(big_font_text);
     
     unload_animation_definition(monster_1_anim);
     unload_animation_definition(black_sludge_anim);

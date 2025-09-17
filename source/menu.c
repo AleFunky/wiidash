@@ -596,7 +596,9 @@ int main_levels() {
     draw_ir_cursor();
 
     
-
+    char cpu_usage[64];
+    snprintf(cpu_usage, sizeof(cpu_usage), "Free MEM1: %d Free MEM2: %d",SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
+    draw_text(big_font, big_font_text, 20, 400, 0.25, cpu_usage);
 
     if (state.input.pressedDir & INPUT_LEFT) {
         menu_go_left();
