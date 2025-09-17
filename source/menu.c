@@ -419,7 +419,9 @@ int menu_loop() {
     GRRLIB_FreeTexture(menu_corner_squares);
     GRRLIB_FreeTexture(menu_top_bar);
     GRRLIB_FreeTexture(gradient_texture);
+    GRRLIB_FreeTexture(ground_line_texture);
     GRRLIB_FreeTexture(font_bold);
+    GRRLIB_FreeTexture(menu_ground);
     for (int i = 0; i < FACES_COUNT; i++){
         GRRLIB_FreeTexture(difficulty_faces[i]);
     }
