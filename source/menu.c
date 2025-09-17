@@ -211,7 +211,8 @@ void print_custom_song(int song_id) {
 void check_custom_song(char *level_data) {
     char *gmd_custom_song_id = extract_gmd_key((const char *) level_data, "k45", "i");
     if (gmd_custom_song_id) {
-        custom_song_id = atoi(gmd_custom_song_id);        
+        custom_song_id = atoi(gmd_custom_song_id);   
+        free(gmd_custom_song_id);     
     } else {
         custom_song_id = -1;
     }

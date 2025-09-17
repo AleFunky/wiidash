@@ -1014,6 +1014,18 @@ int find_existing_texture(const unsigned char *texture) {
     return -1;
 }
 
+int find_existing_previous_texture(int current_object, const unsigned char *texture) {
+    for (s32 object = 1; object < current_object; object++) {
+        for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
+            const unsigned char *loaded_texture = objects[object].layers[layer].texture;
+            if (loaded_texture == texture) {
+                return (object * MAX_OBJECT_LAYERS) + layer;
+            }
+        }
+    }
+    return -1;
+}
+
 void load_spritesheet() {
     // Load Textures 
     ground_line = GRRLIB_LoadTexturePNG(ground_line_png);
@@ -1077,9 +1089,9 @@ void load_obj_textures(int object) {
 
 void unload_obj_textures() {
     for (s32 object = 0; object < OBJECT_COUNT; object++) {
-        for (s32 layer = 0; layer < objects[object].num_layers; layer++) {
+        for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
             const unsigned char *texture = objects[object].layers[layer].texture;
-            int existing = find_existing_texture(texture);
+            int existing = find_existing_previous_texture(object, texture);
             // Dont double free textures
             if (existing < 0) {
                 GRRLIB_FreeTexture(object_images[object][layer]);
