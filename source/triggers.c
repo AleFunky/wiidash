@@ -25,10 +25,23 @@ struct PulseTriggerBuffer pulse_trigger_buffer[MAX_PULSE_CHANNELS];
 
 void process_dirty_objects();
 
+void handle_copy_channels() {
+    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
+        int copy_color_id = channels[chan].copy_color_id;
+        if (copy_color_id > 0) {
+            Color color = channels[copy_color_id].color;
+            color = HSV_combine(color, channels[chan].hsv);
+            channels[chan].color = color;
+            channels[chan].non_pulse_color = color;
+        }
+    }
+}
+
 void update_triggers() {
     handle_spawn_triggers();
-    handle_pulse_triggers();
     handle_col_triggers();
+    handle_copy_channels();
+    handle_pulse_triggers();
     handle_move_triggers();
     handle_alpha_triggers();
     process_dirty_objects();
@@ -53,14 +66,8 @@ void handle_pulse_triggers() {
         struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[i];
 
         if (buffer->active) {
+            struct ColorChannel *channel = &channels[buffer->target_color_id];
             if (buffer->pulse_target_type == PULSE_TARGET_TYPE_CHANNEL) {
-                if (buffer->pulse_mode == PULSE_MODE_HSV) {
-                    Color copy_color = channels[buffer->copied_color_id].color;
-                    if (!colors_equal(copy_color, buffer->color)) {
-                        buffer->color = HSV_combine(copy_color, buffer->copied_hsv);
-                    }
-                }
-                
                 if (buffer->time_run <= buffer->fade_in) {
                     // Fade in
                     float fade_time = 1.f;
@@ -69,7 +76,11 @@ void handle_pulse_triggers() {
                         fade_time = buffer->time_run / buffer->fade_in;
                     }
 
-                    Color channel_color = buffer->prefade_color;
+                    Color channel_color = channels[buffer->target_color_id].non_pulse_color;
+
+                    if (buffer->pulse_index > 0) {
+                        channel_color = channels[buffer->target_color_id].pulses[buffer->pulse_index - 1];
+                    }
                     
                     float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (1.f - fade_time));
                     float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (1.f - fade_time));
@@ -78,6 +89,8 @@ void handle_pulse_triggers() {
                     channels[buffer->target_color_id].color.r = r;
                     channels[buffer->target_color_id].color.g = g;
                     channels[buffer->target_color_id].color.b = b;
+
+                    channels[buffer->target_color_id].pulses[buffer->pulse_index] = channels[buffer->target_color_id].color;
                 } else if (buffer->time_run >= buffer->fade_in + buffer->hold) {
                     // Fade out
                     float fade_time = 1.f;
@@ -87,6 +100,10 @@ void handle_pulse_triggers() {
                     }
 
                     Color channel_color = channels[buffer->target_color_id].non_pulse_color;
+
+                    if (buffer->pulse_index > 0) {
+                        channel_color = channels[buffer->target_color_id].pulses[buffer->pulse_index - 1];
+                    }
                     
                     float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (fade_time));
                     float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (fade_time));
@@ -95,17 +112,13 @@ void handle_pulse_triggers() {
                     channels[buffer->target_color_id].color.r = r;
                     channels[buffer->target_color_id].color.g = g;
                     channels[buffer->target_color_id].color.b = b;
+
+                    channels[buffer->target_color_id].pulses[buffer->pulse_index] = channels[buffer->target_color_id].color;
                 } else {
                     channels[buffer->target_color_id].color = buffer->color;
+                    channels[buffer->target_color_id].pulses[buffer->pulse_index] = buffer->color;
                 }
             } else { // PULSE_TARGET_TYPE_GROUP
-                if (buffer->pulse_mode == PULSE_MODE_HSV) {
-                    Color copy_color = channels[buffer->copied_color_id].color;
-                    if (!colors_equal(copy_color, buffer->color)) {
-                        buffer->color = HSV_combine(copy_color, buffer->copied_hsv);
-                    }
-                }
-
                 bool both = !buffer->main_only && !buffer->detail_only;
                 if (buffer->time_run <= buffer->fade_in) {
                     float fade_time = 1.f;
@@ -206,15 +219,14 @@ void handle_pulse_triggers() {
 
                             obj->object.detail_being_pulsed = TRUE;
                         }
-                        
                     }
                 }
             }
             
             buffer->time_run += STEPS_DT;
             if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
                 if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
+                    //printf("End of pulse at slot %d\n", i);
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
                         obj->object.main_being_pulsed = FALSE;
@@ -222,13 +234,67 @@ void handle_pulse_triggers() {
 
                         obj->object.num_pulses--;
                     }
+                } else {
+                    //printf("End of pulse for channel %d, %d at slot %d\n", buffer->target_color_id, buffer->pulse_index, i);
+                    for (int j = MAX_PULSE_CHANNELS - 1; j > i; j--) {
+                        struct PulseTriggerBuffer *target_buffer = &pulse_trigger_buffer[j];
+                        if (target_buffer->active && target_buffer->pulse_target_type == PULSE_TARGET_TYPE_CHANNEL) {
+                            if (buffer->target_color_id == target_buffer->target_color_id) {
+                                int idx = target_buffer->pulse_index - 1; // index to remove
+                                //printf("Pulse removed from slot %d\n", j);
+                                
+                                // Shift pulses down
+                                for (int k = idx; k < channels[target_buffer->target_color_id].num_pulses - 1; k++) {
+                                    channel->pulses[k] = channel->pulses[k + 1];
+                                    if (k < MAX_PULSE_CHANNELS) printf("%d <- %d\n", k, k + 1);
+                                }
+                                
+                                target_buffer->pulse_index--;
+                            }
+                        }
+                    }
+                    Color channel_color = channels[buffer->target_color_id].non_pulse_color;
+
+                    if (buffer->pulse_index > 0) {
+                        channel_color = channels[buffer->target_color_id].pulses[buffer->pulse_index - 1];
+                    }
+
+                    channels[buffer->target_color_id].color = channel_color;
+                    channels[buffer->target_color_id].num_pulses--;
                 }
+                for (int j = i; j < MAX_PULSE_CHANNELS - 1; j++) {
+                    // Shift buffer array
+                    if (pulse_trigger_buffer[j].active) {
+                        pulse_trigger_buffer[j] = pulse_trigger_buffer[j + 1];
+                        //printf("Setting %d to %d\n", j, j+1);
+                    }
+                }
+
+                // Make the game run the pulse moved into the current slot
+                i--;
             }
         }
     }
+
+    //for (int i = 0; i < MAX_PULSE_CHANNELS; i++) {
+    //    struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[i];
+    //    
+    //    if (buffer->active && buffer->pulse_target_type == PULSE_TARGET_TYPE_CHANNEL && buffer->target_color_id == GROUND) {
+    //        Color channel_color = channels[buffer->target_color_id].non_pulse_color;
+    //
+    //        if (buffer->pulse_index > 0) {
+    //            channel_color = channels[buffer->target_color_id].pulses[buffer->pulse_index - 1];
+    //        }
+    //        printf("Slot %d - color %d, %d, %d pulse %d\n", i, channel_color.r, channel_color.g, channel_color.b, buffer->pulse_index);
+    //    }
+    //}
 }
 
 void upload_to_pulse_buffer(GameObject *obj) {
+    //for (int i = 0; i < 10; i++) {
+    //    printf("%d - %s\n", i, (pulse_trigger_buffer[i].active) ? "used" : "empty");
+    //}
+
     int slot = obtain_free_pulse_slot();
 
     if (slot >= 0) {
@@ -257,6 +323,17 @@ void upload_to_pulse_buffer(GameObject *obj) {
 
         buffer->target_color_id = channel;
 
+        if (buffer->pulse_mode == PULSE_MODE_HSV) {
+            int id = buffer->copied_color_id;
+            if (id == 0) {
+                id = buffer->target_color_id;
+            }
+            Color copy_color = channels[id].color;
+            if (!colors_equal(copy_color, buffer->color)) {
+                buffer->color = HSV_combine(copy_color, buffer->copied_hsv);
+            }
+        }
+
         if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
             for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                 GameObject *obj = p->obj;
@@ -267,7 +344,8 @@ void upload_to_pulse_buffer(GameObject *obj) {
                 obj->object.num_pulses++;
             }
         } else {
-            buffer->prefade_color = channels[channel].color;
+            buffer->pulse_index = channels[buffer->target_color_id].num_pulses++;
+            //printf("New pulse for channel %d, %d at slot %d\n", buffer->target_color_id, buffer->pulse_index, slot);
         }
 
 

@@ -2349,18 +2349,6 @@ void update_beat() {
     }
 }
 
-void handle_copy_channels() {
-    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
-        int copy_color_id = channels[chan].copy_color_id;
-        if (copy_color_id > 0) {
-            Color color = channels[copy_color_id].color;
-            color = HSV_combine(color, channels[chan].hsv);
-            channels[chan].color = color;
-            channels[chan].non_pulse_color = color;
-        }
-    }
-}
-
 void handle_objects() {
     int sx = (int)(state.player.x / SECTION_SIZE);
     for (int dx = -1; dx <= 1; dx++) {
@@ -2374,7 +2362,6 @@ void handle_objects() {
     }
     calculate_lbg();
     update_triggers();
-    handle_copy_channels();
 }
 
 bool is_object_unimplemented(int id) {

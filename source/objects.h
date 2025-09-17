@@ -1402,6 +1402,8 @@ enum SpriteSheets {
     SHEET_COUNT
 };
 
+#define MAX_PULSES_PER_CHANNEL 10
+
 struct ColorChannel {
     Color color;
     Color non_pulse_color;
@@ -1409,6 +1411,9 @@ struct ColorChannel {
     HSV hsv;
     bool blending;
     int copy_color_id;
+
+    int num_pulses;
+    Color pulses[MAX_PULSES_PER_CHANNEL];
 };
 
 #define MAX_OBJECTS_IN_GROUP 1000

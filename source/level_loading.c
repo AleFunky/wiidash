@@ -2174,6 +2174,8 @@ HSV empty_hsv = { 0 };
 
 void reset_color_channels() {
     for (s32 i = 0; i < COL_CHANNEL_COUNT; i++) {
+        memset(&channels[i], 0, sizeof(struct ColorChannel));
+        
         channels[i].color.r = 255;
         channels[i].color.g = 255;
         channels[i].color.b = 255;
@@ -2228,6 +2230,7 @@ void set_color_channels() {
 
             default:
                 if (id < COL_CHANNEL_COUNT) {
+                    memset(&channels[id], 0, sizeof(struct ColorChannel));
                     Color color;
                     color.r = colorChannel.fromRed;
                     color.g = colorChannel.fromGreen;

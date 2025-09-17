@@ -39,9 +39,9 @@ struct PulseTriggerBuffer {
     bool main_only;        // key 65
     bool detail_only;      // key 66
 
-    Color prefade_color;
-
     bool started_fade_out;
+
+    int pulse_index;
 
     float seconds;
     float time_run;
