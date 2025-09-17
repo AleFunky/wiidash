@@ -1091,6 +1091,8 @@ void unload_obj_textures() {
     for (s32 object = 0; object < OBJECT_COUNT; object++) {
         for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
             const unsigned char *texture = objects[object].layers[layer].texture;
+            if (!texture) continue;
+
             int existing = find_existing_previous_texture(object, texture);
             // Dont double free textures
             if (existing < 0) {
