@@ -66,6 +66,18 @@ void handle_pulse_triggers() {
         struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[i];
 
         if (buffer->active) {
+            
+            if (buffer->pulse_mode == PULSE_MODE_HSV) {
+                int id = buffer->copied_color_id;
+                if (id == 0) {
+                    id = buffer->target_color_id;
+                }
+                Color copy_color = channels[id].non_pulse_color;
+                if (!colors_equal(copy_color, buffer->color)) {
+                    buffer->color = HSV_combine(copy_color, buffer->copied_hsv);
+                }
+            }
+
             struct ColorChannel *channel = &channels[buffer->target_color_id];
             if (buffer->pulse_target_type == PULSE_TARGET_TYPE_CHANNEL) {
                 if (buffer->time_run <= buffer->fade_in) {
@@ -323,17 +335,6 @@ void upload_to_pulse_buffer(GameObject *obj) {
 
         buffer->target_color_id = channel;
 
-        if (buffer->pulse_mode == PULSE_MODE_HSV) {
-            int id = buffer->copied_color_id;
-            if (id == 0) {
-                id = buffer->target_color_id;
-            }
-            Color copy_color = channels[id].color;
-            if (!colors_equal(copy_color, buffer->color)) {
-                buffer->color = HSV_combine(copy_color, buffer->copied_hsv);
-            }
-        }
-
         if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
             for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                 GameObject *obj = p->obj;
@@ -409,7 +410,6 @@ void handle_col_triggers() {
 void upload_to_buffer(GameObject *obj, int channel) {
     if (channel == 0) channel = 1;
     struct ColTriggerBuffer *buffer = &col_trigger_buffer[channel];
-    buffer->active = TRUE;
     buffer->old_color = channels[channel].color;
     buffer->old_alpha = channels[channel].alpha;
     if (obj->trigger.col_trigger.p1_color) {
@@ -440,8 +440,27 @@ void upload_to_buffer(GameObject *obj, int channel) {
     if (channel < BG) {
         channels[channel].blending = obj->trigger.col_trigger.blending;
     }
+    
+    if (obj->trigger.trig_duration == 0) {
+        int chan = channel;
+        Color color_to_lerp = buffer->new_color;
+        float alpha_to_lerp = buffer->new_alpha;
+
+        if (buffer->copy_channel_id) {
+            channels[chan].hsv = buffer->copy_channel_HSV;
+            channels[chan].copy_color_id = buffer->copy_channel_id;
+        } else {
+            channels[chan].copy_color_id = 0;
+        }
+        channels[chan].color = color_to_lerp;
+        channels[chan].non_pulse_color = color_to_lerp;
+        channels[chan].alpha = alpha_to_lerp;
+        return;
+    }
+    
     buffer->seconds = obj->trigger.trig_duration;
     buffer->time_run = 0;
+    buffer->active = TRUE;
 }
 
 int convert_ease(int easing) {
