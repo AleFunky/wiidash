@@ -602,13 +602,13 @@ int main_levels() {
         }
     }
 
-    char ir_data_debug[64];
-    snprintf(ir_data_debug, sizeof(ir_data_debug), "x: %f, y: %f, a: %f", ir_x, ir_y, ir_angle);
-    draw_text(big_font, big_font_text, 20, 20, 0.25, ir_data_debug);  // White tex
+    // char ir_data_debug[64];
+    // snprintf(ir_data_debug, sizeof(ir_data_debug), "x: %f, y: %f, a: %f", ir_x, ir_y, ir_angle);
+    // draw_text(big_font, big_font_text, 20, 20, 0.25, ir_data_debug);  // White tex
 
-    char menu_debug[64];
-    snprintf(menu_debug, sizeof(menu_debug), "lvl id: %i, anim: %f", level_id, anim_test);
-    draw_text(big_font, big_font_text, 20, 35, 0.25, menu_debug);  // White tex
+    // char menu_debug[64];
+    // snprintf(menu_debug, sizeof(menu_debug), "lvl id: %i, anim: %f", level_id, anim_test);
+    // draw_text(big_font, big_font_text, 20, 35, 0.25, menu_debug);  // White tex
 
     if (animating) anim_test += 1.0f/60;
     if (anim_test > ANIM_DURATION) {
