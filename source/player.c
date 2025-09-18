@@ -375,6 +375,7 @@ void cube_gamemode(Player *player) {
     player->gravity = -2794.1082;
     
     if (player->vel_y < -810) player->vel_y = -810;
+    if (player->vel_y > 1080) player->vel_y = 1080;
 
     if (player->y > 2794.f) state.dead = TRUE;
 
@@ -1137,6 +1138,8 @@ void handle_player(Player *player) {
     if (state.noclip) state.dead = FALSE;
     
     do_ball_reflection();
+    
+    player->delta_y = player->y - state.old_player.y;
 
     if (state.hitbox_display == 2) add_new_hitbox(player);
 

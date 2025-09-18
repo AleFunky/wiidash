@@ -40,6 +40,8 @@ typedef struct {
     
     float vel_x;
     float vel_y;
+
+    float delta_y;
     
     float gravity;
 

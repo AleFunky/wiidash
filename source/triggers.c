@@ -592,7 +592,7 @@ void handle_move_triggers() {
         }
 
         if (buffer->lock_to_player_y) {
-            delta_y = state.player.vel_y * STEPS_DT;
+            delta_y = state.player.delta_y;
         } else {
             float before_y = buffer->move_last_y;
             float after_y = buffer->offsetY * easing;
