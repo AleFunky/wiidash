@@ -597,7 +597,7 @@ void handle_move_triggers() {
                                &state.player : &state.player2;
 
                 float grav_delta_y = grav(player, delta_y * STEPS_HZ);
-                if (grav_delta_y >= -MOVE_SPEED_DIVIDER && (player->on_ground || player->on_ceiling || player->slope_data.slope)) {
+                if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
                     player->y += delta_y;
                 }
             } else if (obj->object.prev_touching_player) {

@@ -148,7 +148,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                     state.dead = TRUE;
                 }
             // Check snap for player bottom
-            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y <= *soa_delta_y(obj) * STEPS_HZ && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
+            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(*soa_delta_y(obj) * STEPS_HZ) && player->vel_y <= CLAMP(*soa_delta_y(obj) * STEPS_HZ, 0, INFINITY) && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
                 player->y = grav(player, obj_gravTop(player, obj)) + grav(player, player->height / 2);
                 if (player->vel_y <= 0) player->vel_y = 0;
                 obj->object.touching_player = state.current_player + 1;
@@ -164,7 +164,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                 }
                 // Behave normally
                 if (!player->is_cube_or_robot || gravSnap) {
-                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip + fabsf(obj->object.delta_y * STEPS_DT) && player->vel_y >= *soa_delta_y(obj) * STEPS_HZ) || gravSnap) && !slope_condition) {
+                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip + fabsf(*soa_delta_y(obj) * STEPS_HZ) && player->vel_y >= *soa_delta_y(obj) * STEPS_HZ) || gravSnap) && !slope_condition) {
                         if (!gravSnap) player->on_ceiling = TRUE;
                         player->inverse_rotation = FALSE;
                         player->time_since_ground = 0;
