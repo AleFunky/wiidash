@@ -1685,7 +1685,6 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
     // Handle lighter color channel
     if (col_channel == LIGHTER) {
         color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
-        color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
 
         if (obj->object.main_col_HSV_enabled) {
             color = HSV_combine(color, obj->object.main_col_HSV);
@@ -1714,6 +1713,15 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
         color = obj->object.main_col_pulse;
     } else if (obj->object.detail_being_pulsed && color_type == COLOR_DETAIL) {
         color = obj->object.detail_col_pulse;
+        
+        // Reapply lighter
+        if (col_channel == LIGHTER) {
+            color = HSV_combine(obj->object.main_col_pulse, lighter_hsv);
+
+            if (obj->object.main_col_HSV_enabled) {
+                color = HSV_combine(color, obj->object.main_col_HSV);
+            }
+        }
     }
 
     // Force unmodifiable channels to default channel color
