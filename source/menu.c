@@ -23,6 +23,8 @@
 
 #include "font_stuff.h"
 
+#include "easing.h"
+
 GRRLIB_texImg *menu_top_bar;
 GRRLIB_texImg *menu_corner_squares;
 GRRLIB_texImg *menu_arrow;
@@ -139,12 +141,27 @@ const int default_level_difficulty[NUM_LVL_DIFFICULTY] = {
 #define FACES_COUNT 7
 GRRLIB_texImg *difficulty_faces[FACES_COUNT] = {};
 
+int prev_lvl;
+float anim_test = 0.0f;
+#define ANIM_DURATION 0.5f
+int target_pos;
+bool animating = false;
+#define ANIM_PERIOD 0.8f
+
 void menu_go_left(){
+    prev_lvl = level_id;
+    target_pos = screenWidth * -1;
+    anim_test = 0;
+    animating = true;
     level_id--;
     if (level_id < 0) level_id = LEVEL_NUM - 1;
 }
 
 void menu_go_right(){
+    prev_lvl = level_id;
+    target_pos = screenWidth;
+    anim_test = 0;
+    animating = true;
     level_id++;
     if (level_id >= LEVEL_NUM) level_id = 0;
 }
@@ -545,14 +562,25 @@ int main_levels() {
           
     draw_text(big_font, big_font_text, 0, 400, 0.5, "Press 1 to switch to custom levels.");
     
-    //level name display
-    custom_rounded_rectangle((screenWidth) / 2 - 250, 100, 500, 160, 10, RGBA(0, 0, 0, 127));
-    int textOffset = (get_text_length(big_font, 0.5, levels[level_id].level_name) - 70) / 2;
-    //GRRLIB_Printf(screenWidth/2 - textOffset, 160, font_bold, RGBA(0,0,0,255), 0.75, levels[level_id].level_name);
-    //GRRLIB_Printf(screenWidth/2 - textOffset, 160, font, RGBA(255,255,255,255), 0.75, levels[level_id].level_name);
-    draw_text(big_font, big_font_text, screenWidth/2 - textOffset, 160, 0.5, levels[level_id].level_name);
-    
-    GRRLIB_DrawImg(screenWidth/2 - textOffset - 70,150,difficulty_faces[default_level_difficulty[level_id]],0,0.75,0.75,RGBA(255,255,255,255));
+    //level name dispaly
+    if (animating) {
+        //current level
+        custom_rounded_rectangle(easeValue(ELASTIC_OUT, ((screenWidth) / 2 - 250)+target_pos, (screenWidth) / 2 - 250, anim_test, ANIM_DURATION, ANIM_PERIOD), 100, 500, 160, 10, RGBA(0, 0, 0, 127));
+        int textOffset = (get_text_length(big_font, 0.5, levels[level_id].level_name) - 70) / 2;
+        draw_text(big_font, big_font_text, easeValue(ELASTIC_OUT, (screenWidth/2 - textOffset)+target_pos, screenWidth/2 - textOffset, anim_test, ANIM_DURATION, ANIM_PERIOD), 160, 0.5, levels[level_id].level_name);
+        GRRLIB_DrawImg(easeValue(ELASTIC_OUT, (screenWidth/2 - textOffset-70)+target_pos, screenWidth/2 - textOffset-70, anim_test, ANIM_DURATION, ANIM_PERIOD),150,difficulty_faces[default_level_difficulty[level_id]],0,0.75,0.75,RGBA(255,255,255,255));
+        //previous level
+        custom_rounded_rectangle(easeValue(ELASTIC_OUT, (screenWidth) / 2 - 250, ((screenWidth) / 2 - 250)+target_pos*-1, anim_test, ANIM_DURATION, ANIM_PERIOD), 100, 500, 160, 10, RGBA(0, 0, 0, 127));
+        textOffset = (get_text_length(big_font, 0.5, levels[prev_lvl].level_name) - 70) / 2;
+        draw_text(big_font, big_font_text, easeValue(ELASTIC_OUT, screenWidth/2 - textOffset, (screenWidth/2 - textOffset)+target_pos*-1, anim_test, ANIM_DURATION, ANIM_PERIOD), 160, 0.5, levels[prev_lvl].level_name);
+        GRRLIB_DrawImg(easeValue(ELASTIC_OUT, screenWidth/2 - textOffset-70, (screenWidth/2 - textOffset-70)+target_pos*-1, anim_test, ANIM_DURATION, ANIM_PERIOD),150,difficulty_faces[default_level_difficulty[prev_lvl]],0,0.75,0.75,RGBA(255,255,255,255));
+    }else{
+        //current level
+        custom_rounded_rectangle((screenWidth) / 2 - 250, 100, 500, 160, 10, RGBA(0, 0, 0, 127));
+        int textOffset = (get_text_length(big_font, 0.5, levels[level_id].level_name) - 70) / 2;
+        draw_text(big_font, big_font_text, screenWidth/2 - textOffset, 160, 0.5, levels[level_id].level_name);
+        GRRLIB_DrawImg(screenWidth/2 - textOffset-70,150,difficulty_faces[default_level_difficulty[level_id]],0,0.75,0.75,RGBA(255,255,255,255));
+    }
 
     //the circles at the bottom of the screen
     int dotsStartX = (screenWidth / 2) - ((LEVEL_NUM * 16) / 2);
@@ -574,15 +602,21 @@ int main_levels() {
         }
     }
 
-    char ir_data[64];
-    snprintf(ir_data, sizeof(ir_data), "x: %f, y: %f, a: %f", ir_x, ir_y, ir_angle);
-    draw_text(big_font, big_font_text, 20, 20, 0.25, ir_data);  // White tex
+    char ir_data_debug[64];
+    snprintf(ir_data_debug, sizeof(ir_data_debug), "x: %f, y: %f, a: %f", ir_x, ir_y, ir_angle);
+    draw_text(big_font, big_font_text, 20, 20, 0.25, ir_data_debug);  // White tex
+
+    char menu_debug[64];
+    snprintf(menu_debug, sizeof(menu_debug), "lvl id: %i, anim: %f", level_id, anim_test);
+    draw_text(big_font, big_font_text, 20, 35, 0.25, menu_debug);  // White tex
+
+    if (animating) anim_test += 1.0f/60;
+    if (anim_test > ANIM_DURATION) {
+        animating = false;
+    }
 
     update_ir_cursor();
     draw_ir_cursor();
-
-    
-
 
     if (state.input.pressedDir & INPUT_LEFT) {
         menu_go_left();
