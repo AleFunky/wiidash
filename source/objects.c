@@ -831,6 +831,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
             if (!obj->activated[state.current_player]) {
                 // Teleport
                 player->y = obj->object.child_object->y;
+                state.old_player.y = player->y; // delta_y should not be set on blue tp portal
 
                 particle_templates[USE_EFFECT].start_scale = 80;
                 particle_templates[USE_EFFECT].end_scale = 0;
