@@ -5,18 +5,16 @@ typedef struct {
     float x, y;
     float sx, sy;
     float rotation;
-    int z;
 } SpritePart;
 
 typedef struct {
-    char frameName[64];
-    SpritePart parts[16];
+    SpritePart parts[8];
     int partCount;
 } AnimationFrame;
 
 typedef struct Animation {
-    char name[64];
-    AnimationFrame frames[32];
+    char name[32];
+    AnimationFrame frames[64];
     int frameCount;
 } Animation;
 

@@ -375,12 +375,30 @@ char *load_user_song(int id, size_t *out_size);
 
 bool check_song(int id);
 void update_percentage();
-
+//#include <stdio.h>
 extern GameObjectSoA *gameObjectSoA;
 
-inline float* soa_x(GameObject *obj) { return &gameObjectSoA->x[obj->soa_index]; }
-inline float* soa_y(GameObject *obj) { return &gameObjectSoA->y[obj->soa_index]; }
-inline float* soa_delta_x(GameObject *obj) { return &gameObjectSoA->delta_x[obj->soa_index]; }
-inline float* soa_delta_y(GameObject *obj) { return &gameObjectSoA->delta_y[obj->soa_index]; }
-inline unsigned char* soa_touching_player(GameObject *obj) { return &gameObjectSoA->touching_player[obj->soa_index]; }
-inline unsigned char* soa_prev_touching_player(GameObject *obj) { return &gameObjectSoA->prev_touching_player[obj->soa_index]; }
+inline float* soa_x(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
+    return &gameObjectSoA->x[obj->soa_index]; 
+}
+inline float* soa_y(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);  
+    return &gameObjectSoA->y[obj->soa_index]; 
+}
+inline float* soa_delta_x(GameObject *obj) {
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA->delta_x[obj->soa_index]; 
+}
+inline float* soa_delta_y(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA->delta_y[obj->soa_index]; 
+}
+inline unsigned char* soa_touching_player(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA->touching_player[obj->soa_index]; 
+}
+inline unsigned char* soa_prev_touching_player(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA->prev_touching_player[obj->soa_index]; 
+}

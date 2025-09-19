@@ -96,12 +96,11 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
 
         //output_log("Processing frame: %s\n", frameName);  // Debug print
 
-        char animName[64];
+        char animName[32];
         extractAnimName(frameName, animName);
         Animation* anim = getOrCreateAnimation(lib, animName);
 
         AnimationFrame* frame = &anim->frames[anim->frameCount++];
-        strncpy(frame->frameName, frameName, sizeof(frame->frameName));
         frame->partCount = 0;
 
         // Get the dict containing sprite data
@@ -140,7 +139,6 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
             part->sx = 1.0f;
             part->sy = 1.0f;
             part->rotation = 0.0f;
-            part->z = 0;
             // Process sprite properties
             for (mxml_node_t* propKey = mxmlFindElement(spriteDict, spriteDict, "key", NULL, NULL, MXML_DESCEND_FIRST);
                  propKey;
@@ -184,9 +182,6 @@ void parsePlist(const char* filename, AnimationLibrary* lib) {
                 else if (strcmp(keyText, "rotation") == 0) {
                     part->rotation = atof(valText);
                 }
-                else if (strcmp(keyText, "zValue") == 0) {
-                    part->z = atoi(valText);
-                }
             }
 
             //output_log("  Loaded sprite: pos(%.2f,%.2f) scale(%.2f,%.2f) rot=%.2f z=%d\n",
@@ -221,8 +216,6 @@ void lerpSpritePart(SpritePart* out, SpritePart* a, SpritePart* b, float t) {
     if (angleDiff > 180.0f) angleDiff -= 360.0f;
     if (angleDiff < -180.0f) angleDiff += 360.0f;
     out->rotation = a->rotation + angleDiff * t;
-    
-    out->z = a->z;
 }
 
 void playObjAnimation(GameObject *obj, AnimationDefinition definition, float time) 

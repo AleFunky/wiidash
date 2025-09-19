@@ -1176,10 +1176,10 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     }
 
     
-    gameObjectSoA->delta_x[i] = 0;
-    gameObjectSoA->delta_y[i] = 0;
-    gameObjectSoA->touching_player[i] = 0;
-    gameObjectSoA->prev_touching_player[i] = 0;
+    *soa_delta_x(object) = 0;
+    *soa_delta_y(object) = 0;
+    *soa_touching_player(object) = 0;
+    *soa_prev_touching_player(object) = 0;
 
     object->has_two_channels = object->object.main_col_channel > 0 && object->object.detail_col_channel > 0;
     return object;
@@ -1502,6 +1502,7 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     obj->object.zlayer = LAYER_T1-1;
     obj->object.zorder = 0;
     obj->object.zsheetlayer = 0;
+    obj->soa_index = 0;
     GDObjectLayer *layer = malloc(sizeof(GDObjectLayer));
     layer->obj = obj;
     layer->layer = (struct ObjectLayer *) &objects[obj->id].layers[0];
@@ -1864,7 +1865,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     int new_index = objectsArrayList->count - 1;
     
     obj->soa_index = new_index;
-    
+
     gameObjectSoA->x[new_index] = x;
     gameObjectSoA->y[new_index] = y;
     gameObjectSoA->delta_x[new_index] = 0;
@@ -2034,6 +2035,8 @@ int load_level(char *data, bool is_custom) {
                     count += 1;
             }
         }
+
+        printf("count %d\n", count);
 
         bool success = init_object_soa(count, gameObjectSoA);
         if (!gameObjectSoA || !success) {
