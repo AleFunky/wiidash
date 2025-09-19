@@ -135,6 +135,12 @@ int paused_loop() {
             return TRUE;
         }
 
+        // reset
+        if (state.input.pressedDir & INPUT_DOWN) {
+            state.dead = TRUE;
+            break;
+        }
+
         // Unpause
         if (state.input.pressedPlusOrL) {
             break;
