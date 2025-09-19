@@ -115,6 +115,9 @@ typedef struct {
     float scale_x;         // key 32 and 128
     float scale_y;         // key 32 and 129
 
+    bool dont_fade;      // key 64
+    bool dont_enter;     // key 67
+
     bool main_col_HSV_enabled;
     bool detail_col_HSV_enabled;
     HSV main_col_HSV;

@@ -1540,6 +1540,10 @@ void unload_coin_texture() {
 int get_opacity(GameObject *obj, float x) {
     int opacity = get_fade_value(x, screenWidth);
 
+    if (obj->object.dont_fade) {
+        return 255;
+    }
+
     switch (obj->id) {
         case BLACK_FULL:
         case BLACK_EDGE:
@@ -1819,7 +1823,7 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
 
     float fade_scale = 1.f;
 
-    get_fade_vars(obj, x, &fade_x, &fade_y, &fade_scale);
+    if (!obj->object.dont_enter) get_fade_vars(obj, x, &fade_x, &fade_y, &fade_scale);
 
     // Get scaling because of music
     if (layer_pulses(obj, layer)) {
@@ -1847,13 +1851,15 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
             }
     }
 
-    // Handle special fade types
-    if (obj->transition_applied == FADE_DOWN_STATIONARY || obj->transition_applied == FADE_UP_STATIONARY) {
-        if (unmodified_opacity < 255) {
-            if (x > screenWidth / 2) {
-                x = screenWidth - FADE_WIDTH;
-            } else {
-                x = FADE_WIDTH;
+    if (!obj->object.dont_enter) {
+        // Handle special fade types
+        if (obj->transition_applied == FADE_DOWN_STATIONARY || obj->transition_applied == FADE_UP_STATIONARY) {
+            if (unmodified_opacity < 255) {
+                if (x > screenWidth / 2) {
+                    x = screenWidth - FADE_WIDTH;
+                } else {
+                    x = FADE_WIDTH;
+                }
             }
         }
     }

@@ -642,8 +642,10 @@ GDValueType get_value_type_for_key(int key) {
         case 59: return GD_VAL_BOOL;   // (Move trigger) Lock to player y
         case 62: return GD_VAL_BOOL;   // (Triggers) Spawn triggered
         case 63: return GD_VAL_FLOAT;  // (Spawn trigger) Spawn delay
+        case 64: return GD_VAL_BOOL;   // Don't fade
         case 65: return GD_VAL_BOOL;   // (Pulse trigger) Main only
         case 66: return GD_VAL_BOOL;   // (Pulse trigger) Detail only
+        case 67: return GD_VAL_BOOL;   // Don't enter
         case 128: return GD_VAL_FLOAT; // Scale x
         case 129: return GD_VAL_FLOAT; // Scale y
         default:
@@ -981,6 +983,12 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
                     break;
                 case 54: // Teleport portal y offset
                     if (type == GD_VAL_FLOAT) object->object.orange_tp_portal_y_offset = val.f;
+                    break;
+                case 64: // Don't fade
+                    if (type == GD_VAL_BOOL) object->object.dont_fade = val.b;
+                    break;
+                case 67: // Don't enter
+                    if (type == GD_VAL_BOOL) object->object.dont_enter = val.b;
                     break;
                 case 128: // Scale x
                     if (type == GD_VAL_FLOAT) object->object.scale_x = val.f;
@@ -1780,7 +1788,7 @@ int parse_old_channels(char *level_string, GDColorChannel **outArray) {
         if (obj_2_blending) {
             obj_2_channel.blending = atoi(obj_2_blending) != 0;
         }
-        
+
         channels = realloc(channels, sizeof(GDColorChannel) * (i + 1));
         channels[i] = obj_2_channel;
         i++;
