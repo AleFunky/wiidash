@@ -117,9 +117,9 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             bool slope_height_check = FALSE;
             if (player->touching_slope) {
                 if (grav_slope_orient(player->potentialSlope, player) == ORIENT_NORMAL_DOWN) {
-                    slope_height_check = gravBottom(player) < grav(player, player->potentialSlope->y);
+                    slope_height_check = gravBottom(player) < grav(player, *soa_y(player->potentialSlope));
                 } else if (grav_slope_orient(player->potentialSlope, player) == ORIENT_UD_DOWN) {
-                    slope_height_check = gravTop(player) > grav(player, player->potentialSlope->y);
+                    slope_height_check = gravTop(player) > grav(player, *soa_y(player->potentialSlope));
                 }
             }
 
@@ -151,7 +151,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(*soa_delta_y(obj)) && player->vel_y <= CLAMP(*soa_delta_y(obj) * STEPS_HZ, 0, INFINITY) && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
                 player->y = grav(player, obj_gravTop(player, obj)) + grav(player, player->height / 2);
                 if (player->vel_y <= 0) player->vel_y = 0;
-                obj->object.touching_player = state.current_player + 1;
+                *soa_touching_player(obj) = state.current_player + 1;
                 obj->object.touching_side = 1;
                 player->on_ground = TRUE;
                 player->inverse_rotation = FALSE;
@@ -169,7 +169,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                         player->inverse_rotation = FALSE;
                         player->time_since_ground = 0;
                         player->ceiling_inv_time = 0;
-                        obj->object.touching_player = state.current_player + 1;
+                        *soa_touching_player(obj) = state.current_player + 1;
                         obj->object.touching_side = 2;
                         player->y = grav(player, obj_gravBottom(player, obj)) - grav(player, player->height / 2);
                         if (player->vel_y >= 0) player->vel_y = 0;
@@ -206,8 +206,8 @@ void collide_with_obj(Player *player, GameObject *obj) {
 
     if (hitbox->type != HITBOX_NONE && !obj->toggled && !obj->hide_sprite && obj->id < OBJECT_COUNT) {
         number_of_collisions_checks++;
-        obj->object.prev_touching_player = obj->object.touching_player;
-        obj->object.touching_player = 0;
+        *soa_prev_touching_player(obj) = *soa_touching_player(obj);
+        *soa_touching_player(obj) = 0;
         obj->object.touching_side = 0;
 
         float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);

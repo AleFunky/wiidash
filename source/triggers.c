@@ -611,16 +611,16 @@ void handle_move_triggers() {
             mark_object_dirty(obj);
 
             // Handle player collision
-            if (obj->object.touching_player) {
-                Player* player = (obj->object.touching_player == 1) ? 
+            if (*soa_touching_player(obj)) {
+                Player* player = (*soa_touching_player(obj) == 1) ? 
                                &state.player : &state.player2;
 
                 float grav_delta_y = grav(player, delta_y * STEPS_HZ);
                 if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
                     player->y += delta_y;
                 }
-            } else if (obj->object.prev_touching_player) {
-                Player* player = (obj->object.prev_touching_player == 1) ?
+            } else if (*soa_prev_touching_player(obj)) {
+                Player* player = (*soa_prev_touching_player(obj) == 1) ?
                                &state.player : &state.player2;
 
                 float grav_delta_y = grav(player, delta_y * STEPS_HZ);
@@ -641,8 +641,8 @@ void handle_move_triggers() {
             for (int i = 0; i < group->count; i++) {
                 GameObject* obj = group->objects[i];
 
-                if (obj->object.touching_player) {
-                    Player* player = (obj->object.touching_player == 1) ?
+                if (*soa_touching_player(obj)) {
+                    Player* player = (*soa_touching_player(obj) == 1) ?
                                    &state.player : &state.player2;
 
                     float delta_y = *soa_delta_y(obj);

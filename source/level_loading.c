@@ -886,6 +886,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     // Initialize all fields to 0
     memset(object, 0, sizeof(GameObject));
 
+    object->soa_index = i;
     object->id = obj->values[0].i;
     object->type = obtain_type_from_id(object->id);
     
@@ -925,10 +926,10 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
         // Default members
         switch (key) {
             case 2:  // X
-                if (type == GD_VAL_FLOAT) object->x = val.f;
+                if (type == GD_VAL_FLOAT) *soa_x(object) = val.f;
                 break;
             case 3:  // Y
-                if (type == GD_VAL_FLOAT) object->y = val.f;
+                if (type == GD_VAL_FLOAT) *soa_y(object) = val.f;
                 break;
             case 4:  // FlippedH
                 if (type == GD_VAL_BOOL) object->flippedH = val.b;
@@ -1144,8 +1145,8 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     }
     
     // Modify level ending pos
-    if (object->x > level_info.last_obj_x) {
-        level_info.last_obj_x = object->x;
+    if (*soa_x(object) > level_info.last_obj_x) {
+        level_info.last_obj_x = *soa_x(object);
     }
 
     if (object->type == TYPE_NORMAL_OBJECT) {
@@ -1175,20 +1176,25 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     }
 
     
-    object->soa_index = i;
-    gameObjectSoA->x[i] = object->x;
-    gameObjectSoA->y[i] = object->y;
     gameObjectSoA->delta_x[i] = 0;
     gameObjectSoA->delta_y[i] = 0;
+    gameObjectSoA->touching_player[i] = 0;
+    gameObjectSoA->prev_touching_player[i] = 0;
 
     object->has_two_channels = object->object.main_col_channel > 0 && object->object.detail_col_channel > 0;
-
-    // Register its groups
-    register_object(object);
-
-    load_obj_textures(object->id);
-
     return object;
+}
+
+void free_soa(GameObjectSoA *soa) {
+    if (!soa) return;
+
+    if(soa->x) free(soa->x);
+    if(soa->y) free(soa->y);
+    if(soa->delta_x) free(soa->delta_x);
+    if(soa->delta_y) free(soa->delta_y);
+    if(soa->touching_player) free(soa->touching_player);
+    if(soa->prev_touching_player) free(soa->prev_touching_player);
+    free(soa);
 }
 
 bool init_object_soa(int count, GameObjectSoA *soa) {
@@ -1197,34 +1203,38 @@ bool init_object_soa(int count, GameObjectSoA *soa) {
 
     soa->y = malloc(sizeof(float) * count);
     if (!soa->y) {
-        free(soa->x);
+        free_soa(soa);
         return FALSE;
     }
 
     soa->delta_x = malloc(sizeof(float) * count);
     if (!soa->delta_x) {
-        free(soa->x);
-        free(soa->y);
+        free_soa(soa);
         return FALSE;
     }
 
     soa->delta_y = malloc(sizeof(float) * count);
     if (!soa->delta_y) {
-        free(soa->x);
-        free(soa->y);
-        free(soa->delta_x);
+        free_soa(soa);
+        return FALSE;
+    }
+    
+    soa->touching_player = malloc(sizeof(unsigned char) * count);
+    if (!soa->touching_player) {
+        free_soa(soa);
         return FALSE;
     }
 
-    return TRUE;
-}
+    soa->prev_touching_player = malloc(sizeof(unsigned char) * count);
+    if (!soa->prev_touching_player) {
+        free_soa(soa);
+        return FALSE;
+    }
 
-void free_soa(GameObjectSoA *soa) {
-    free(soa->x);
-    free(soa->y);
-    free(soa->delta_x);
-    free(soa->delta_y);
-    free(soa);
+    printf("%p %p %p %p %p %p\n", soa->x, soa->y, soa->delta_x, soa->delta_y, soa->touching_player, soa->prev_touching_player);
+
+
+    return TRUE;
 }
 
 void free_game_object(GameObject *obj) {
@@ -1242,7 +1252,6 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
 
     for (int i = 0; i < objList->objectCount; i++) {
         objectArray[i] = convert_to_game_object(&objList->objects[i], i);
-        assign_object_to_section(objectArray[i]);
         if (!objectArray[i]) {
             output_log("Failed to convert object %d\n", i);
             for (int j = 0; j < i; j++) {
@@ -1251,6 +1260,14 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
             free(objectArray);
             return NULL;
         }
+    }
+
+    // Do this separated
+    for (int i = 0; i < objList->objectCount; i++) {
+        GameObject *obj = objectArray[i];
+        load_obj_textures(obj->id);
+        register_object(obj);
+        assign_object_to_section(obj);
     }
 
     output_log("Allocating list...\n");
@@ -1271,8 +1288,8 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
     origPositionsList = malloc(sizeof(struct ObjectPos) * objList->objectCount);
 
     for (int i = 0; i < objList->objectCount; i++) {
-        origPositionsList[i].x = gameObjectList->objects[i]->x;
-        origPositionsList[i].y = gameObjectList->objects[i]->y;
+        origPositionsList[i].x = *soa_x(gameObjectList->objects[i]);
+        origPositionsList[i].y = *soa_y(gameObjectList->objects[i]);
     }
 
     return gameObjectList;
@@ -1819,8 +1836,6 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     memset(obj, 0, sizeof(GameObject));
     obj->id = object_id;
     obj->type = obtain_type_from_id(object_id);
-    obj->x = x;
-    obj->y = y;
     obj->rotation = rotation;
     obj->opacity = 1.0f;
     
@@ -1847,17 +1862,15 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     objectsArrayList->objects[objectsArrayList->count - 1] = obj;
 
     int new_index = objectsArrayList->count - 1;
-    // Realloc soa
-    gameObjectSoA->x = realloc(gameObjectSoA->x, sizeof(float) * objectsArrayList->count);
-    gameObjectSoA->y = realloc(gameObjectSoA->y, sizeof(float) * objectsArrayList->count);
-    gameObjectSoA->delta_x = realloc(gameObjectSoA->delta_x, sizeof(float) * objectsArrayList->count);
-    gameObjectSoA->delta_y = realloc(gameObjectSoA->delta_y, sizeof(float) * objectsArrayList->count);
-
+    
+    obj->soa_index = new_index;
+    
     gameObjectSoA->x[new_index] = x;
     gameObjectSoA->y[new_index] = y;
     gameObjectSoA->delta_x[new_index] = 0;
     gameObjectSoA->delta_y[new_index] = 0;
-    obj->soa_index = new_index;
+    gameObjectSoA->touching_player[new_index] = 0;
+    gameObjectSoA->prev_touching_player[new_index] = 0;
 
     // Add to sections
     assign_object_to_section(obj);
@@ -1873,53 +1886,6 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     }
     origPositionsList[objectsArrayList->count - 1].x = x;
     origPositionsList[objectsArrayList->count - 1].y = y;
-
-    // Update layers if needed
-    if (obj->type == TYPE_NORMAL_OBJECT) {
-        int new_layers = objects[object_id].num_layers;
-        if (new_layers > 0) {
-            int old_count = layersArrayList->count;
-            layersArrayList->count += new_layers;
-
-        
-            // First object is at the start of the layer array
-            layersArrayList->layers[0] = realloc(layersArrayList->layers[0], sizeof(GDObjectLayer) * layersArrayList->count);
-            if (!layersArrayList->layers[0]) {
-                output_log("Couldn't reallocate new layer array\n");
-                return NULL;
-            }
-            
-            // Rellocate new layer memory
-            layersArrayList->layers = realloc(layersArrayList->layers, sizeof(GDObjectLayer*) * layersArrayList->count);
-            if (!layersArrayList->layers) {
-                output_log("Couldn't reallocate new layer list\n");
-                return NULL;
-            }
-
-            // Resync layers
-            for (int i = 0; i < layersArrayList->count; i++) {
-                layersArrayList->layers[i] = &layersArrayList->layers[0][i];
-            }
-
-            // Create and add new layers
-            for (int i = 0; i < new_layers; i++) {
-                GDObjectLayer* layer = &layersArrayList->layers[0][old_count + i];
-                
-                layer->obj = obj;
-                layer->layer = (struct ObjectLayer*)&objects[object_id].layers[i];
-                layer->layerNum = i;
-                layer->col_channel = layer->layer->col_channel;
-                layer->blending = FALSE;
-
-                layersArrayList->layers[old_count + i] = layer;
-            }
-            
-            free_gfx_sections();
-            // Resort layers
-            make_sortable_layers(layersArrayList);
-        }
-    }
-
     return obj;
 }
 
@@ -2056,7 +2022,20 @@ int load_level(char *data, bool is_custom) {
         }
         
         gameObjectSoA = malloc(sizeof(GameObjectSoA));
-        bool success = init_object_soa(objectsList->objectCount, gameObjectSoA);
+
+        int count = 0;
+        // Count all objects (+ child objects)
+        for (int i = 0; i < objectsList->objectCount; i++) {
+            switch (objectsList->objects[i].values[0].i) {
+                case BLUE_TP_PORTAL:
+                    count += 2;
+                    break;
+                default:
+                    count += 1;
+            }
+        }
+
+        bool success = init_object_soa(count, gameObjectSoA);
         if (!gameObjectSoA || !success) {
             output_log("Failed creating the SoA objects\n");
             free(gameObjectSoA);
@@ -2065,6 +2044,8 @@ int load_level(char *data, bool is_custom) {
 
         objectsArrayList = convert_all_to_game_objects(objectsList);
         free_gd_object_list(objectsList);
+        
+        create_extra_objects();
 
         if (objectsArrayList == NULL) {
             output_log("Failed converting objects to game object structs.\n");
@@ -2080,8 +2061,6 @@ int load_level(char *data, bool is_custom) {
         }
 
         make_sortable_layers(layersArrayList);
-        
-        create_extra_objects();
 
         for (int i = 1; i < MAX_GROUPS; i++) {
             sort_group(i);

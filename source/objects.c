@@ -830,7 +830,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         case BLUE_TP_PORTAL:
             if (!obj->activated[state.current_player]) {
                 // Teleport
-                player->y = obj->object.child_object->y;
+                player->y = *soa_y(obj->object.child_object);
                 state.old_player.y = player->y; // delta_y should not be set on blue tp portal
 
                 particle_templates[USE_EFFECT].start_scale = 80;
@@ -846,10 +846,10 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 set_particle_color(USE_EFFECT, 255, 255, 0);
-                spawn_particle(USE_EFFECT, obj->object.child_object->x, obj->object.child_object->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj->object.child_object), *soa_y(obj->object.child_object), obj);
                 
                 float camera_y = state.camera_y + SCREEN_HEIGHT_AREA / 2;
-                if (player->is_cube_or_robot && fabsf(camera_y - obj->object.child_object->y) >= SCREEN_HEIGHT_AREA/2 + 60) {
+                if (player->is_cube_or_robot && fabsf(camera_y - *soa_y(obj->object.child_object)) >= SCREEN_HEIGHT_AREA/2 + 60) {
                     state.intermediate_camera_y = state.camera_y = player->y - SCREEN_HEIGHT_AREA / 2;
                 }
 

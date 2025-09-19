@@ -139,8 +139,6 @@ typedef struct {
 
     float animation_timer;
 
-    unsigned char touching_player;
-    unsigned char prev_touching_player;
     unsigned char touching_side;
     // Slope
     unsigned char orientation;
@@ -175,8 +173,6 @@ typedef struct GameObject {
 
     ObjectType type;     // Defines the type
 
-    float x;             // key 2
-    float y;             // key 3
     bool flippedH;       // key 4
     bool flippedV;       // key 5
     float rotation;      // key 6
@@ -386,3 +382,5 @@ inline float* soa_x(GameObject *obj) { return &gameObjectSoA->x[obj->soa_index];
 inline float* soa_y(GameObject *obj) { return &gameObjectSoA->y[obj->soa_index]; }
 inline float* soa_delta_x(GameObject *obj) { return &gameObjectSoA->delta_x[obj->soa_index]; }
 inline float* soa_delta_y(GameObject *obj) { return &gameObjectSoA->delta_y[obj->soa_index]; }
+inline unsigned char* soa_touching_player(GameObject *obj) { return &gameObjectSoA->touching_player[obj->soa_index]; }
+inline unsigned char* soa_prev_touching_player(GameObject *obj) { return &gameObjectSoA->prev_touching_player[obj->soa_index]; }
