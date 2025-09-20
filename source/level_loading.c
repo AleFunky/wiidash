@@ -621,6 +621,7 @@ GDValueType get_value_type_for_key(int key) {
         case 28: return GD_VAL_INT;    // (Move trigger) Offset X
         case 29: return GD_VAL_INT;    // (Move trigger) Offset Y
         case 30: return GD_VAL_INT;    // (Various) Easing
+        case 31: return GD_VAL_STRING; // (Text obj) Text
         case 32: return GD_VAL_FLOAT;  // Scale
         case 35: return GD_VAL_FLOAT;  // (Color trigger) Opacity
         case 41: return GD_VAL_BOOL;   // Main col HSV enabled
@@ -692,6 +693,23 @@ int parse_gd_object(const char *objStr, GDObject *obj) {
                 for (int i = 0; i < MAX_GROUPS_PER_OBJECT; i++) {
                     obj->values[obj->propCount].int_array[i] = array[i];
                 }
+                break;
+            case GD_VAL_STRING:
+                char *string = (char *) valStr;
+                fix_base64_url(string);
+
+                char *decoded = malloc(strlen(string));
+                int decoded_len = base64_decode(string, (unsigned char *) decoded);
+                if (decoded_len <= 0) {
+                    output_log("Failed to decode base64 for text obj\n");
+                    free(decoded);
+                    decoded = ""; // Fail safe
+                }
+
+                // Terminate it
+                decoded[decoded_len] = '\0';
+
+                obj->values[obj->propCount].str = decoded; 
                 break;
             default:
                 obj->values[obj->propCount].i = atoi(valStr);
@@ -967,6 +985,9 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
                 case 25: // Z order
                     if (type == GD_VAL_INT) object->object.zorder = val.i;
                     break;
+                case 31: // Text
+                    if (type == GD_VAL_STRING) object->object.text = val.str;
+                    break;
                 case 32: // Scale
                     if (type == GD_VAL_FLOAT) object->object.scale_x = object->object.scale_y = val.f;
                     break;
@@ -1239,6 +1260,7 @@ bool init_object_soa(int count, GameObjectSoA *soa) {
 
 void free_game_object(GameObject *obj) {
     if (!obj) return;
+    if (obj->object.text) free(obj->object.text);
     free(obj);
 }
 

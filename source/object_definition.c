@@ -16904,7 +16904,24 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zorder = -7,
         .num_layers = 1,
     },
-
+    // Text object
+    [TEXT_OBJ] = {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block005_13_001_png // Here goes whatever
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_PORTALS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 1,
+        .num_layers = 1,
+    },
     [V2_0_LINE_TRIGGER] = trigger,
     {
         .layers = {

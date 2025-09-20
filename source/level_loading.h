@@ -16,6 +16,7 @@ typedef enum {
     GD_VAL_BOOL,
     GD_VAL_HSV,
     GD_VAL_INT_ARRAY,
+    GD_VAL_STRING,
     GD_VAL_UNKNOWN
 } GDValueType;
 
@@ -24,6 +25,7 @@ typedef union {
     float f;
     bool b;
     short int_array[MAX_GROUPS_PER_OBJECT]; // For groups
+    char *str;
     HSV hsv;
 } GDValue;
 
@@ -144,6 +146,8 @@ typedef struct {
     unsigned char orientation;
 
     unsigned char num_pulses;
+
+    char *text; // key 31
     
 } NormalObject;
 
