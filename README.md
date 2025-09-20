@@ -13,6 +13,12 @@ Geometry Dash and its respective resources are by RobTop Games.
 * Ability to load levels from the SD card/USB.
 * Gameplay up to version 1.9.
 
+## Download
+Please keep in mind this game is in active development and stuff might change or break. It is recommended you download the 1.9 build, as the 2.0 build is not finished.
+
+* Stable 1.9 build: [Click here](https://nightly.link/AleFunky/wiidash/workflows/main/main/wiidash.zip)
+* More unstable 2.0 build: [Click here](https://nightly.link/AleFunky/wiidash/workflows/main/2.0-update/wiidash.zip) 
+
 ## Decompilations and recreations that helped make this as accurate as possible
 [GDClone](https://github.com/opstic/gdclone) by opstic\
 [GDRender](https://github.com/maxnut/gdrender/) by maxnut\
