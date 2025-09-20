@@ -327,6 +327,8 @@ typedef struct GFXSection {
     struct GFXSection *next; // For chaining in hash map
 } GFXSection;
 
+bool is_ascii(const unsigned char *data, int len);
+
 bool init_object_soa(int count, GameObjectSoA *soa);
 
 extern Section *section_hash[SECTION_HASH_SIZE];

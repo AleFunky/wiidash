@@ -281,6 +281,15 @@ char *extract_gmd_key(const char *data, const char *key, const char *type) {
     return value;
 }
 
+bool is_ascii(const unsigned char *data, int len) {
+    for (int i = 0; i < len; i++) {
+        if (data[i] > 0x7F) {
+            return false; // Non-ASCII byte found
+        }
+    }
+    return true;
+}
+
 int b64_char(char c) {
     if ('A' <= c && c <= 'Z') return c - 'A';
     if ('a' <= c && c <= 'z') return c - 'a' + 26;
@@ -700,14 +709,13 @@ int parse_gd_object(const char *objStr, GDObject *obj) {
 
                 char *decoded = malloc(strlen(string));
                 int decoded_len = base64_decode(string, (unsigned char *) decoded);
-                if (decoded_len <= 0) {
+                if (decoded_len <= 0 || !is_ascii((unsigned char *) decoded, decoded_len)) {
                     output_log("Failed to decode base64 for text obj\n");
-                    free(decoded);
-                    decoded = ""; // Fail safe
+                    decoded[0] = '\0'; // Fail safe
+                } else {
+                    // Terminate it
+                    decoded[decoded_len] = '\0';
                 }
-
-                // Terminate it
-                decoded[decoded_len] = '\0';
 
                 obj->values[obj->propCount].str = decoded; 
                 break;
