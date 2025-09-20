@@ -208,14 +208,12 @@ typedef struct GameObject {
     GDLayerSortable *layers[MAX_OBJECT_LAYERS];
 } GameObject;
 
-#pragma pack(push, 1)
 typedef struct {
     GDValue values[15];
     unsigned char keys[15];
     unsigned char types[15];
     unsigned char propCount;
-} GDObject;
-#pragma pack(pop)
+} __attribute__((__packed__)) GDObject;
 
 typedef struct {
     GDObject *objects;

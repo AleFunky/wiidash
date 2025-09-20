@@ -66,7 +66,6 @@ void handle_pulse_triggers() {
         struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[i];
 
         if (buffer->active) {
-            
             if (buffer->pulse_mode == PULSE_MODE_HSV) {
                 int id = buffer->copied_color_id;
                 if (id == 0) {
@@ -282,6 +281,9 @@ void handle_pulse_triggers() {
                     }
                 }
 
+                // If last slot, nothing is gonna move into the slot so just disable it
+                if (i == MAX_PULSE_CHANNELS - 1) buffer->active = FALSE;
+                
                 // Make the game run the pulse moved into the current slot
                 i--;
             }
