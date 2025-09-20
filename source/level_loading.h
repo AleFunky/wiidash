@@ -336,7 +336,6 @@ void update_object_section(GameObject *obj, float new_x, float new_y);
 
 char *get_level_name(char *data_ptr);
 char *get_author_name(char *data_ptr);
-int compare_sortable_layers(const void *a, const void *b);
 
 extern struct LoadedLevelInfo level_info;
 
@@ -344,6 +343,7 @@ struct ObjectPos {
     float x;
     float y;
 };
+
 
 extern GDGameObjectList *objectsArrayList;
 extern struct ObjectPos *origPositionsList;

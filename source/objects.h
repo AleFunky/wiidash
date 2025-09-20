@@ -1470,6 +1470,11 @@ typedef struct {
     ObjectHitbox hitbox;
 } ObjectDefinition;
 
+typedef struct {
+    uint32_t key;           // packed sort key
+    GDLayerSortable *ptr; 
+} SortEntry;
+
 #define BLOCK_SIZE_PX (44.f * screen_factor_y)
 #define BASE_SCALE (0.733333 * screen_factor_y)
 #define SCALE (BLOCK_SIZE_PX / 30.0f)

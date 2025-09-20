@@ -2127,6 +2127,78 @@ void play_object_animation(GameObject *obj) {
     obj->object.animation_timer += dt;
 }
 
+static inline uint32_t make_sort_key(int zlayer, int sheet, int zorder, int index) {
+    // Normalize ranges
+    uint32_t zl  = (uint32_t)(zlayer + 2);              // -2..9 -> 0..11
+    uint32_t sh  = (uint32_t)(0x7 - sheet);             // invert for descending
+    uint32_t zo  = (uint32_t)(zorder + 100);            // -100..100 -> 0..200
+    uint32_t idx = (uint32_t)(index & 0x1FFFF);         // fit into 17 bits
+
+    return (zl  << 28) |   // top 4 bits
+           (sh  << 25) |   // next 3 bits
+           (zo  << 17) |   // next 8 bits
+           (idx);          // bottom 17 bits
+}
+
+#define RADIX 256
+#define MASK (RADIX-1)
+
+void radix_sort(SortEntry *arr, int n) {
+    if (n <= 1) return;
+
+    SortEntry *tmp = (SortEntry *)malloc(n * sizeof(SortEntry));
+    if (!tmp) {
+        printf("Failed to allocate memory for layer sorting\n");
+        return;
+    }
+
+    for (int shift = 0; shift < 32; shift += 8) {
+        int count[RADIX] = {0};
+
+        // Count
+        for (int i = 0; i < n; i++) {
+            int digit = (arr[i].key >> shift) & MASK;
+            count[digit]++;
+        }
+
+        // Prefix sum
+        int sum = 0;
+        for (int i = 0; i < RADIX; i++) {
+            int tmpc = count[i];
+            count[i] = sum;
+            sum += tmpc;
+        }
+
+        // Place into tmp
+        for (int i = 0; i < n; i++) {
+            int digit = (arr[i].key >> shift) & MASK;
+            tmp[count[digit]++] = arr[i];
+        }
+
+        // Copy back
+        memcpy(arr, tmp, n * sizeof(SortEntry));
+    }
+
+    free(tmp);
+}
+
+static inline void insertion_sort_by_layer(GDLayerSortable **arr, int n) {
+    for (int i = 1; i < n; i++) {
+        GDLayerSortable *key = arr[i];
+        int j = i - 1;
+
+        // Sort by layer index ascending
+        while (j >= 0 && arr[j]->originalIndex > key->originalIndex) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+#undef RADIX
+#undef MASK
+
 void draw_all_object_layers() {
     u64 t0 = gettime();
     if (GRRLIB_Settings.antialias == false) {
@@ -2181,28 +2253,63 @@ void draw_all_object_layers() {
     }
 
     // Sort layers
-    qsort(visible_layers, visible_count, sizeof(GDLayerSortable*), compare_sortable_layers);
+    SortEntry *entries = malloc(visible_count * sizeof(SortEntry));
+
+    for (int i = 0; i < visible_count; i++) {
+        GDLayerSortable *ls = visible_layers[i];
+
+        GDObjectLayer *GDlayer = ls->layer;
+
+        struct ObjectLayer *layer = GDlayer->layer;
+
+        GameObject *obj = GDlayer->obj;
+        
+        int zlayer = ls->zlayer + layer->zlayer_offset;
+            
+        // Player is always index 0
+        if (i > 0 && objects[obj->id].spritesheet_layer == SHEET_BLOCKS) {
+            int col_channel = GDlayer->col_channel;
+            bool blending = channels[col_channel].blending || GDlayer->blending;
+
+            // Two color objects must have both channels be blending
+            if (obj->has_two_channels) {
+                blending = GDlayer->blending || obj->both_channels_blending;
+            }
+
+            zlayer -= (blending ^ ((zlayer & 1) == 0));
+        }
+
+        int sheet  = objects[obj->id].spritesheet_layer;
+        int zorder = obj->object.zorder;
+        int index  = ls->originalIndex;
+
+        entries[i].key = make_sort_key(zlayer, sheet, zorder, index);
+        entries[i].ptr = ls;
+    }
+
+    radix_sort(entries, visible_count);
 
 
     // Sort same ID objects so instead of layer 0 layer 1 layer 0 layer 1, its layer 0, layer 0, layer 1, layer 1
     int i = 0;
     while (i < visible_count) {
-        int obj_id = visible_layers[i]->layer->obj->id;
-        int j = i + 1;
+        GDLayerSortable *first = visible_layers[i];
+        int obj_id = first->layer->obj->id;
 
-        // Find run of same object
+        int j = i + 1;
         while (j < visible_count &&
             visible_layers[j]->layer->obj->id == obj_id) {
             j++;
         }
 
-        // Reorder [i, j) to group layers by increasing layer index
-        if (j - i > 1) {
-            qsort(&visible_layers[i], j - i, sizeof(GDLayerSortable*), compare_by_layer_index);
+        int run_length = j - i;
+        if (run_length > 1) {
+            insertion_sort_by_layer(&visible_layers[i], run_length);
         }
 
         i = j;
     }
+
     
     u64 t1 = gettime();
     layer_sorting = ticks_to_microsecs(t1 - t0) / 1000.f;
@@ -2214,7 +2321,7 @@ void draw_all_object_layers() {
 
     // Draw in sorted order
     for (int i = 0; i < visible_count; i++) {
-        GDObjectLayer *layer = visible_layers[i]->layer;
+        GDObjectLayer *layer = entries[i].ptr->layer;
         GameObject *obj = layer->obj;
 
         int obj_id = obj->id;
@@ -2358,6 +2465,7 @@ void draw_all_object_layers() {
     draw_time = ticks_to_microsecs(draw_time) / 1000.f;
     obj_particles_time = ticks_to_microsecs(obj_particles_time) / 1000.f;
     
+    free(entries);
     
     GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
 }
