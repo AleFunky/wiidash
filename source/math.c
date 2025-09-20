@@ -980,13 +980,6 @@ void draw_rotated_text(struct charset font, GRRLIB_texImg *tex, const float x, c
 
     float length = get_text_length(font, fabsf(zoom_x), tmp);
 
-    // Calculate max glyph height for vertical centering
-    float max_height = 0.0f;
-    for (int i = 0; i < size; i++) {
-        struct glyph *character = get_glyph(font, tmp[i]);
-        if (character && character->height * fabsf(zoom_y) > max_height) max_height = character->height * fabsf(zoom_y);
-    }
-
     float rad = DegToRad(rotation); // convert to radians
     float offset = 0;
 
@@ -1007,7 +1000,7 @@ void draw_rotated_text(struct charset font, GRRLIB_texImg *tex, const float x, c
 
             // Compute glyph center position before rotation
             float gx = (x - length * flip_x / 2.f) + offset + xoffset + width * zoom_x / 2.0f;
-            float gy = (y - max_height * flip_y / 2.f) + yoffset + height * zoom_y / 2.0f;
+            float gy = (y - 55 * fabsf(zoom_y) * flip_y / 2.f) + yoffset + height * zoom_y / 2.0f;
 
             // Rotate glyph center around text center (x, y)
             float dx = gx - x;
