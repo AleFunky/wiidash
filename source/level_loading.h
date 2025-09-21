@@ -285,6 +285,8 @@ struct LoadedLevelInfo {
     int object_count;
     int layer_count;
 
+    int font_used;
+    
     int pulsing_type;
     int song_id;
     int custom_song_id;

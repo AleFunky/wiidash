@@ -31,7 +31,6 @@ GRRLIB_texImg *menu_arrow;
 GRRLIB_texImg *gradient_texture;
 // add ground
 GRRLIB_texImg *menu_ground;
-GRRLIB_texImg *font_bold;
 GRRLIB_texImg *ground_line_texture;
 
 int main_levels();
@@ -342,9 +341,6 @@ int menu_loop() {
     size_t size;
     char *menuLoop = load_song("menuLoop.mp3", &size);
 
-    font_bold = GRRLIB_LoadTexturePNG(font_bold_png);
-    GRRLIB_InitTileSet(font_bold, 24, 36, 32);
-
     button_count = 0;
 
     menu_top_bar = GRRLIB_LoadTexturePNG(top_bar_png);
@@ -437,7 +433,6 @@ int menu_loop() {
     GRRLIB_FreeTexture(menu_top_bar);
     GRRLIB_FreeTexture(gradient_texture);
     GRRLIB_FreeTexture(ground_line_texture);
-    GRRLIB_FreeTexture(font_bold);
     GRRLIB_FreeTexture(menu_ground);
     for (int i = 0; i < FACES_COUNT; i++){
         GRRLIB_FreeTexture(difficulty_faces[i]);

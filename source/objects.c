@@ -998,6 +998,7 @@ GRRLIB_texImg *ground;
 GRRLIB_texImg *ground_line;
 GRRLIB_texImg *level_complete_texture;
 GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS]; 
+GRRLIB_texImg *level_font;
 
 int current_fading_effect = FADE_NONE;
 
@@ -1878,7 +1879,7 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
 
     if (obj->id == TEXT_OBJ) {
         draw_rotated_text(
-            /* Font     */ big_font, big_font_text, 
+            /* Font     */ *font_charsets[level_info.font_used], level_font, 
             /* X        */ get_mirror_x(x, state.mirror_factor),
             /* Y        */ y,
             /* Rotation */ rotation,

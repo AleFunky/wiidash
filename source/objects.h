@@ -1605,6 +1605,7 @@ extern GRRLIB_texImg *prev_tex;
 
 extern GRRLIB_texImg *bg;
 extern GRRLIB_texImg *ground;
+extern GRRLIB_texImg *level_font;
 
 extern AnimationDefinition monster_1_anim;
 

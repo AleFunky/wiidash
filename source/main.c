@@ -22,7 +22,6 @@
 #include "level_loading.h"
 #include "objects.h"
 
-#include "font_png.h"
 #include "cursor_png.h"
 
 #include "player.h"
@@ -32,7 +31,6 @@
 #include "menu.h"
 
 #include "trail.h"
-#include "bigFont_png.h"
 
 #include "animation.h"
 
@@ -317,8 +315,6 @@ int main(int argc, char **argv) {
 
     startTime = gettime();    
 
-    font = GRRLIB_LoadTexturePNG(font_png);
-    GRRLIB_InitTileSet(font, 24, 36, 32);
     cursor = GRRLIB_LoadTexturePNG(cursor_png);
     GRRLIB_SetHandle(cursor, 14, 22);
     big_font_text = GRRLIB_LoadTexturePNG(bigFont_png);

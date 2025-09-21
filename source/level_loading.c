@@ -1952,6 +1952,14 @@ void load_level_info(char *data, char *level_string) {
     } else {
         level_info.initial_upsidedown = 0; 
     }
+
+    char *font_data = get_metadata_value(level_string, "kA18");
+    if (font_data) {
+        level_info.font_used = atoi(font_data);
+        free(font_data);
+    } else {
+        level_info.font_used = 0;
+    }
 }
 
 int load_level(char *data, bool is_custom) {
@@ -2060,6 +2068,7 @@ int load_level(char *data, bool is_custom) {
     // Load level's bg and ground texture
     bg = GRRLIB_LoadTexturePNG(backgrounds[level_info.background_id]);
     ground = GRRLIB_LoadTexturePNG(grounds[level_info.ground_id]);
+    level_font = GRRLIB_LoadTexturePNG(font_text[level_info.font_used]);
 
     int rounded_last_obj_x = (int) (level_info.last_obj_x / 30) * 30 + 15;
     level_info.wall_x = (rounded_last_obj_x) + (11.f * 30.f) - 3;
