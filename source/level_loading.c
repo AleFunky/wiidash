@@ -2121,6 +2121,7 @@ void unload_level() {
 
     GRRLIB_FreeTexture(bg);
     GRRLIB_FreeTexture(ground);
+    GRRLIB_FreeTexture(level_font);
     channelCount = 0;
     memset(&state.particles, 0, sizeof(state.particles));
     free_sections();
