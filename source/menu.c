@@ -451,7 +451,6 @@ int menu_loop() {
     }
 
     GRRLIB_Render();
-    GRRLIB_Render();
     return exit_code;
 }
 
