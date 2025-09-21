@@ -911,7 +911,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     // Initialize all fields to 0
     memset(object, 0, sizeof(GameObject));
 
-    object->soa_index = i;
+    object->soa_index = i + 1;
     *soa_id(object) = obj->values[0].i;
     *soa_type(object) = obtain_type_from_id(*soa_id(object));
     
@@ -1476,14 +1476,14 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
 
     // Add player for rendering, not used for gameplay
     GameObject *obj = malloc(sizeof(GameObject));
+    obj->soa_index = 0;
     *soa_id(obj) = PLAYER_OBJECT;
     obj->object.zlayer = LAYER_T1-1;
     obj->object.zorder = 0;
     obj->object.zsheetlayer = 0;
-    obj->soa_index = 0;
     GDObjectLayer *layer = malloc(sizeof(GDObjectLayer));
     layer->obj = obj;
-    layer->layer = (struct ObjectLayer *) &objects[*soa_id(obj)].layers[0];
+    layer->layer = (struct ObjectLayer *) &objects[PLAYER_OBJECT].layers[0];
     layer->layerNum = 0;
     layer->col_channel = WHITE;
     layer->blending = FALSE;
@@ -2015,7 +2015,7 @@ int load_level(char *data, bool is_custom) {
         
         gameObjectSoA = malloc(sizeof(GameObjectSoA));
 
-        int count = 0;
+        int count = 1; // Reserve one for player
         // Count all objects (+ child objects)
         for (int i = 0; i < objectsList->objectCount; i++) {
             switch (objectsList->objects[i].values[0].i) {
