@@ -130,9 +130,6 @@ typedef struct {
     bool detail_being_pulsed;
     Color detail_col_pulse;
 
-    float delta_x;
-    float delta_y;
-
     float orange_tp_portal_y_offset; // key 54
     GameObject *child_object;
 
@@ -159,20 +156,18 @@ typedef enum {
 } ObjectType;
 
 typedef struct GameObjectSoA {
+    int *id;
     float *x;
     float *y;
     float *delta_x;
     float *delta_y;
+    int *type;
     unsigned char *touching_player;
     unsigned char *prev_touching_player;
 } GameObjectSoA;
 
 typedef struct GameObject {
-    int id;              // key 1
-
     int soa_index;
-
-    ObjectType type;     // Defines the type
 
     bool flippedH;       // key 4
     bool flippedV;       // key 5
@@ -286,7 +281,7 @@ struct LoadedLevelInfo {
     int layer_count;
 
     int font_used;
-    
+
     int pulsing_type;
     int song_id;
     int custom_song_id;
@@ -383,7 +378,10 @@ bool check_song(int id);
 void update_percentage();
 //#include <stdio.h>
 extern GameObjectSoA *gameObjectSoA;
-
+inline int* soa_id(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
+    return &gameObjectSoA->id[obj->soa_index]; 
+}
 inline float* soa_x(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
     return &gameObjectSoA->x[obj->soa_index]; 
@@ -399,6 +397,10 @@ inline float* soa_delta_x(GameObject *obj) {
 inline float* soa_delta_y(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
     return &gameObjectSoA->delta_y[obj->soa_index]; 
+}
+inline int* soa_type(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA->type[obj->soa_index]; 
 }
 inline unsigned char* soa_touching_player(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 

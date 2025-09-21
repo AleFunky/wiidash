@@ -110,7 +110,7 @@ void set_particle_color(int template_id, int r, int g, int b) {
 }
 
 void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_PAD:
             if (!obj->activated[state.current_player]) {
                 MotionTrail_ResumeStroke(&trail);
@@ -1125,7 +1125,7 @@ void unload_spritesheet() {
     unload_icons();
 }
 void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case SLOW_SPEED_PORTAL:
             particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
             particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
@@ -1166,7 +1166,7 @@ void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
 }
 
 void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
             set_particle_color(ORB_PARTICLES, 255, 255, 0);
             spawn_particle(ORB_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
@@ -1378,7 +1378,7 @@ float get_out_scale_fade(float x, int right_edge) {
 }
 
 void get_fade_vars(GameObject *obj, float x, int *fade_x, int *fade_y, float *fade_scale) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case RAINBOW_ARC_SMALL:
         case RAINBOW_ARC_BIG:
             // Those are hardcoded to not fade
@@ -1420,7 +1420,7 @@ void get_fade_vars(GameObject *obj, float x, int *fade_x, int *fade_y, float *fa
 }
 
 int layer_pulses(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
@@ -1458,7 +1458,7 @@ int layer_pulses(GameObject *obj, GDObjectLayer *layer) {
 }
 
 float get_object_pulse(float amplitude, GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
@@ -1493,7 +1493,7 @@ float get_object_pulse(float amplitude, GameObject *obj) {
 }
 
 GRRLIB_texImg *get_randomized_texture(GRRLIB_texImg *image, GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case GROUND_SPIKE:
             return object_images[GROUND_SPIKE][obj->random % 3];
         case ROD_BIG:
@@ -1545,7 +1545,7 @@ int get_opacity(GameObject *obj, float x) {
         return 255;
     }
 
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case BLACK_FULL:
         case BLACK_EDGE:
         case BLACK_CORNER:
@@ -1594,7 +1594,7 @@ float get_fading_obj_fade(GameObject *obj, float x, float right_edge) {
 }
 
 float get_rotation_speed(GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case SAW_BIG: 
         case SAW_MEDIUM:
         case SAW_SMALL:
@@ -1697,7 +1697,7 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
         }
     }
 
-    if (get_main_channel_id(obj->id) <= 0 && obj->object.main_col_HSV_enabled) {
+    if (get_main_channel_id(*soa_id(obj)) <= 0 && obj->object.main_col_HSV_enabled) {
         // Detail only objects use the main slot
         color = HSV_combine(color, obj->object.main_col_HSV);
     } else if (color_type == COLOR_MAIN && obj->object.main_col_HSV_enabled) {
@@ -1743,7 +1743,7 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
 }
 
 GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale_out, bool *flip_x) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case FIRE_1:
             return get_frame(fire1_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
         case FIRE_2:
@@ -1767,7 +1767,7 @@ GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale
 }
 
 void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
-    int obj_id = obj->id;
+    int obj_id = *soa_id(obj);
 
     int layer_index = layer->layerNum;
 
@@ -1877,7 +1877,7 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
     }
 
 
-    if (obj->id == TEXT_OBJ) {
+    if (*soa_id(obj) == TEXT_OBJ) {
         draw_rotated_text(
             /* Font     */ *font_charsets[level_info.font_used], level_font, 
             /* X        */ get_mirror_x(x, state.mirror_factor),
@@ -2131,7 +2131,7 @@ int compare_by_layer_index(const void *a, const void *b) {
 }
 
 void play_object_animation(GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case MONSTER_1:
             playObjAnimation(obj, monster_1_anim, obj->object.animation_timer);
             break;
@@ -2246,7 +2246,7 @@ void draw_all_object_layers() {
                 int offscreen_area = 90;
 
                 // Those are way bigger
-                switch (obj->id) {
+                switch (*soa_id(obj)) {
                     case RAINBOW_ARC_SMALL:
                         offscreen_area = 120;
                         break;
@@ -2282,7 +2282,7 @@ void draw_all_object_layers() {
         int zlayer = ls->zlayer + layer->zlayer_offset;
             
         // Player is always index 0
-        if (i > 0 && objects[obj->id].spritesheet_layer == SHEET_BLOCKS) {
+        if (i > 0 && objects[*soa_id(obj)].spritesheet_layer == SHEET_BLOCKS) {
             int col_channel = GDlayer->col_channel;
             bool blending = channels[col_channel].blending || GDlayer->blending;
 
@@ -2294,7 +2294,7 @@ void draw_all_object_layers() {
             zlayer -= (blending ^ ((zlayer & 1) == 0));
         }
 
-        int sheet  = objects[obj->id].spritesheet_layer;
+        int sheet  = objects[*soa_id(obj)].spritesheet_layer;
         int zorder = obj->object.zorder;
         int index  = ls->originalIndex;
 
@@ -2309,11 +2309,11 @@ void draw_all_object_layers() {
     int i = 0;
     while (i < visible_count) {
         GDLayerSortable *first = visible_layers[i];
-        int obj_id = first->layer->obj->id;
+        int obj_id = *soa_id(first->layer->obj);
 
         int j = i + 1;
         while (j < visible_count &&
-            visible_layers[j]->layer->obj->id == obj_id) {
+            *soa_id(visible_layers[j]->layer->obj) == obj_id) {
             j++;
         }
 
@@ -2339,7 +2339,7 @@ void draw_all_object_layers() {
         GDObjectLayer *layer = entries[i].ptr->layer;
         GameObject *obj = layer->obj;
 
-        int obj_id = obj->id;
+        int obj_id = *soa_id(obj);
 
         if (obj_id == PLAYER_OBJECT) {
             // Draw player related stuff
@@ -2399,7 +2399,7 @@ void draw_all_object_layers() {
                 // Fade objects
                 if (fade_edge) handle_special_fading(obj, calc_x, calc_y);
                 // If saw, rotate
-                if ((objects[obj_id].is_saw || obj->id == GREEN_ORB) && !state.paused) {
+                if ((objects[obj_id].is_saw || *soa_id(obj) == GREEN_ORB) && !state.paused) {
                     obj->rotation += (((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj))) * dt ;
                 }
 
@@ -2419,7 +2419,7 @@ void draw_all_object_layers() {
             obj_particles_time += t1 - t0;
 
             t0 = gettime();
-            if (is_layer0 && objects[obj->id].has_movement) {
+            if (is_layer0 && objects[*soa_id(obj)].has_movement) {
                 play_object_animation(obj);
                 set_texture(prev_tex);
                 GRRLIB_SetBlend(prev_blending);

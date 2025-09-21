@@ -912,31 +912,31 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     memset(object, 0, sizeof(GameObject));
 
     object->soa_index = i;
-    object->id = obj->values[0].i;
-    object->type = obtain_type_from_id(object->id);
+    *soa_id(object) = obj->values[0].i;
+    *soa_type(object) = obtain_type_from_id(*soa_id(object));
     
     // Temporarily convert user coins (added in 2.0) into secret coins
-    object->id = convert_object(object->id);
+    *soa_id(object) = convert_object(*soa_id(object));
     object->scale_x = 1.f;
     object->scale_y = 1.f;
     
-    if (object->type == TYPE_NORMAL_OBJECT) {
+    if (*soa_type(object) == TYPE_NORMAL_OBJECT) {
         // Set to default colors
         object->object.main_col_channel = 0;
         object->object.detail_col_channel = 0;
         object->object.u1p9_col_channel = 0;
         
-        object->object.zsheetlayer = objects[object->id].spritesheet_layer;
-        object->object.zlayer = objects[object->id].def_zlayer;
-        object->object.zorder = objects[object->id].def_zorder;
-    } else if (object->type == TYPE_COL_TRIGGER) {
+        object->object.zsheetlayer = objects[*soa_id(object)].spritesheet_layer;
+        object->object.zlayer = objects[*soa_id(object)].def_zlayer;
+        object->object.zorder = objects[*soa_id(object)].def_zorder;
+    } else if (*soa_type(object) == TYPE_COL_TRIGGER) {
         object->trigger.col_trigger.opacity = 1.f;
     }
 
     object->opacity = 1.f;
 
-    if (is_object_unimplemented(object->id)) {
-        object->id = 42;
+    if (is_object_unimplemented(*soa_id(object))) {
+        *soa_id(object) = 42;
     }
 
     // Get a random value for this object
@@ -984,7 +984,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
         }
 
         // Col trigger members
-        if (object->type == TYPE_NORMAL_OBJECT) {
+        if (*soa_type(object) == TYPE_NORMAL_OBJECT) {
             switch (key) {
                 case 19: // 1.9 channel id
                     if (type == GD_VAL_INT) object->object.u1p9_col_channel = convert_1p9_channel(val.i);
@@ -1034,7 +1034,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
             } else if (key == 62) { // Spawn triggered
                 if (type == GD_VAL_BOOL) object->trigger.spawn_triggered = val.b;
             }
-            switch (object->type) {
+            switch (*soa_type(object)) {
                 case TYPE_COL_TRIGGER:
                     switch (key) {
                         case 7:  // Color R
@@ -1177,9 +1177,9 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
         level_info.last_obj_x = *soa_x(object);
     }
 
-    if (object->type == TYPE_NORMAL_OBJECT) {
+    if (*soa_type(object) == TYPE_NORMAL_OBJECT) {
         // Setup slope
-        if (objects[object->id].is_slope) {
+        if (objects[*soa_id(object)].is_slope) {
             int orientation = object->rotation / 90;
             if (object->flippedH && object->flippedV) orientation += 2;
             else if (object->flippedH) orientation += 1;
@@ -1192,7 +1192,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
         }
     }
     
-    ObjectHitbox hitbox = objects[object->id].hitbox;
+    ObjectHitbox hitbox = objects[*soa_id(object)].hitbox;
 
     // Modify height and width depending on rotation
     if ((int) fabsf(object->rotation) % 180 != 0) {
@@ -1220,14 +1220,24 @@ void free_soa(GameObjectSoA *soa) {
     if(soa->y) free(soa->y);
     if(soa->delta_x) free(soa->delta_x);
     if(soa->delta_y) free(soa->delta_y);
+    if(soa->type) free(soa->type);
     if(soa->touching_player) free(soa->touching_player);
     if(soa->prev_touching_player) free(soa->prev_touching_player);
     free(soa);
 }
 
-bool init_object_soa(int count, GameObjectSoA *soa) {
+bool init_object_soa(int count, GameObjectSoA *soa) { 
+    soa->id = malloc(sizeof(int) * count);
+    if (!soa->id) {
+        free_soa(soa);
+        return FALSE;
+    }
+
     soa->x = malloc(sizeof(float) * count);    
-    if (!soa->x) return FALSE;
+    if (!soa->x) {
+        free_soa(soa);
+        return FALSE;
+    }
 
     soa->y = malloc(sizeof(float) * count);
     if (!soa->y) {
@@ -1243,6 +1253,12 @@ bool init_object_soa(int count, GameObjectSoA *soa) {
 
     soa->delta_y = malloc(sizeof(float) * count);
     if (!soa->delta_y) {
+        free_soa(soa);
+        return FALSE;
+    }
+    
+    soa->type = malloc(sizeof(int) * count);
+    if (!soa->type) {
         free_soa(soa);
         return FALSE;
     }
@@ -1294,7 +1310,7 @@ GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
     // Do this separated
     for (int i = 0; i < objList->objectCount; i++) {
         GameObject *obj = objectArray[i];
-        load_obj_textures(obj->id);
+        load_obj_textures(*soa_id(obj));
         register_object(obj);
         assign_object_to_section(obj);
     }
@@ -1442,11 +1458,11 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     for (int i = 0; i < objList->count; i++) {
         GameObject *obj = objList->objects[i];
 
-        int obj_id = obj->id;
+        int obj_id = *soa_id(obj);
 
         if (obj_id < OBJECT_COUNT) {
-            if (objects[obj->id].has_movement) layerCount++;
-            else layerCount += objects[obj->id].num_layers;
+            if (objects[*soa_id(obj)].has_movement) layerCount++;
+            else layerCount += objects[*soa_id(obj)].num_layers;
         }
     }
 
@@ -1460,15 +1476,14 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
 
     // Add player for rendering, not used for gameplay
     GameObject *obj = malloc(sizeof(GameObject));
-    obj->id = PLAYER_OBJECT;
-    obj->type = TYPE_NORMAL_OBJECT;
+    *soa_id(obj) = PLAYER_OBJECT;
     obj->object.zlayer = LAYER_T1-1;
     obj->object.zorder = 0;
     obj->object.zsheetlayer = 0;
     obj->soa_index = 0;
     GDObjectLayer *layer = malloc(sizeof(GDObjectLayer));
     layer->obj = obj;
-    layer->layer = (struct ObjectLayer *) &objects[obj->id].layers[0];
+    layer->layer = (struct ObjectLayer *) &objects[*soa_id(obj)].layers[0];
     layer->layerNum = 0;
     layer->col_channel = WHITE;
     layer->blending = FALSE;
@@ -1487,11 +1502,11 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
     for (int i = 0; i < objList->count; i++) {
         GameObject *obj = objList->objects[i];
 
-        int obj_id = obj->id;
-        int obj_type = obj->type;
+        int obj_id = *soa_id(obj);
+        int obj_type = *soa_type(obj);
 
         if (obj_id < OBJECT_COUNT && obj_type == TYPE_NORMAL_OBJECT) {
-            if (objects[obj->id].has_movement) {
+            if (objects[*soa_id(obj)].has_movement) {
                 layers[count].layer =  (struct ObjectLayer *) &objects[PLAYER_OBJECT].layers[0]; // Only has to be valid
                 layers[count].obj = obj;
                 layers[count].layerNum = 0;
@@ -1500,8 +1515,8 @@ GDObjectLayerList *fill_layers_array(GDGameObjectList *objList) {
                 count++;
             }
 
-            for (int j = 0; j < objects[obj->id].num_layers; j++) {
-                struct ObjectLayer *layer = (struct ObjectLayer *) &objects[obj->id].layers[j];
+            for (int j = 0; j < objects[*soa_id(obj)].num_layers; j++) {
+                struct ObjectLayer *layer = (struct ObjectLayer *) &objects[*soa_id(obj)].layers[j];
                 layers[count].layer = layer;
                 layers[count].obj = obj;
                 layers[count].layerNum = j;
@@ -1798,12 +1813,11 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
 
     // Initialize with default values
     memset(obj, 0, sizeof(GameObject));
-    obj->id = object_id;
-    obj->type = obtain_type_from_id(object_id);
+    int type = obtain_type_from_id(object_id);
     obj->rotation = rotation;
     obj->opacity = 1.0f;
     
-    if (obj->type == TYPE_NORMAL_OBJECT) {
+    if (type == TYPE_NORMAL_OBJECT) {
         obj->object.main_col_channel = 0;
         obj->object.detail_col_channel = 0;
         obj->object.u1p9_col_channel = 0;
@@ -1829,17 +1843,19 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     
     obj->soa_index = new_index;
 
+    gameObjectSoA->id[new_index] = object_id;
     gameObjectSoA->x[new_index] = x;
     gameObjectSoA->y[new_index] = y;
     gameObjectSoA->delta_x[new_index] = 0;
     gameObjectSoA->delta_y[new_index] = 0;
+    gameObjectSoA->type[new_index] = type;
     gameObjectSoA->touching_player[new_index] = 0;
     gameObjectSoA->prev_touching_player[new_index] = 0;
 
     // Add to sections
     assign_object_to_section(obj);
 
-    load_obj_textures(obj->id);
+    load_obj_textures(*soa_id(obj));
 
     // Update original positions list
     origPositionsList = realloc(origPositionsList, 
@@ -1857,7 +1873,7 @@ void create_extra_objects() {
     int old_count = objectsArrayList->count;
     for (int i = 0; i < old_count; i++) {
         GameObject *obj = objectsArrayList->objects[i];
-        switch (obj->id) {
+        switch (*soa_id(obj)) {
             case BLUE_TP_PORTAL:
                 float x_offset = 10 * fabsf(cosf(DegToRad(obj->rotation)));
                 obj->object.child_object = add_object(ORANGE_TP_PORTAL, *soa_x(obj) - x_offset, *soa_y(obj) + obj->object.orange_tp_portal_y_offset, adjust_angle_y(obj->rotation, obj->flippedH) + 180.f);
@@ -2254,8 +2270,8 @@ void reload_level() {
         obj->collided[0] = obj->collided[1] = FALSE;
         obj->hitbox_counter[0] = obj->hitbox_counter[1] = 0;
         obj->transition_applied = FADE_NONE;
-        obj->object.delta_x = 0;
-        obj->object.delta_y = 0;
+        *soa_delta_x(obj) = 0;
+        *soa_delta_y(obj) = 0;
         obj->opacity = 1.f;
         obj->object.main_being_pulsed = FALSE;
         obj->object.detail_being_pulsed = FALSE;

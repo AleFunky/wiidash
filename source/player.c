@@ -99,7 +99,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             }
             
             // Collide with slope if object is an slope
-            if (objects[obj->id].is_slope) {
+            if (objects[*soa_id(obj)].is_slope) {
                 slope_collide(obj, player);
                 break;
             }
@@ -202,9 +202,9 @@ bool obj_hitbox_static(int id) {
 }
 
 void collide_with_obj(Player *player, GameObject *obj) {
-    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
 
-    if ((hitbox->type != HITBOX_NONE && hitbox->type != HITBOX_TRIGGER) && !obj->toggled && !obj->hide_sprite && obj->id < OBJECT_COUNT) {
+    if ((hitbox->type != HITBOX_NONE && hitbox->type != HITBOX_TRIGGER) && !obj->toggled && !obj->hide_sprite && *soa_id(obj) < OBJECT_COUNT) {
         number_of_collisions_checks++;
         *soa_prev_touching_player(obj) = *soa_touching_player(obj);
         *soa_touching_player(obj) = 0;
@@ -229,7 +229,7 @@ void collide_with_obj(Player *player, GameObject *obj) {
         } else {
             float obj_rot = normalize_angle(obj->rotation);
 
-            if (obj_hitbox_static(obj->id)) {
+            if (obj_hitbox_static(*soa_id(obj))) {
                 obj_rot = 0;
             }
 
@@ -263,7 +263,7 @@ void collide_with_obj(Player *player, GameObject *obj) {
 }
 
 void collide_with_slope(Player *player, GameObject *obj, bool has_slope) {
-    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
     number_of_collisions_checks++;
     
     float width = hitbox->width * obj->scale_x;
@@ -307,11 +307,11 @@ void collide_with_objects(Player *player) {
             Section *sec = get_or_create_section(sx + dx, sy + dy);
             for (int i = 0; i < sec->object_count; i++) {
                 GameObject *obj = sec->objects[i];
-                ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+                ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
                 
                 // Save some types to buffer, so they can be checked in a type order
                 if (hitbox->type == HITBOX_SOLID) {
-                    if (objects[obj->id].is_slope) {
+                    if (objects[*soa_id(obj)].is_slope) {
                         slope_buffer[slope_count++] = obj;
                     } else {
                         block_buffer[block_count++] = obj;
@@ -1698,7 +1698,7 @@ int grav_slope_orient(GameObject *obj, Player *player) {
 }
 
 bool is_spike_slope(GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case GROUND_SPIKE_SLOPE_45:
         case GROUND_SPIKE_SLOPE_22_66:
         case WAVY_GROUND_SPIKE_SLOPE_45:
@@ -2307,7 +2307,7 @@ void draw_square(Vec2D rect[4], uint32_t color) {
 }
 
 void draw_hitbox(GameObject *obj) {
-    ObjectHitbox hitbox = objects[obj->id].hitbox;
+    ObjectHitbox hitbox = objects[*soa_id(obj)].hitbox;
 
     float angle = obj->rotation;
 
@@ -2316,7 +2316,7 @@ void draw_hitbox(GameObject *obj) {
     float w = hitbox.width * obj->scale_x;
     float h = hitbox.height * obj->scale_y;
 
-    if (obj_hitbox_static(obj->id)) {
+    if (obj_hitbox_static(*soa_id(obj))) {
         angle = 0;
     }
 
@@ -2332,7 +2332,7 @@ void draw_hitbox(GameObject *obj) {
     if (obj == state.player.slope_data.slope || obj == state.player2.slope_data.slope) color = RGBA(0x00, 0xff, 0x00, 0xff);
 
     Vec2D rect[4];
-    if (objects[obj->id].is_slope) {
+    if (objects[*soa_id(obj)].is_slope) {
         w = obj->width;
         h = obj->height;
         get_corners(x, y, w, h, 0, rect);

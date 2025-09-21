@@ -607,7 +607,7 @@ void handle_move_triggers() {
         for (int i = 0; i < group->count; i++) {
             GameObject* obj = group->objects[i];
 
-            if (obj->type == TYPE_NORMAL_OBJECT) *soa_delta_x(obj) += delta_x;
+            if (*soa_type(obj) == TYPE_NORMAL_OBJECT) *soa_delta_x(obj) += delta_x;
             *soa_delta_y(obj) += delta_y;
 
             mark_object_dirty(obj);
@@ -734,7 +734,7 @@ void handle_spawn_triggers() {
                 // Set new alpha on all objects
                 for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                     GameObject *obj = p->obj;
-                    if (obj->type != TYPE_NORMAL_OBJECT) {
+                    if (*soa_type(obj) != TYPE_NORMAL_OBJECT) {
                         run_trigger(obj);
                     }
                 }
@@ -836,7 +836,7 @@ void handle_alpha_triggers() {
 void run_trigger(GameObject *obj) {
     if (obj->toggled) return;
 
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case TRIGGER_FADE_NONE:
             current_fading_effect = FADE_NONE;
             break;
@@ -959,7 +959,7 @@ void run_trigger(GameObject *obj) {
 }
 
 void handle_triggers(GameObject *obj) {
-    int obj_id = obj->id;
+    int obj_id = *soa_id(obj);
     Player *player = &state.player;
     Player *player_2 = &state.player2;
     
