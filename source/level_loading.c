@@ -323,7 +323,6 @@ int base64_decode(const char *in, unsigned char *out) {
         if (in[i+2] != '=') out[len++] = (b << 4) | (c >> 2);
         if (in[i+3] != '=') out[len++] = (c << 6) | d;
     }
-    output_log("Decoded %d bytes from base64\n", len);
     return len;
 }
 
@@ -2016,12 +2015,12 @@ int load_level(char *data, bool is_custom) {
         objectsArrayList = convert_all_to_game_objects(objectsList);
         free_gd_object_list(objectsList);
         
-        create_extra_objects();
-
         if (objectsArrayList == NULL) {
             output_log("Failed converting objects to game object structs.\n");
             return 3;
         }
+
+        create_extra_objects();
 
         layersArrayList = fill_layers_array(objectsArrayList);
 
