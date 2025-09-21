@@ -57,7 +57,11 @@ const ObjectDefinition unknown = {
 
 const ObjectDefinition trigger = {
     .layers = {},
-    .hitbox = no_hitbox,
+    .hitbox = {
+        .width = 30,
+        .height = 30,
+        .type = HITBOX_TRIGGER,
+    },
     .spritesheet_layer = SHEET_BLOCKS,
     .def_zlayer = 0,
     .def_zorder = 0,

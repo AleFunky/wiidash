@@ -114,9 +114,6 @@ typedef struct {
     int zlayer;          // key 24
     int zorder;          // key 25
 
-    float scale_x;         // key 32 and 128
-    float scale_y;         // key 32 and 129
-
     bool dont_fade;      // key 64
     bool dont_enter;     // key 67
 
@@ -181,6 +178,9 @@ typedef struct GameObject {
     bool flippedV;       // key 5
     float rotation;      // key 6
     short groups[MAX_GROUPS_PER_OBJECT]; // key 57
+
+    float scale_x;         // key 32 and 128
+    float scale_y;         // key 32 and 129
     
     float opacity;
 

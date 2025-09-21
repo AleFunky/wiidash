@@ -204,7 +204,7 @@ bool obj_hitbox_static(int id) {
 void collide_with_obj(Player *player, GameObject *obj) {
     ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
 
-    if (hitbox->type != HITBOX_NONE && !obj->toggled && !obj->hide_sprite && obj->id < OBJECT_COUNT) {
+    if ((hitbox->type != HITBOX_NONE && hitbox->type != HITBOX_TRIGGER) && !obj->toggled && !obj->hide_sprite && obj->id < OBJECT_COUNT) {
         number_of_collisions_checks++;
         *soa_prev_touching_player(obj) = *soa_touching_player(obj);
         *soa_touching_player(obj) = 0;
@@ -212,13 +212,13 @@ void collide_with_obj(Player *player, GameObject *obj) {
 
         float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
         float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
-        float width = hitbox->width * obj->object.scale_x;
-        float height = hitbox->height * obj->object.scale_y;
+        float width = hitbox->width * obj->scale_x;
+        float height = hitbox->height * obj->scale_y;
 
         if (hitbox->is_circular) {
             if (intersect_rect_circle(
                 player->x, player->y, player->width, player->height, player->rotation, 
-                x, y, hitbox->radius * MAX(obj->object.scale_x, obj->object.scale_y)
+                x, y, hitbox->radius * MAX(obj->scale_x, obj->scale_y)
             )) {
                 handle_collision(player, obj, hitbox);
                 obj->collided[state.current_player] = TRUE;
@@ -266,8 +266,10 @@ void collide_with_slope(Player *player, GameObject *obj, bool has_slope) {
     ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
     number_of_collisions_checks++;
     
-    float width = hitbox->width * obj->object.scale_x;
-    float height = hitbox->height * obj->object.scale_y;
+    float width = hitbox->width * obj->scale_x;
+    float height = hitbox->height * obj->scale_y;
+
+    if (obj->toggled) return;
 
     if (intersect(
         player->x, player->y, player->width, player->height, 0, 
@@ -2311,8 +2313,8 @@ void draw_hitbox(GameObject *obj) {
 
     float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox.x_off, hitbox.y_off, angle);
     float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox.x_off, hitbox.y_off, angle);
-    float w = hitbox.width * obj->object.scale_x;
-    float h = hitbox.height * obj->object.scale_y;
+    float w = hitbox.width * obj->scale_x;
+    float h = hitbox.height * obj->scale_y;
 
     if (obj_hitbox_static(obj->id)) {
         angle = 0;
@@ -2325,6 +2327,7 @@ void draw_hitbox(GameObject *obj) {
     int hitbox_type = hitbox.type;
     if (hitbox_type == HITBOX_SPIKE) color = RGBA(0xff, 0x00, 0x00, 0xff);
     if (hitbox_type == HITBOX_SOLID) color = RGBA(0x00, 0x00, 0xff, 0xff);
+    if (hitbox_type == HITBOX_TRIGGER) color = RGBA(0x00, 0xff, 0x00, 0xff);
     
     if (obj == state.player.slope_data.slope || obj == state.player2.slope_data.slope) color = RGBA(0x00, 0xff, 0x00, 0xff);
 
@@ -2336,11 +2339,11 @@ void draw_hitbox(GameObject *obj) {
 
         draw_triangle_from_rect(rect, 3 - obj->object.orientation,color);
     } else if (hitbox.radius != 0) {
-        float calc_radius = hitbox.radius * MAX(obj->object.scale_x, obj->object.scale_y) * SCALE;
+        float calc_radius = hitbox.radius * MAX(obj->scale_x, obj->scale_y) * SCALE;
 
         custom_circunference(calc_x_on_screen(x), calc_y_on_screen(y), calc_radius, color, 2.f);
     } else if (w != 0 && h != 0) {
-
+        if (hitbox.type == HITBOX_TRIGGER && !obj->trigger.touch_triggered) return;
         get_corners(x, y, w, h, angle, rect);
         draw_square(rect, color);
     }

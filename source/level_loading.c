@@ -918,6 +918,8 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     
     // Temporarily convert user coins (added in 2.0) into secret coins
     object->id = convert_object(object->id);
+    object->scale_x = 1.f;
+    object->scale_y = 1.f;
     
     if (object->type == TYPE_NORMAL_OBJECT) {
         // Set to default colors
@@ -928,9 +930,6 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
         object->object.zsheetlayer = objects[object->id].spritesheet_layer;
         object->object.zlayer = objects[object->id].def_zlayer;
         object->object.zorder = objects[object->id].def_zorder;
-
-        object->object.scale_x = 1.f;
-        object->object.scale_y = 1.f;
     } else if (object->type == TYPE_COL_TRIGGER) {
         object->trigger.col_trigger.opacity = 1.f;
     }
@@ -966,12 +965,22 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
             case 6:  // Rotation
                 if (type == GD_VAL_FLOAT) object->rotation = val.f;
                 break;
+            case 32: // Scale
+                if (type == GD_VAL_FLOAT) object->scale_x = object->scale_y = val.f;
+                break;
             case 57: // Groups
                 if (type == GD_VAL_INT_ARRAY) {
                     for (int i = 0; i < MAX_GROUPS_PER_OBJECT; i++) {
                         object->groups[i] = val.int_array[i];
                     }
                 }
+                break;
+            
+            case 128: // Scale x
+                if (type == GD_VAL_FLOAT) object->scale_x = val.f;
+                break;
+            case 129: // Scale y
+                if (type == GD_VAL_FLOAT) object->scale_y = val.f;
                 break;
         }
 
@@ -996,9 +1005,6 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
                 case 31: // Text
                     if (type == GD_VAL_STRING) object->object.text = val.str;
                     break;
-                case 32: // Scale
-                    if (type == GD_VAL_FLOAT) object->object.scale_x = object->object.scale_y = val.f;
-                    break;
                 case 41: // Main col HSV enabled
                     if (type == GD_VAL_BOOL) object->object.main_col_HSV_enabled = val.b;
                     break;
@@ -1019,12 +1025,6 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
                     break;
                 case 67: // Don't enter
                     if (type == GD_VAL_BOOL) object->object.dont_enter = val.b;
-                    break;
-                case 128: // Scale x
-                    if (type == GD_VAL_FLOAT) object->object.scale_x = val.f;
-                    break;
-                case 129: // Scale y
-                    if (type == GD_VAL_FLOAT) object->object.scale_y = val.f;
                     break;
             }
         } else {
@@ -1197,11 +1197,11 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
 
     // Modify height and width depending on rotation
     if ((int) fabsf(object->rotation) % 180 != 0) {
-        object->width = hitbox.height * object->object.scale_y;
-        object->height = hitbox.width * object->object.scale_x;
+        object->width = hitbox.height * object->scale_y;
+        object->height = hitbox.width * object->scale_x;
     } else {
-        object->width = hitbox.width * object->object.scale_x;
-        object->height = hitbox.height * object->object.scale_y;
+        object->width = hitbox.width * object->scale_x;
+        object->height = hitbox.height * object->scale_y;
     }
 
     
@@ -1808,8 +1808,8 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
         obj->object.main_col_channel = 0;
         obj->object.detail_col_channel = 0;
         obj->object.u1p9_col_channel = 0;
-        obj->object.scale_x = 1.0f;
-        obj->object.scale_y = 1.0f;
+        obj->scale_x = 1.0f;
+        obj->scale_y = 1.0f;
         obj->object.zsheetlayer = objects[object_id].spritesheet_layer;
         obj->object.zlayer = objects[object_id].def_zlayer;
         obj->object.zorder = objects[object_id].def_zorder;

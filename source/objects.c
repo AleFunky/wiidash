@@ -1882,8 +1882,8 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
             /* X        */ get_mirror_x(x, state.mirror_factor),
             /* Y        */ y,
             /* Rotation */ rotation,
-            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->object.scale_x,
-            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->object.scale_y, 
+            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->scale_x,
+            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->scale_y, 
             /* Color    */ color,
             /* Text     */ obj->object.text
         );
@@ -1893,8 +1893,8 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
             /* Y        */ y + 6 - (height/2) + y_off_rot + fade_y,
             /* Texture  */ tex, 
             /* Rotation */ rotation, 
-            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->object.scale_x, 
-            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->object.scale_y, 
+            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->scale_x, 
+            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->scale_y, 
             /* Color    */ color
         );
     }

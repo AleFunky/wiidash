@@ -257,8 +257,8 @@ void playObjAnimation(GameObject *obj, AnimationDefinition definition, float tim
         float part_x = interpolatedPart.x * x_flip_mult;
         float part_y = interpolatedPart.y * y_flip_mult;
 
-        float rotated_x = (part_x * cosRot - part_y * sinRot) * obj->object.scale_x;
-        float rotated_y = (part_x * sinRot + part_y * cosRot) * obj->object.scale_y;
+        float rotated_x = (part_x * cosRot - part_y * sinRot) * obj->scale_x;
+        float rotated_y = (part_x * sinRot + part_y * cosRot) * obj->scale_y;
 
         float calc_x = ((*soa_x(obj) + rotated_x - state.camera_x) * SCALE) - widthAdjust;
         float calc_y = screenHeight - ((*soa_y(obj) + rotated_y - state.camera_y) * SCALE);
@@ -329,8 +329,8 @@ void playObjAnimation(GameObject *obj, AnimationDefinition definition, float tim
                 /* Y        */ calc_y + 6 - (tex->h) / 2 + fade_y,
                 /* Texture  */ tex, 
                 /* Rotation */ final_rotation, 
-                /* Scale X  */ BASE_SCALE * x_flip_mult * interpolatedPart.sx * fade_scale * state.mirror_mult * obj->object.scale_x, 
-                /* Scale Y  */ BASE_SCALE * y_flip_mult * interpolatedPart.sy * fade_scale * obj->object.scale_y, 
+                /* Scale X  */ BASE_SCALE * x_flip_mult * interpolatedPart.sx * fade_scale * state.mirror_mult * obj->scale_x, 
+                /* Scale Y  */ BASE_SCALE * y_flip_mult * interpolatedPart.sy * fade_scale * obj->scale_y, 
                 /* Color    */ color
             );
         }

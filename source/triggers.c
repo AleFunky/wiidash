@@ -961,12 +961,21 @@ void run_trigger(GameObject *obj) {
 void handle_triggers(GameObject *obj) {
     int obj_id = obj->id;
     Player *player = &state.player;
+    Player *player_2 = &state.player2;
     
-    if ((objects[obj_id].is_trigger || obj->id > OBJECT_COUNT) && !obj->activated[0]) {
+    if ((objects[obj_id].is_trigger) && !obj->activated[0]) {
         if (obj->trigger.touch_triggered) {
+            // Try p1
             if (intersect(
                 player->x, player->y, player->width, player->height, 0, 
-                *soa_x(obj), *soa_y(obj), 30, 30, obj->rotation
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, obj->rotation
+            )) {
+                run_trigger(obj);
+            } else
+            // Try now p2
+            if (intersect(
+                player_2->x, player_2->y, player_2->width, player_2->height, 0, 
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, obj->rotation
             )) {
                 run_trigger(obj);
             }
