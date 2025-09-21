@@ -725,15 +725,21 @@ void add_particle(int i, int group_id, float x, float y, GameObject *parent_obj)
     particles[i].life = life;
     particles[i].elapsed = 0;
 
+    float opacity = 1.f;
+
+    if (parent_obj && !(group_id == USE_EFFECT || group_id == ORB_HITBOX_EFFECT)) {
+        opacity = parent_obj->opacity;
+    }
+
     // Color interpolation
     particles[i].start_color.r = sc.r + scv.r * random_float(-1, 1);
     particles[i].start_color.g = sc.g + scv.g * random_float(-1, 1);
     particles[i].start_color.b = sc.b + scv.b * random_float(-1, 1);
-    particles[i].start_color.a = sc.a + scv.a * random_float(-1, 1);
+    particles[i].start_color.a = (sc.a + scv.a * random_float(-1, 1)) * opacity;
     particles[i].end_color.r = ec.r + ecv.r * random_float(-1, 1);
     particles[i].end_color.g = ec.g + ecv.g * random_float(-1, 1);
     particles[i].end_color.b = ec.b + ecv.b * random_float(-1, 1);
-    particles[i].end_color.a = ec.a + ecv.a * random_float(-1, 1);
+    particles[i].end_color.a = (ec.a + ecv.a * random_float(-1, 1)) * opacity;
 
     particles[i].color = particles[i].start_color;
     particles[i].color_delta.r = (particles[i].end_color.r - particles[i].start_color.r) / life;
@@ -979,7 +985,7 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
                             p->color.r,
                             p->color.g,
                             p->color.b,
-                            p->color.a * (get_fade_value(x, screenWidth) / 255.f) * parent_obj->opacity
+                            p->color.a * (get_fade_value(x, screenWidth) / 255.f)
                         ), TRUE
                     );
                     break;
@@ -991,7 +997,7 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
                             p->color.r,
                             p->color.g,
                             p->color.b,
-                            p->color.a * (get_fade_value(x, screenWidth) / 255.f) * parent_obj->opacity
+                            p->color.a * (get_fade_value(x, screenWidth) / 255.f)
                         )
                     );
                     break;
@@ -1003,7 +1009,7 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
                             p->color.r,
                             p->color.g,
                             p->color.b,
-                            p->color.a * (get_fade_value(x, screenWidth) / 255.f) * parent_obj->opacity
+                            p->color.a * (get_fade_value(x, screenWidth) / 255.f)
                         ),
                         2
                     );

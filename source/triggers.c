@@ -607,7 +607,7 @@ void handle_move_triggers() {
         for (int i = 0; i < group->count; i++) {
             GameObject* obj = group->objects[i];
 
-            *soa_delta_x(obj) += delta_x;
+            if (obj->type == TYPE_NORMAL_OBJECT) *soa_delta_x(obj) += delta_x;
             *soa_delta_y(obj) += delta_y;
 
             mark_object_dirty(obj);
@@ -754,9 +754,6 @@ void upload_to_alpha_buffer(GameObject *obj) {
     if (obj->trigger.trig_duration == 0) {
         for (Node *p = get_group(obj->trigger.alpha_trigger.target_group); p; p = p->next) {
             p->obj->opacity = obj->trigger.alpha_trigger.opacity;
-            if (p->obj->object.child_object) {
-                p->obj->object.child_object->opacity = obj->trigger.alpha_trigger.opacity;
-            }
         }
         return;
     }
@@ -817,10 +814,6 @@ void handle_alpha_triggers() {
                 }
 
                 obj->opacity = lerped_alpha;
-                if (obj->object.child_object) {
-                    obj->object.child_object->opacity = lerped_alpha;
-                }
-
                 i++;
             }
             buffer->time_run += STEPS_DT;
@@ -832,10 +825,6 @@ void handle_alpha_triggers() {
                 for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                     GameObject *obj = p->obj;
                     obj->opacity = buffer->new_alpha;
-                    
-                    if (obj->object.child_object) {
-                        obj->object.child_object->opacity = buffer->new_alpha;
-                    }
                 }
 
                 free(buffer->initial_opacities);

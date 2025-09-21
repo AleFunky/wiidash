@@ -1862,6 +1862,10 @@ void create_extra_objects() {
             case BLUE_TP_PORTAL:
                 float x_offset = 10 * fabsf(cosf(DegToRad(obj->rotation)));
                 obj->object.child_object = add_object(ORANGE_TP_PORTAL, *soa_x(obj) - x_offset, *soa_y(obj) + obj->object.orange_tp_portal_y_offset, adjust_angle_y(obj->rotation, obj->flippedH) + 180.f);
+                for (int i = 0; i < MAX_GROUPS_PER_OBJECT; i++) {
+                    obj->object.child_object->groups[i] = obj->groups[i];
+                }
+                register_object(obj->object.child_object);
                 break;
         }
     }
