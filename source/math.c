@@ -904,8 +904,22 @@ void  draw_glyph (const f32 xpos, const f32 ypos, const f32 partx, const f32 par
 
 struct glyph *get_glyph(struct charset font, char character) {
     for (int i = 0; i < font.char_num; i++) {
-        if (character == font.chars[i].id) return &font.chars[i];
+        if (character == font.chars[i].id) {
+            return &font.chars[i];
+        }
     }
+    // If not found and a lowercase letter, convert to uppercase
+    if (character >= 'a' && character <= 'z') {
+        character -= 32;
+
+        // Search again
+        for (int i = 0; i < font.char_num; i++) {
+            if (character == font.chars[i].id) {
+                return &font.chars[i];
+            }
+        }
+    }
+    
     return NULL;
 }
 
