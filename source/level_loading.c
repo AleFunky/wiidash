@@ -1839,7 +1839,7 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
                                       sizeof(GameObject*) * objectsArrayList->count);
     objectsArrayList->objects[objectsArrayList->count - 1] = obj;
 
-    int new_index = objectsArrayList->count - 1;
+    int new_index = objectsArrayList->count;
     
     obj->soa_index = new_index;
 

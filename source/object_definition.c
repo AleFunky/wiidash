@@ -4319,7 +4319,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = LBG_NO_LERP,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_01_glow_001_png
             },
             {
@@ -4327,7 +4327,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .y_offset = 0,
                 .col_channel = WHITE,
                 .color_type = COLOR_UNMOD,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_01_001_png
             },
         },
@@ -4337,7 +4337,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             .type = HITBOX_SPECIAL
         },
         .spritesheet_layer = SHEET_SPEED_PORTALS,
-        .def_zlayer = LAYER_T1-1,
+        .def_zlayer = LAYER_T1,
         .def_zorder = -6,
         .num_layers = 2
     },
@@ -4347,7 +4347,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = LBG_NO_LERP,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_02_glow_001_png
             },
             {
@@ -4355,7 +4355,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .y_offset = 0,
                 .col_channel = WHITE,
                 .color_type = COLOR_UNMOD,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_02_001_png
             },
         },
@@ -4365,7 +4365,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             .type = HITBOX_SPECIAL
         },
         .spritesheet_layer = SHEET_SPEED_PORTALS,
-        .def_zlayer = LAYER_T1-1,
+        .def_zlayer = LAYER_T1,
         .def_zorder = -6,
         .num_layers = 2
     },
@@ -4375,7 +4375,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = LBG_NO_LERP,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_03_glow_001_png
             },
             {
@@ -4383,7 +4383,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .y_offset = 0,
                 .col_channel = WHITE,
                 .color_type = COLOR_UNMOD,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_03_001_png
             },
         },
@@ -4393,7 +4393,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             .type = HITBOX_SPECIAL
         },
         .spritesheet_layer = SHEET_SPEED_PORTALS,
-        .def_zlayer = LAYER_T1-1,
+        .def_zlayer = LAYER_T1,
         .def_zorder = -6,
         .num_layers = 2
     },
@@ -4403,7 +4403,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = LBG_NO_LERP,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_04_glow_001_png
             },
             {
@@ -4411,7 +4411,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
                 .y_offset = 0,
                 .col_channel = WHITE,
                 .color_type = COLOR_UNMOD,
-                .zlayer_offset = 0,
+                .zlayer_offset = -1,
                 .texture = boost_04_001_png
             },
         },
@@ -4421,7 +4421,7 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             .type = HITBOX_SPECIAL
         },
         .spritesheet_layer = SHEET_SPEED_PORTALS,
-        .def_zlayer = LAYER_T1-1,
+        .def_zlayer = LAYER_T1,
         .def_zorder = -6,
         .num_layers = 2
     },
