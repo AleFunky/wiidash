@@ -155,15 +155,17 @@ typedef enum {
     TYPE_SPAWN_TRIGGER,
 } ObjectType;
 
+#define MAX_SOA_OBJECTS 100000
+
 typedef struct GameObjectSoA {
-    int *id;
-    float *x;
-    float *y;
-    float *delta_x;
-    float *delta_y;
-    int *type;
-    unsigned char *touching_player;
-    unsigned char *prev_touching_player;
+    int id[MAX_SOA_OBJECTS];
+    float x[MAX_SOA_OBJECTS];
+    float y[MAX_SOA_OBJECTS];
+    float delta_x[MAX_SOA_OBJECTS];
+    float delta_y[MAX_SOA_OBJECTS];
+    int type[MAX_SOA_OBJECTS];
+    unsigned char touching_player[MAX_SOA_OBJECTS];
+    unsigned char prev_touching_player[MAX_SOA_OBJECTS];
 } GameObjectSoA;
 
 typedef struct GameObject {
@@ -326,8 +328,6 @@ typedef struct GFXSection {
 
 bool is_ascii(const unsigned char *data, int len);
 
-bool init_object_soa(int count, GameObjectSoA *soa);
-
 extern Section *section_hash[SECTION_HASH_SIZE];
 extern GFXSection *section_gfx_hash[SECTION_HASH_SIZE];
 unsigned int section_hash_func(int x, int y);
@@ -377,36 +377,36 @@ char *load_user_song(int id, size_t *out_size);
 bool check_song(int id);
 void update_percentage();
 //#include <stdio.h>
-extern GameObjectSoA *gameObjectSoA;
+extern GameObjectSoA gameObjectSoA;
 inline int* soa_id(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
-    return &gameObjectSoA->id[obj->soa_index]; 
+    return &gameObjectSoA.id[obj->soa_index]; 
 }
 inline float* soa_x(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
-    return &gameObjectSoA->x[obj->soa_index]; 
+    return &gameObjectSoA.x[obj->soa_index]; 
 }
 inline float* soa_y(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);  
-    return &gameObjectSoA->y[obj->soa_index]; 
+    return &gameObjectSoA.y[obj->soa_index]; 
 }
 inline float* soa_delta_x(GameObject *obj) {
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
-    return &gameObjectSoA->delta_x[obj->soa_index]; 
+    return &gameObjectSoA.delta_x[obj->soa_index]; 
 }
 inline float* soa_delta_y(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
-    return &gameObjectSoA->delta_y[obj->soa_index]; 
+    return &gameObjectSoA.delta_y[obj->soa_index]; 
 }
 inline int* soa_type(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
-    return &gameObjectSoA->type[obj->soa_index]; 
+    return &gameObjectSoA.type[obj->soa_index]; 
 }
 inline unsigned char* soa_touching_player(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
-    return &gameObjectSoA->touching_player[obj->soa_index]; 
+    return &gameObjectSoA.touching_player[obj->soa_index]; 
 }
 inline unsigned char* soa_prev_touching_player(GameObject *obj) { 
     //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
-    return &gameObjectSoA->prev_touching_player[obj->soa_index]; 
+    return &gameObjectSoA.prev_touching_player[obj->soa_index]; 
 }

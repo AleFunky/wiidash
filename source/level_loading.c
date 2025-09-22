@@ -38,6 +38,8 @@
 #include "g_07_png.h"
 #include "game.h"
 
+#include <malloc.h>
+
 const unsigned char *backgrounds[] = {
     bg_01_png,
     bg_02_png,
@@ -912,6 +914,8 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     memset(object, 0, sizeof(GameObject));
 
     object->soa_index = i + 1;
+    if (object->soa_index == MAX_SOA_OBJECTS) return NULL;
+
     *soa_id(object) = obj->values[0].i;
     *soa_type(object) = obtain_type_from_id(*soa_id(object));
     
@@ -1213,74 +1217,6 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     return object;
 }
 
-void free_soa(GameObjectSoA *soa) {
-    if (!soa) return;
-
-    if(soa->x) free(soa->x);
-    if(soa->y) free(soa->y);
-    if(soa->delta_x) free(soa->delta_x);
-    if(soa->delta_y) free(soa->delta_y);
-    if(soa->type) free(soa->type);
-    if(soa->touching_player) free(soa->touching_player);
-    if(soa->prev_touching_player) free(soa->prev_touching_player);
-    free(soa);
-}
-
-bool init_object_soa(int count, GameObjectSoA *soa) { 
-    soa->id = malloc(sizeof(int) * count);
-    if (!soa->id) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    soa->x = malloc(sizeof(float) * count);    
-    if (!soa->x) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    soa->y = malloc(sizeof(float) * count);
-    if (!soa->y) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    soa->delta_x = malloc(sizeof(float) * count);
-    if (!soa->delta_x) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    soa->delta_y = malloc(sizeof(float) * count);
-    if (!soa->delta_y) {
-        free_soa(soa);
-        return FALSE;
-    }
-    
-    soa->type = malloc(sizeof(int) * count);
-    if (!soa->type) {
-        free_soa(soa);
-        return FALSE;
-    }
-    
-    soa->touching_player = malloc(sizeof(unsigned char) * count);
-    if (!soa->touching_player) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    soa->prev_touching_player = malloc(sizeof(unsigned char) * count);
-    if (!soa->prev_touching_player) {
-        free_soa(soa);
-        return FALSE;
-    }
-
-    printf("%p %p %p %p %p %p\n", soa->x, soa->y, soa->delta_x, soa->delta_y, soa->touching_player, soa->prev_touching_player);
-
-
-    return TRUE;
-}
-
 void free_game_object(GameObject *obj) {
     if (!obj) return;
     if (obj->object.text) free(obj->object.text);
@@ -1377,7 +1313,7 @@ GDObjectList *parse_string(const char *levelString) {
             output_log("Failed to parse object at section %d\n", i);
         }
     }
-
+    
     free_string_array(sections, sectionCount);
     
     output_log("Allocating object list...\n");
@@ -1799,7 +1735,7 @@ GDGameObjectList *objectsArrayList = NULL;
 struct ObjectPos *origPositionsList = NULL;
 
 GDObjectLayerList *layersArrayList = NULL;
-GameObjectSoA *gameObjectSoA = NULL;
+GameObjectSoA gameObjectSoA = { 0 };
 int channelCount = 0;
 GDColorChannel *colorChannels = NULL;
 
@@ -1810,7 +1746,6 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
         output_log("Couldn't allocate new object\n");
         return NULL;
     }
-
     // Initialize with default values
     memset(obj, 0, sizeof(GameObject));
     int type = obtain_type_from_id(object_id);
@@ -1842,15 +1777,16 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     int new_index = objectsArrayList->count;
     
     obj->soa_index = new_index;
+    if (obj->soa_index == MAX_SOA_OBJECTS) return NULL;
 
-    gameObjectSoA->id[new_index] = object_id;
-    gameObjectSoA->x[new_index] = x;
-    gameObjectSoA->y[new_index] = y;
-    gameObjectSoA->delta_x[new_index] = 0;
-    gameObjectSoA->delta_y[new_index] = 0;
-    gameObjectSoA->type[new_index] = type;
-    gameObjectSoA->touching_player[new_index] = 0;
-    gameObjectSoA->prev_touching_player[new_index] = 0;
+    gameObjectSoA.id[new_index] = object_id;
+    gameObjectSoA.x[new_index] = x;
+    gameObjectSoA.y[new_index] = y;
+    gameObjectSoA.delta_x[new_index] = 0;
+    gameObjectSoA.delta_y[new_index] = 0;
+    gameObjectSoA.type[new_index] = type;
+    gameObjectSoA.touching_player[new_index] = 0;
+    gameObjectSoA.prev_touching_player[new_index] = 0;
 
     // Add to sections
     assign_object_to_section(obj);
@@ -1981,6 +1917,7 @@ void load_level_info(char *data, char *level_string) {
 int load_level(char *data, bool is_custom) {
     level_info.level_is_custom = is_custom;
 
+    printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
     char *level_string = decompress_level(data);
 
     if (level_string == NULL) {
@@ -2013,32 +1950,12 @@ int load_level(char *data, bool is_custom) {
             return 2;
         }
         
-        gameObjectSoA = malloc(sizeof(GameObjectSoA));
-
-        int count = 1; // Reserve one for player
-        // Count all objects (+ child objects)
-        for (int i = 0; i < objectsList->objectCount; i++) {
-            switch (objectsList->objects[i].values[0].i) {
-                case BLUE_TP_PORTAL:
-                    count += 2;
-                    break;
-                default:
-                    count += 1;
-            }
-        }
-
-        printf("count %d\n", count);
-
-        bool success = init_object_soa(count, gameObjectSoA);
-        if (!gameObjectSoA || !success) {
-            output_log("Failed creating the SoA objects\n");
-            free(gameObjectSoA);
-            return 5;
-        }
+        printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
 
         objectsArrayList = convert_all_to_game_objects(objectsList);
         free_gd_object_list(objectsList);
         
+    printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
         if (objectsArrayList == NULL) {
             output_log("Failed converting objects to game object structs.\n");
             return 3;
@@ -2046,6 +1963,7 @@ int load_level(char *data, bool is_custom) {
 
         create_extra_objects();
 
+    printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
         layersArrayList = fill_layers_array(objectsArrayList);
 
         if (layersArrayList == NULL) {
@@ -2144,11 +2062,6 @@ void unload_level() {
     free_gfx_sections();
     full_init_variables();
     unload_coin_texture();
-    
-    if (gameObjectSoA) {
-        free_soa(gameObjectSoA);
-        gameObjectSoA = NULL;
-    }
     
     if (player_game_object) {
         free(player_game_object);
