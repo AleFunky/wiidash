@@ -217,11 +217,6 @@ typedef struct {
 } __attribute__((__packed__)) GDObject;
 
 typedef struct {
-    GDObject *objects;
-    int objectCount;
-} GDObjectList;
-
-typedef struct {
     int count;
     GameObject **objects;
 } GDGameObjectList;

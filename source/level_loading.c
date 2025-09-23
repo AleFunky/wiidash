@@ -1222,66 +1222,7 @@ void free_game_object(GameObject *obj) {
     if (obj->object.text) free(obj->object.text);
     free(obj);
 }
-
-GDGameObjectList *convert_all_to_game_objects(GDObjectList *objList) {
-    if (!objList) return NULL;
-
-    GameObject **objectArray = malloc(sizeof(GameObject *) * objList->objectCount);
-    if (!objectArray) return NULL;
-
-    output_log("Converting objects...\n");
-
-    for (int i = 0; i < objList->objectCount; i++) {
-        objectArray[i] = convert_to_game_object(&objList->objects[i], i);
-        if (!objectArray[i]) {
-            output_log("Failed to convert object %d\n", i);
-            for (int j = 0; j < i; j++) {
-                free_game_object(objectArray[j]);
-            }
-            free(objectArray);
-            return NULL;
-        }
-    }
-
-    // Do this separated
-    for (int i = 0; i < objList->objectCount; i++) {
-        GameObject *obj = objectArray[i];
-        load_obj_textures(*soa_id(obj));
-        register_object(obj);
-        assign_object_to_section(obj);
-    }
-
-    output_log("Allocating list...\n");
-
-    GDGameObjectList *gameObjectList = malloc(sizeof(GDGameObjectList));
-    if (!gameObjectList) {
-        output_log("Failed to allocate the game object list");
-        for (int i = 0; i < objList->objectCount; i++) {
-            free_game_object(objectArray[i]);
-        }
-        free(objectArray);
-        return NULL;
-    }
-
-    gameObjectList->count = objList->objectCount;
-    gameObjectList->objects = objectArray;
-
-    origPositionsList = malloc(sizeof(struct ObjectPos) * objList->objectCount);
-
-    for (int i = 0; i < objList->objectCount; i++) {
-        origPositionsList[i].x = *soa_x(gameObjectList->objects[i]);
-        origPositionsList[i].y = *soa_y(gameObjectList->objects[i]);
-    }
-
-    return gameObjectList;
-}
-
-void free_gd_object_list(GDObjectList *list) {
-    free(list->objects);
-    free(list);
-}
-
-GDObjectList *parse_string(const char *levelString) {
+GDGameObjectList *parse_string(const char *levelString) {
     int sectionCount = 0;
 
     // Split the string in object sections
@@ -1293,42 +1234,80 @@ GDObjectList *parse_string(const char *levelString) {
         return NULL;
     }
     
-    output_log("Parsing string...\n");
 
     int objectCount = sectionCount - 1;
     output_log("%d\n", objectCount);
-    
-    // Allocate GD objects
-    GDObject *objects = (GDObject *)malloc(sizeof(GDObject) * objectCount);
 
-    output_log("Size of gdobjects %d bytes\n", sizeof(GDObject) * objectCount);
-    if (objects == NULL) {
-        free_string_array(sections, sectionCount);
-        output_log("Couldn't allocate GD Objects\n");
+    GameObject **objectArray = malloc(sizeof(GameObject *) * objectCount);
+    if (!objectArray) {
+        output_log("Failed to allocate object array\n");
         return NULL;
     }
 
-    for (int i = 1; i < sectionCount; i++) {
-        if (!parse_gd_object(sections[i], &objects[i - 1])) {
-            output_log("Failed to parse object at section %d\n", i);
+    output_log("Parsing string and converting objects...\n");
+
+    for (int i = 0; i < objectCount; i++) {
+        GDObject *object = (GDObject *)malloc(sizeof(GDObject));
+
+        if (!object) {
+            output_log("Failed to allocate object %d\n", i);
+            return NULL;
         }
+
+        // Parse
+        if (!parse_gd_object(sections[i + 1], object)) {
+            output_log("Failed to parse object %d\n", i);
+            return NULL;
+        }
+        
+        // Convert to gameobject
+        objectArray[i] = convert_to_game_object(object, i);
+        if (!objectArray[i]) {
+            output_log("Failed to convert object %d\n", i);
+            for (int j = 0; j < i; j++) {
+                free_game_object(objectArray[j]);
+            }
+            free(objectArray);
+            return NULL;
+        }
+
+        free(object);
     }
     
     free_string_array(sections, sectionCount);
-    
-    output_log("Allocating object list...\n");
 
-    GDObjectList *objectList = malloc(sizeof(GDObjectList));
-    if (!objectList) {
-        output_log("Memory allocation failed for objectList\n");
-        free(objects);
+    // Do this separated
+    for (int i = 0; i < objectCount; i++) {
+        GameObject *obj = objectArray[i];
+        load_obj_textures(*soa_id(obj));
+        register_object(obj);
+        assign_object_to_section(obj);
+    }
+
+    output_log("Allocating list...\n");
+
+    // Make the list
+    GDGameObjectList *gameObjectList = malloc(sizeof(GDGameObjectList));
+    if (!gameObjectList) {
+        output_log("Failed to allocate the game object list");
+        for (int i = 0; i < objectCount; i++) {
+            free_game_object(objectArray[i]);
+        }
+        free(objectArray);
         return NULL;
     }
 
-    objectList->objectCount = objectCount;
-    objectList->objects = objects;
+    gameObjectList->count = objectCount;
+    gameObjectList->objects = objectArray;
 
-    return objectList;
+    origPositionsList = malloc(sizeof(struct ObjectPos) * objectCount);
+
+    for (int i = 0; i < objectCount; i++) {
+        origPositionsList[i].x = *soa_x(gameObjectList->objects[i]);
+        origPositionsList[i].y = *soa_y(gameObjectList->objects[i]);
+    }
+
+    return gameObjectList;
 }
 
 void free_game_object_list(GDGameObjectList *list) {
@@ -1941,29 +1920,18 @@ int load_level(char *data, bool is_custom) {
         
         load_level_info(data, level_string);
 
-        GDObjectList *objectsList = parse_string(level_string);
+        objectsArrayList = parse_string(level_string);
 
         free(level_string);
 
-        if (objectsList == NULL) {
+        if (objectsArrayList == NULL) {
             output_log("Failed parsing the objects.\n");
             return 2;
         }
         
-        printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
-
-        objectsArrayList = convert_all_to_game_objects(objectsList);
-        free_gd_object_list(objectsList);
-        
-    printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
-        if (objectsArrayList == NULL) {
-            output_log("Failed converting objects to game object structs.\n");
-            return 3;
-        }
 
         create_extra_objects();
 
-    printf("Free MEM1: %d Free MEM2: %d\n", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
         layersArrayList = fill_layers_array(objectsArrayList);
 
         if (layersArrayList == NULL) {
@@ -1999,10 +1967,19 @@ int load_level(char *data, bool is_custom) {
 
     level_info.pulsing_type = random_int(0,2);
 
+    // Allocate the rest of mem1 so the textures end up in mem2
+    int allocate = SYS_GetArena1Hi() - SYS_GetArena1Lo();
+    char *padding = NULL;
+    if (allocate > 0) {
+        padding = malloc(allocate);
+    }
+
     // Load level's bg and ground texture
     bg = GRRLIB_LoadTexturePNG(backgrounds[level_info.background_id]);
     ground = GRRLIB_LoadTexturePNG(grounds[level_info.ground_id]);
     level_font = GRRLIB_LoadTexturePNG(font_text[level_info.font_used]);
+
+    if (padding) free(padding);
 
     int rounded_last_obj_x = (int) (level_info.last_obj_x / 30) * 30 + 15;
     level_info.wall_x = (rounded_last_obj_x) + (11.f * 30.f) - 3;
