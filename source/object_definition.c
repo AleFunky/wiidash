@@ -19573,17 +19573,17 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = WHITE,
-                .color_type = COLOR_DETAIL,
+                .col_channel = OBJ,
                 .zlayer_offset = 0,
-                .texture = block009b_07_color_001_png
+                .texture = block009b_07_001_png
             },
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = OBJ,
+                .col_channel = LIGHTER,
+                .color_type = COLOR_DETAIL,
                 .zlayer_offset = 0,
-                .texture = block009b_07_001_png
+                .texture = block009b_07_color_001_png
             }
         },
         .hitbox = no_hitbox,
@@ -21293,17 +21293,17 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = WHITE,
-                .color_type = COLOR_DETAIL,
+                .col_channel = OBJ,
                 .zlayer_offset = 0,
-                .texture = block009b_08_color_001_png
+                .texture = block009b_08_001_png
             },
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = OBJ,
+                .col_channel = LIGHTER,
+                .color_type = COLOR_DETAIL,
                 .zlayer_offset = 0,
-                .texture = block009b_08_001_png
+                .texture = block009b_08_color_001_png
             }
         },
         .hitbox = no_hitbox,
@@ -21314,20 +21314,20 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
     },
     {
         .layers = {
-            {
-                .x_offset = 0,
-                .y_offset = 0,
-                .col_channel = WHITE,
-                .color_type = COLOR_DETAIL,
-                .zlayer_offset = 0,
-                .texture = block009b_09_color_001_png
-            },
             {
                 .x_offset = 0,
                 .y_offset = 0,
                 .col_channel = OBJ,
                 .zlayer_offset = 0,
                 .texture = block009b_09_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = LIGHTER,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block009b_09_color_001_png
             }
         },
         .hitbox = no_hitbox,
@@ -21341,17 +21341,17 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = WHITE,
-                .color_type = COLOR_DETAIL,
+                .col_channel = OBJ,
                 .zlayer_offset = 0,
-                .texture = block009b_10_color_001_png
+                .texture = block009b_10_001_png
             },
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = OBJ,
+                .col_channel = LIGHTER,
+                .color_type = COLOR_DETAIL,
                 .zlayer_offset = 0,
-                .texture = block009b_10_001_png
+                .texture = block009b_10_color_001_png
             }
         },
         .hitbox = no_hitbox,
@@ -22458,6 +22458,537 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
         .def_zlayer = LAYER_T1,
         .def_zorder = 3,
         .num_layers = 2,
+    },
+    // Outline thick but thicker (b)
+    [OUTLINE_THICKB_1] = {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_01_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_01_001_png
+            }
+        },
+        .hitbox = {
+            .width = 30,
+            .height = 6,
+            .type = HITBOX_SOLID,
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_02_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_02_001_png
+            }
+        },
+        .hitbox = {
+            .width = 30,
+            .height = 30,
+            .type = HITBOX_SOLID,
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_03_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_03_001_png
+            }
+        },
+        .hitbox = {
+            .width = 30,
+            .height = 30,
+            .type = HITBOX_SOLID,
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_04_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_04_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_05_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_05_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_06_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_06_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_08_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_08_001_png
+            }
+        },
+        .hitbox = {
+            .width = 30,
+            .height = 30,
+            .type = HITBOX_SOLID,
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ_BLENDING,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_09_glow_001_png
+            },
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = OBJ,
+                .zlayer_offset = 0,
+                .texture = blockOutlineThickb_09_001_png
+            }
+        },
+        .hitbox = {
+            .width = 30,
+            .height = 7,
+            .type = HITBOX_SOLID,
+        },
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 3,
+        .num_layers = 2,
+    },
+    // Anim wave base
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = LBG,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = d_waveBG_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B1,
+        .def_zorder = 9,
+        .num_layers = 1,
+    },
+    // More rainbow blocks
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_10_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_11_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_12_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_13_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_14_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_15_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_16_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_17_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_18_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_19_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_20_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block010_21_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_B2,
+        .def_zorder = -7,
+        .num_layers = 1,
+    },
+    // Block 008 top color small
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_02_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_06_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_07_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_08_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_10_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
+    },
+    {
+        .layers = {
+            {
+                .x_offset = 0,
+                .y_offset = 0,
+                .col_channel = WHITE,
+                .color_type = COLOR_DETAIL,
+                .zlayer_offset = 0,
+                .texture = block008_topcolor_11_001_png
+            }
+        },
+        .hitbox = no_hitbox,
+        .spritesheet_layer = SHEET_BLOCKS,
+        .def_zlayer = LAYER_T1,
+        .def_zorder = 4,
+        .num_layers = 1,
     },
     [SPAWN_TRIGGER] = trigger,
 };
