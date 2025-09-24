@@ -983,7 +983,7 @@ void run_player(Player *player) {
             clear_slope_data(player);
         }
         
-        if (player->gamemode != GAMEMODE_WAVE && player->vel_y <= 0) player->vel_y = 0;
+        if (player->gamemode != GAMEMODE_WAVE && grav(player, player->vel_y) <= 0) player->vel_y = 0;
         player->y = state.ground_y + (player->height / 2) + ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0);;
     }
 
@@ -997,7 +997,7 @@ void run_player(Player *player) {
             clear_slope_data(player);
         }
         
-        if (player->gamemode != GAMEMODE_WAVE && player->vel_y >= 0) player->vel_y = 0;
+        if (player->gamemode != GAMEMODE_WAVE && grav(player, player->vel_y) >= 0) player->vel_y = 0;
         player->y = state.ceiling_y - (player->height / 2) - ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0);;
     } 
     
