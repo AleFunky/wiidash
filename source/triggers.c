@@ -607,13 +607,13 @@ void handle_move_triggers() {
         for (int i = 0; i < group->count; i++) {
             GameObject* obj = group->objects[i];
 
-            if (*soa_type(obj) == TYPE_NORMAL_OBJECT) *soa_delta_x(obj) += delta_x;
+            if (LIKELY(*soa_type(obj) == TYPE_NORMAL_OBJECT)) *soa_delta_x(obj) += delta_x;
             *soa_delta_y(obj) += delta_y;
 
             mark_object_dirty(obj);
 
             // Handle player collision
-            if (*soa_touching_player(obj)) {
+            if (UNLIKELY(*soa_touching_player(obj))) {
                 Player* player = (*soa_touching_player(obj) == 1) ? 
                                &state.player : &state.player2;
 
@@ -621,7 +621,7 @@ void handle_move_triggers() {
                 if (grav_delta_y >= -MOVE_SPEED_DIVIDER) {
                     player->y += delta_y;
                 }
-            } else if (*soa_prev_touching_player(obj)) {
+            } else if (UNLIKELY(*soa_prev_touching_player(obj))) {
                 Player* player = (*soa_prev_touching_player(obj) == 1) ?
                                &state.player : &state.player2;
 

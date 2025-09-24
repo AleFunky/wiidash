@@ -1,10 +1,14 @@
 #pragma once
 
+#define LIKELY(x)   __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
 // Enable printing of mallocs and frees
 //#define REPORT_LEAKS
 
 #include "player.h"
 #include "particles.h"
+
 
 extern int screenWidth;
 extern int widthAdjust;
