@@ -79,11 +79,10 @@ struct AlphaTriggerBuffer {
 
     int target_group;         
     float new_alpha;
+    float old_alpha;
 
     float seconds;
     float time_run;
-
-    float *initial_opacities;
 };
 
 struct SpawnTriggerBuffer {

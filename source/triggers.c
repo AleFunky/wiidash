@@ -255,9 +255,9 @@ void handle_pulse_triggers() {
                                 //printf("Pulse removed from slot %d\n", j);
                                 
                                 // Shift pulses down
-                                for (int k = idx; k < channels[target_buffer->target_color_id].num_pulses - 1; k++) {
+                                for (int k = idx; k < channels[target_buffer->target_color_id].num_pulses - 1 && k < MAX_PULSES_PER_CHANNEL; k++) {
                                     channel->pulses[k] = channel->pulses[k + 1];
-                                    //if (k < MAX_PULSE_CHANNELS) printf("%d <- %d\n", k, k + 1);
+                                    //printf("%d <- %d\n", k, k + 1);
                                 }
                                 
                                 target_buffer->pulse_index--;
@@ -282,7 +282,7 @@ void handle_pulse_triggers() {
                 }
 
                 // If last slot, nothing is gonna move into the slot so just disable it
-                if (i == MAX_PULSE_CHANNELS - 1) buffer->active = FALSE;
+                pulse_trigger_buffer[MAX_PULSE_CHANNELS - 1].active = FALSE;
                 
                 // Make the game run the pulse moved into the current slot
                 i--;
@@ -347,6 +347,9 @@ void upload_to_pulse_buffer(GameObject *obj) {
                 obj->object.num_pulses++;
             }
         } else {
+            // If ran out of pulses for this channel, return
+            if (channels[buffer->target_color_id].num_pulses >= MAX_PULSES_PER_CHANNEL) return;
+
             buffer->pulse_index = channels[buffer->target_color_id].num_pulses++;
             //printf("New pulse for channel %d, %d at slot %d\n", buffer->target_color_id, buffer->pulse_index, slot);
         }
@@ -579,7 +582,7 @@ void handle_move_triggers() {
             buffer->active = FALSE;
             continue;
         }
-        
+
         // Calculate movement deltas once
         float delta_x, delta_y;
         float easing = easeTime(convert_ease(buffer->easing), 
@@ -743,10 +746,9 @@ int obtain_free_alpha_slot() {
 }
 
 void upload_to_alpha_buffer(GameObject *obj) {
+    Node *p = get_group(obj->trigger.alpha_trigger.target_group);
     if (obj->trigger.trig_duration == 0) {
-        for (Node *p = get_group(obj->trigger.alpha_trigger.target_group); p; p = p->next) {
-            p->obj->opacity = obj->trigger.alpha_trigger.opacity;
-        }
+        if (p) p->opacity = obj->trigger.alpha_trigger.opacity;
         return;
     }
     
@@ -760,29 +762,8 @@ void upload_to_alpha_buffer(GameObject *obj) {
 
         buffer->time_run = 0;
         buffer->seconds = obj->trigger.trig_duration;
-        
-        int count = 0;
 
-        float capacity = 8;
-        
-        float *opacities = malloc(sizeof(float) * capacity); // Initial 8
-
-        for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-            if (count >= capacity) {
-                capacity *= 2; // grow exponentially
-                float *tmp = realloc(opacities, sizeof(float) * capacity);
-                if (!tmp) {
-                    free(opacities);
-                    output_log("Couldn't allocate alpha values\n");
-                    return;
-                }
-                opacities = tmp;
-            }
-
-            GameObject *obj = p->obj;
-            opacities[count++] = obj->opacity;
-        }
-        buffer->initial_opacities = opacities;
+        if (p) buffer->old_alpha = p->opacity;
         
         buffer->active = TRUE;
     }
@@ -793,33 +774,25 @@ void handle_alpha_triggers() {
         struct AlphaTriggerBuffer *buffer = &alpha_trigger_buffer[slot];
         
         if (buffer->active) {
-            int i = 0;
-            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                GameObject *obj = p->obj;
-                float lerped_alpha;
+            Node *p = get_group(buffer->target_group);
+            if (!p) continue;
 
-                if (buffer->seconds > 0) {
-                    float multiplier = buffer->time_run / buffer->seconds;
-                    lerped_alpha = (buffer->new_alpha - buffer->initial_opacities[i]) * multiplier + buffer->initial_opacities[i];
-                } else {
-                    lerped_alpha = buffer->new_alpha;
-                }
+            float lerped_alpha;
 
-                obj->opacity = lerped_alpha;
-                i++;
+            if (buffer->seconds > 0) {
+                float multiplier = buffer->time_run / buffer->seconds;
+                lerped_alpha = (buffer->new_alpha - buffer->old_alpha) * multiplier + buffer->old_alpha;
+            } else {
+                lerped_alpha = buffer->new_alpha;
             }
+
+            p->opacity = lerped_alpha;
+    
             buffer->time_run += STEPS_DT;
 
             if (buffer->time_run > buffer->seconds) {
                 buffer->active = FALSE;
-
-                // Set new alpha on all objects
-                for (Node *p = get_group(buffer->target_group); p; p = p->next) {
-                    GameObject *obj = p->obj;
-                    obj->opacity = buffer->new_alpha;
-                }
-
-                free(buffer->initial_opacities);
+                p->opacity = buffer->new_alpha;
             }
         }
     }

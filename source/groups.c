@@ -25,6 +25,7 @@ void add_to_group(GameObject *obj, int g) {
     if (g < 1 || g >= MAX_GROUPS) return;
     Node *n = malloc(sizeof(Node));
     n->obj = obj;
+    n->opacity = 1.f;
     n->next = group_buckets[g];
     group_buckets[g] = n;
 }

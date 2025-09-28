@@ -5,6 +5,7 @@
 
 typedef struct Node {
     GameObject *obj;
+    float opacity;
     struct Node *next;
 } Node;
 

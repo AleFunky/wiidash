@@ -1766,7 +1766,14 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
         color = channels[def_col_channel].color;
     }
 
-    float new_opacity = opacity * channels[col_channel].alpha * obj->opacity;
+    float group_opacity = 1.f;
+    for (int i = 0; i < MAX_GROUPS_PER_OBJECT; i++) {
+        Node *p = get_group(obj->groups[i]);
+        if (p) group_opacity *= p->opacity;
+    }
+    obj->opacity = group_opacity;
+
+    float new_opacity = opacity * channels[col_channel].alpha * group_opacity;
     float transformed_opacity = new_opacity;
 
     if (channels[col_channel].blending) transformed_opacity = CLAMP((0.175656971639325 * powf(7.06033051530761, new_opacity / 255.f) - 0.213355914301931), 0, 1) * 255;
@@ -1811,7 +1818,6 @@ void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
     if (objects[obj_id].frame_animation) {
         tex = get_animated_texture(obj, layer->layerNum, &default_scale, &flip_x);
     }
-
 
     int x_flip_mult = (obj->flippedH ^ flip_x ? -1 : 1);
     int y_flip_mult = (obj->flippedV ? -1 : 1);
