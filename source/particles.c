@@ -677,6 +677,56 @@ ParticleTemplate particle_templates[] = {
         .priority = 70,
         .texture_id = PARTICLE_SQUARE
     },
+    [KEY_OBJ_PART] = {
+        .angle = 90, .angleVar = 7,
+        .speed = 400, .speedVar = 10,
+        .gravity_x = 0, .gravity_y = -1500,
+        .rel_gravity = FALSE,
+        .life = 3.f, .lifeVar = 0,
+        .start_scale = 0.733333f, .start_scaleVar = 0,
+        .end_scale = 0.733333f, .end_scaleVar = 0,
+        .start_color = {255,255,255,255},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,255,0},
+        .end_colorVar = {0,0,0,0},
+        .blending = FALSE,
+        .sourcePosVarX = 0, .sourcePosVarY = 0,
+        .rotatePerSecond = 0,
+        .rotatePerSecondVariance = 0,
+        .rotationStart = 0,
+        .rotationStartVariance = 0,
+        .rotationEnd = 0,
+        .rotationEndVariance = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 100,
+        .texture_id = PARTICLE_KEY
+    },
+    [KEY_PARTICLES] = {
+        .angle = 0, .angleVar = 180,
+        .speed = 5, .speedVar = 5,
+        .gravity_x = 0, .gravity_y = 0,
+        .rel_gravity = FALSE,
+        .life = 0.6f, .lifeVar = 0.15f,
+        .start_scale = 0.07, .start_scaleVar = 0.05,
+        .end_scale = 0, .end_scaleVar = 0,
+        .start_color = {255,255,255,127},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,255,0},
+        .end_colorVar = {0,0,0,0},
+        .blending = TRUE,
+        .sourcePosVarX = 15, .sourcePosVarY = 10,
+        .rotatePerSecond = 0,
+        .rotatePerSecondVariance = 0,
+        .rotationStart = 0,
+        .rotationStartVariance = 0,
+        .rotationEnd = 0,
+        .rotationEndVariance = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 50,
+        .texture_id = PARTICLE_SQUARE
+    },
 };
 
 void add_particle(int i, int group_id, float x, float y, GameObject *parent_obj) {
@@ -1013,6 +1063,42 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
                         ),
                         2
                     );
+                    break;
+                case PARTICLE_KEY:
+                    GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+                    GX_SetVtxDesc(GX_VA_TEX0,   GX_DIRECT);
+                    int col_channel;
+                    u32 color;
+
+                    GRRLIB_texImg *key_tex = object_images[KEY_OBJ][0]; // First layer
+                    if (!key_tex) break;
+
+                    col_channel = parent_obj->object.main_col_channel;
+                    color = get_layer_color(parent_obj, COLOR_MAIN, col_channel, 255, 1);
+                    set_texture(key_tex);
+                    custom_drawImg(
+                        get_mirror_x(calc_x, state.mirror_factor) + 6 - (key_tex->w/2), calc_y + 6 - (key_tex->h/2),
+                        key_tex,
+                        p->rotation * state.mirror_mult,
+                        p->scale * state.mirror_mult, p->scale,
+                        color
+                    );
+                    key_tex = object_images[KEY_OBJ][1]; // Second layer
+                    if (!key_tex) break;
+
+                    col_channel = parent_obj->object.detail_col_channel;
+                    color = get_layer_color(parent_obj, COLOR_DETAIL, col_channel, 255, WHITE);
+
+                    set_texture(key_tex);
+                    custom_drawImg(
+                        get_mirror_x(calc_x, state.mirror_factor) + 6 - (key_tex->w/2), calc_y + 6 - (key_tex->h/2),
+                        key_tex,
+                        p->rotation * state.mirror_mult,
+                        p->scale * state.mirror_mult, p->scale,
+                        color
+                    );
+                    GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+                    GX_SetVtxDesc(GX_VA_TEX0,   GX_NONE);
                     break;
             }
             GRRLIB_SetBlend(GRRLIB_BLEND_ALPHA);

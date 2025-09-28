@@ -26,6 +26,8 @@
 #include "groups.h"
 
 AnimationDefinition monster_1_anim;
+AnimationDefinition monster_2_anim;
+AnimationDefinition monster_3_anim;
 AnimationDefinition black_sludge_anim;
 
 FramesDefinition fire1_anim;
@@ -894,6 +896,21 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 obj->activated[state.current_player] = TRUE;
             }
             break;
+        case KEY_OBJ:
+            if (!obj->activated[state.current_player]) {
+                // Coin particle
+                spawn_particle(KEY_OBJ_PART, *soa_x(obj), *soa_y(obj), obj);
+
+                // Explode particles
+                particle_templates[BREAKABLE_BRICK_PARTICLES].start_color.a = 127;
+                for (s32 i = 0; i < 10; i++) {
+                    spawn_particle(BREAKABLE_BRICK_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+                }
+
+                obj->hide_sprite = TRUE;
+                obj->activated[state.current_player] = TRUE;
+            }
+            break;
     }
     if (!obj->collided[state.current_player]) obj->hitbox_counter[state.current_player]++; 
 }
@@ -1033,6 +1050,8 @@ void load_spritesheet() {
     ground_line = GRRLIB_LoadTexturePNG(ground_line_png);
     level_complete_texture = GRRLIB_LoadTexturePNG(levelCompleteText_png);
     monster_1_anim = prepare_monster_1_animation();
+    monster_2_anim = prepare_monster_2_animation();
+    monster_3_anim = prepare_monster_3_animation();
     black_sludge_anim = prepare_black_sludge_animation();
     fire1_anim = prepare_fire_1_animation();
     fire2_anim = prepare_fire_2_animation();
@@ -1346,6 +1365,15 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
+            }
+            break;
+        case KEY_OBJ:
+            if (!obj->activated[state.current_player]) {                
+                spawn_particle(KEY_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+                draw_obj_particles(KEY_PARTICLES, obj);
+            } else {
+                draw_obj_particles(BREAKABLE_BRICK_PARTICLES, obj);
+                draw_obj_particles(KEY_OBJ_PART, obj);
             }
             break;
     }
@@ -2134,6 +2162,12 @@ void play_object_animation(GameObject *obj) {
     switch (*soa_id(obj)) {
         case MONSTER_1:
             playObjAnimation(obj, monster_1_anim, obj->object.animation_timer);
+            break;
+        case MONSTER_2:
+            playObjAnimation(obj, monster_2_anim, obj->object.animation_timer);
+            break;
+        case MONSTER_3:
+            playObjAnimation(obj, monster_3_anim, obj->object.animation_timer);
             break;
         case BLACK_SLUDGE:
             playObjAnimation(obj, black_sludge_anim, obj->object.animation_timer);

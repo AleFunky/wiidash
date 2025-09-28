@@ -1471,7 +1471,107 @@ enum Objects {
     BLOCK_08_TOPCOLOR_10,
     BLOCK_08_TOPCOLOR_11,
 
+    BLOCK_09D_1,
+    BLOCK_09D_2,
+    BLOCK_09D_3,
+    BLOCK_09D_4,
+    BLOCK_09D_5,
+    BLOCK_09D_6,
+    BLOCK_09D_7,
+    BLOCK_09D_8,
+    BLOCK_09D_9,
+
+    BLOCK_09D_SLOPE_45,
+    BLOCK_09D_SLOPE_22_66,
+    
+    BLOCK_09D_SLOPE_45_ALT,
+    BLOCK_09D_SLOPE_22_66_ALT,
+
+    OUTLINE_OUTER_1,
+    OUTLINE_OUTER_2,
+    OUTLINE_OUTER_THICK_1,
+    OUTLINE_OUTER_THICK_2,
+    OUTLINE_OUTER_THICKER_1,
+    OUTLINE_OUTER_THICKER_2,
+
+    BLOCK_09_7,
+    BLOCK_09_8,
+
     SPAWN_TRIGGER = 1268,
+
+    GRADIENT_CORNER_1,
+    GRADIENT_CORNER_2,
+    GRADIENT_CORNER_3,
+    GRADIENT_CORNER_4,
+    GRADIENT_CORNER_5,
+    GRADIENT_CORNER_6,
+
+    KEY_OBJ,
+    KEYHOLE,
+
+    BLOCK_09D_10,
+    BLOCK_09D_11,
+    BLOCK_09D_12,
+    BLOCK_09D_13,
+    BLOCK_09D_14,
+    BLOCK_09D_15,
+    BLOCK_09D_16,
+    BLOCK_09D_17,
+    BLOCK_09D_18,
+    BLOCK_09D_19,
+    BLOCK_09D_20,
+    BLOCK_09D_21,
+    BLOCK_09D_22,
+    BLOCK_09D_23,
+
+    GLOW_6_1,
+    GLOW_6_2,
+    GLOW_6_3,
+
+    BLOCK_005_2B,
+    BLOCK_005_4B,
+    
+    BLOCK_005B_2B,
+    BLOCK_005B_4B,
+
+    BLOCK_03_ONEMORE,
+
+    BLOCK_05_SLAB_1,
+    BLOCK_05_SLAB_2,
+    BLOCK_05_SLAB_3,
+    BLOCK_05_SLAB_4,
+    BLOCK_05_SLAB_5,
+    BLOCK_05_THREESLAB,
+    BLOCK_05_SLABSLOPE_45,
+    BLOCK_05_SLABSLOPE_22_66,
+    BLOCK_05_SLABSLOPE_CONNECTOR_1,
+    BLOCK_05_SLABSLOPE_CONNECTOR_2,
+    BLOCK_05_SLABSLOPE_CONNECTOR_3,
+
+    BLOCK_05C_OUTLINE_1,
+    BLOCK_05C_OUTLINE_2,
+    BLOCK_05C_OUTLINE_3,
+    BLOCK_05C_OUTLINE_4,
+    BLOCK_05C_OUTLINE_5,
+    BLOCK_05C_OUTLINE_PILLAR_END,
+    BLOCK_05C_OUTLINE_SLOPE_45,
+    BLOCK_05C_OUTLINE_SLOPE_22_66,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_1,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_2,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_3,
+
+    UNKNOWN_1321,
+
+    BLOCK_06_25,
+
+    UNKNOWN_1323,
+    UNKNOWN_1324,
+
+    BLOCK_06_CONNECTOR_3,
+    BLOCK_06_CONNECTOR_4,
+
+    MONSTER_2,
+    MONSTER_3,
 
     OBJECT_COUNT = 1329 // 2.0 object count
 };
@@ -1649,6 +1749,8 @@ extern GRRLIB_texImg *ground;
 extern GRRLIB_texImg *level_font;
 
 extern AnimationDefinition monster_1_anim;
+extern AnimationDefinition monster_2_anim;
+extern AnimationDefinition monster_3_anim;
 
 void load_obj_textures(int object);
 void unload_obj_textures();
@@ -1690,5 +1792,7 @@ bool is_object_unimplemented(int id);
 void run_trigger(GameObject *obj);
 
 AnimationDefinition prepare_monster_1_animation();
+AnimationDefinition prepare_monster_2_animation();
+AnimationDefinition prepare_monster_3_animation();
 void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer);
 u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity, int def_col_channel);

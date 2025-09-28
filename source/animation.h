@@ -70,6 +70,8 @@ FramesDefinition prepare_loading_1_animation();
 FramesDefinition prepare_loading_2_animation();
 
 AnimationDefinition prepare_monster_1_animation();
+AnimationDefinition prepare_monster_2_animation();
+AnimationDefinition prepare_monster_3_animation();
 AnimationDefinition prepare_black_sludge_animation();
 
 #define deeznutsfamitracker sizeof(AnimationLibrary)

@@ -923,6 +923,8 @@ FramesDefinition prepare_loading_2_animation() {
 }
 
 AnimationLibrary monster_1_library;
+AnimationLibrary monster_2_library;
+AnimationLibrary monster_3_library;
 AnimationLibrary black_sludge_library;
 AnimationDefinition prepare_monster_1_animation() {
     char monster_plist_path[282];
@@ -973,6 +975,83 @@ AnimationDefinition prepare_monster_1_animation() {
     animation.has_main = TRUE;
     animation.has_detail = TRUE;
     animation.fps = 38;
+
+    return animation;
+};
+
+AnimationDefinition prepare_monster_2_animation() {
+    char monster_plist_path[282];
+    snprintf(monster_plist_path, sizeof(monster_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "monster2.plist");
+    parsePlist(monster_plist_path, &monster_2_library);
+    
+    int part_index = 0;
+    
+    AnimationDefinition animation = { 0 };
+    animation.anim = getAnimation(&monster_2_library, "GJBeast02_idle01");
+
+    AnimationPart part1;
+    part1.texture = load_png(GJBeast02_01_glow_001_png);
+    part1.color_channel_type = COLOR_GLOW;
+    part1.default_col_channel = LBG_NO_LERP;
+    part1.part_id = 0;
+    animation.parts[part_index++] = part1;
+    
+    AnimationPart part2;
+    part2.texture = load_png(GJBeast02_01_001_png);
+    part2.color_channel_type = COLOR_MAIN;
+    part2.default_col_channel = BLACK;
+    part2.part_id = 0;
+    animation.parts[part_index++] = part2;
+
+    AnimationPart part3;
+    part3.texture = load_png(GJBeast02_02_001_png);
+    part3.color_channel_type = COLOR_DETAIL;
+    part3.default_col_channel = WHITE;
+    part3.part_id = 1;
+    animation.parts[part_index++] = part3;
+
+    animation.part_count = part_index;
+    animation.has_main = TRUE;
+    animation.has_detail = TRUE;
+    animation.fps = 18;
+
+    return animation;
+};
+AnimationDefinition prepare_monster_3_animation() {
+    char monster_plist_path[282];
+    snprintf(monster_plist_path, sizeof(monster_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "monster3.plist");
+    parsePlist(monster_plist_path, &monster_3_library);
+    
+    int part_index = 0;
+    
+    AnimationDefinition animation = { 0 };
+    animation.anim = getAnimation(&monster_3_library, "GJBeast03_idle01");
+
+    AnimationPart part1;
+    part1.texture = load_png(GJBeast03_01_glow_001_png);
+    part1.color_channel_type = COLOR_GLOW;
+    part1.default_col_channel = LBG_NO_LERP;
+    part1.part_id = 0;
+    animation.parts[part_index++] = part1;
+    
+    AnimationPart part2;
+    part2.texture = load_png(GJBeast03_01_001_png);
+    part2.color_channel_type = COLOR_MAIN;
+    part2.default_col_channel = BLACK;
+    part2.part_id = 0;
+    animation.parts[part_index++] = part2;
+
+    AnimationPart part3;
+    part3.texture = load_png(GJBeast03_02_001_png);
+    part3.color_channel_type = COLOR_DETAIL;
+    part3.default_col_channel = WHITE;
+    part3.part_id = 1;
+    animation.parts[part_index++] = part3;
+
+    animation.part_count = part_index;
+    animation.has_main = TRUE;
+    animation.has_detail = TRUE;
+    animation.fps = 18;
 
     return animation;
 };
