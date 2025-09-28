@@ -1080,6 +1080,8 @@ void load_layer_texture(const u8 *texture, int object, int layer) {
 }
 
 void load_obj_textures(int object) {
+    if (is_object_unimplemented(object)) return;
+    
     // Skip unused layers
     for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
         const unsigned char *texture = objects[object].layers[layer].texture;
