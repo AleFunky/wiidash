@@ -295,8 +295,8 @@ struct LoadedLevelInfo {
     bool level_is_custom;
 };
 
-#define BG_COUNT 7
-#define G_COUNT 7
+#define BG_COUNT 13
+#define G_COUNT 11
 
 #define SECTION_HASH_SIZE 600
 

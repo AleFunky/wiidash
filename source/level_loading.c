@@ -28,6 +28,12 @@
 #include "bg_05_png.h"
 #include "bg_06_png.h"
 #include "bg_07_png.h"
+#include "bg_08_png.h"
+#include "bg_09_png.h"
+#include "bg_10_png.h"
+#include "bg_11_png.h"
+#include "bg_12_png.h"
+#include "bg_13_png.h"
 
 #include "g_01_png.h"
 #include "g_02_png.h"
@@ -36,6 +42,14 @@
 #include "g_05_png.h"
 #include "g_06_png.h"
 #include "g_07_png.h"
+#include "g_08_01_png.h"
+#include "g_08_02_png.h"
+#include "g_09_01_png.h"
+#include "g_09_02_png.h"
+#include "g_10_01_png.h"
+#include "g_10_02_png.h"
+#include "g_11_01_png.h"
+#include "g_11_02_png.h"
 #include "game.h"
 
 #include <malloc.h>
@@ -48,6 +62,12 @@ const unsigned char *backgrounds[] = {
     bg_05_png,
     bg_06_png,
     bg_07_png,
+    bg_08_png,
+    bg_09_png,
+    bg_10_png,
+    bg_11_png,
+    bg_12_png,
+    bg_13_png,
 };
 
 const unsigned char *grounds[] = {
@@ -58,6 +78,23 @@ const unsigned char *grounds[] = {
     g_05_png,
     g_06_png,
     g_07_png,
+    g_08_01_png,
+    g_09_01_png,
+    g_10_01_png,
+    g_11_01_png,
+};
+const unsigned char *grounds_l2[] = {
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    g_08_02_png,
+    g_09_02_png,
+    g_10_02_png,
+    g_11_02_png,
 };
 
 struct LoadedLevelInfo level_info;
@@ -1977,6 +2014,11 @@ int load_level(char *data, bool is_custom) {
     // Load level's bg and ground texture
     bg = GRRLIB_LoadTexturePNG(backgrounds[level_info.background_id]);
     ground = GRRLIB_LoadTexturePNG(grounds[level_info.ground_id]);
+    if (grounds_l2[level_info.ground_id]) {
+        ground_l2 = GRRLIB_LoadTexturePNG(grounds_l2[level_info.ground_id]);
+    } else {
+        ground_l2 = NULL;
+    }
     level_font = GRRLIB_LoadTexturePNG(font_text[level_info.font_used]);
 
     if (padding) free(padding);
@@ -2032,6 +2074,7 @@ void unload_level() {
 
     GRRLIB_FreeTexture(bg);
     GRRLIB_FreeTexture(ground);
+    if (ground_l2) GRRLIB_FreeTexture(ground_l2);
     GRRLIB_FreeTexture(level_font);
     channelCount = 0;
     memset(&state.particles, 0, sizeof(state.particles));

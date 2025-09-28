@@ -24605,17 +24605,17 @@ const ObjectDefinition objects[OBJECT_COUNT] = {
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = 1,
-                .color_type = COLOR_DETAIL,
+                .col_channel = OBJ,
                 .zlayer_offset = 0,
-                .texture = block006_color_02_001_png
+                .texture = block006_25_001_png
             },
             {
                 .x_offset = 0,
                 .y_offset = 0,
-                .col_channel = OBJ,
+                .col_channel = 1,
+                .color_type = COLOR_DETAIL,
                 .zlayer_offset = 0,
-                .texture = block006_25_001_png
+                .texture = block006_color_02_001_png
             }
         },
         .hitbox = no_hitbox,

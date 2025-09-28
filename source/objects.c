@@ -1012,6 +1012,7 @@ void do_ball_reflection() {
 // Prepare Graphics
 GRRLIB_texImg *bg;
 GRRLIB_texImg *ground;
+GRRLIB_texImg *ground_l2;
 GRRLIB_texImg *ground_line;
 GRRLIB_texImg *level_complete_texture;
 GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS]; 
@@ -2069,6 +2070,15 @@ void draw_ground(f32 y, bool is_ceiling) {
             0, 1.375, 1.375 * mult,
             RGBA(channels[GROUND].color.r, channels[GROUND].color.g, channels[GROUND].color.b, 255) 
         );
+        if (ground_l2) {
+            GRRLIB_DrawImg(
+                calc_x + i + 6, 
+                calc_y + 6,    
+                ground_l2,
+                0, 1.375, 1.375 * mult,
+                RGBA(channels[G2].color.r, channels[G2].color.g, channels[G2].color.b, 255) 
+            );
+        }
     }
 
     // Then draw the line
