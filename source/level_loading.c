@@ -977,7 +977,7 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
     object->opacity = 1.f;
 
     if (is_object_unimplemented(*soa_id(object))) {
-        *soa_id(object) = 42;
+        output_log("Found unimplemented object with id %d\n", *soa_id(object));
     }
 
     // Get a random value for this object
