@@ -1081,7 +1081,7 @@ void load_layer_texture(const u8 *texture, int object, int layer) {
 
 void load_obj_textures(int object) {
     if (is_object_unimplemented(object)) return;
-    
+
     // Skip unused layers
     for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
         const unsigned char *texture = objects[object].layers[layer].texture;
@@ -2190,7 +2190,7 @@ void play_object_animation(GameObject *obj) {
 
 static inline uint32_t make_sort_key(int zlayer, int sheet, int zorder, int index) {
     // Normalize ranges
-    uint32_t zl  = (uint32_t)(zlayer + 2);              // -2..9 -> 0..11
+    uint32_t zl  = (uint32_t)(zlayer + 4);              // -4..11 -> 0..5
     uint32_t sh  = (uint32_t)(0x7 - sheet);             // invert for descending
     uint32_t zo  = (uint32_t)(zorder + 100);            // -100..100 -> 0..200
     uint32_t idx = (uint32_t)(index & 0x1FFFF);         // fit into 17 bits

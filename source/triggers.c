@@ -566,22 +566,20 @@ void handle_move_triggers() {
         if (!group->objects) {
             cache_move_group(buffer->target_group);
         }
-
-        for (int i = 0; i < group->count; i++) {
-            GameObject *obj = group->objects[i];
-            *soa_delta_x(obj) = 0;
-            *soa_delta_y(obj) = 0;
-        }
     }
 
     // Process active move triggers
     for (int slot = 0; slot < MAX_MOVING_CHANNELS; slot++) {
         struct MoveTriggerBuffer* buffer = &move_trigger_buffer[slot];
+        
         if (!buffer->active) continue;
 
         MovingGroup* group = &move_groups[buffer->target_group];
-        if (!group->objects) continue;
-
+        if (!group->objects) {
+            buffer->active = FALSE;
+            continue;
+        }
+        
         // Calculate movement deltas once
         float delta_x, delta_y;
         float easing = easeTime(convert_ease(buffer->easing), 
@@ -688,7 +686,7 @@ void upload_to_move_buffer(GameObject *obj) {
 
 void cleanup_move_triggers() {
     for (int i = 0; i < MAX_GROUPS; i++) {
-        free(move_groups[i].objects);
+        if (move_groups[i].objects) free(move_groups[i].objects);
         move_groups[i].objects = NULL;
         move_groups[i].count = 0;
         move_groups[i].capacity = 0;

@@ -1577,12 +1577,14 @@ enum Objects {
 };
 
 enum ZLayers {
+    LAYER_B4 = -3,
     LAYER_B3 = -1,
     LAYER_B2 = 1,
     LAYER_B1 = 3,
     LAYER_T1 = 5,
     LAYER_T2 = 7,
     LAYER_T3 = 9,
+    LAYER_T4 = 11,
     LAYER_MAX
 };
 
