@@ -540,6 +540,9 @@ void process_dirty_objects() {
         float new_y = *soa_y(obj) + *soa_delta_y(obj);
         
         update_object_section(obj, new_x, new_y);
+
+        *soa_delta_x(obj) = 0;
+        *soa_delta_y(obj) = 0;
     }
 
     dirty_count = 0; // reset list
@@ -653,15 +656,6 @@ void handle_move_triggers() {
                         player->vel_y = grav_delta_y;
                     }
                 }
-                obj->dirty = false;
-        
-                float new_x = *soa_x(obj) + *soa_delta_x(obj);
-                float new_y = *soa_y(obj) + *soa_delta_y(obj);
-                
-                update_object_section(obj, new_x, new_y);
-
-                *soa_delta_x(obj) = 0;
-                *soa_delta_y(obj) = 0;
             }
         }
     }
