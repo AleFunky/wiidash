@@ -209,12 +209,14 @@ typedef struct GameObject {
     GDLayerSortable *layers[MAX_OBJECT_LAYERS];
 } GameObject;
 
+#define MAX_OBJECT_PROPERTIES 30
+
 typedef struct {
-    GDValue values[15];
-    unsigned char keys[15];
-    unsigned char types[15];
+    GDValue values[MAX_OBJECT_PROPERTIES];
+    unsigned char keys[MAX_OBJECT_PROPERTIES];
+    unsigned char types[MAX_OBJECT_PROPERTIES];
     unsigned char propCount;
-} __attribute__((__packed__)) GDObject;
+} GDObject;
 
 typedef struct {
     int count;

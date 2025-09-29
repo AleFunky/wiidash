@@ -747,23 +747,35 @@ int obtain_free_alpha_slot() {
 
 void upload_to_alpha_buffer(GameObject *obj) {
     Node *p = get_group(obj->trigger.alpha_trigger.target_group);
+    
+    if (!p) return;
+
     if (obj->trigger.trig_duration == 0) {
-        if (p) p->opacity = obj->trigger.alpha_trigger.opacity;
+        p->opacity = obj->trigger.alpha_trigger.opacity;
         return;
     }
-    
+
     int slot = obtain_free_alpha_slot();
+    int target_group = obj->trigger.alpha_trigger.target_group;
+    
+    // Replace old triggers of the same group
+    for (int i = 0; i < MAX_ALPHA_CHANNELS; i++) {
+        if (target_group == alpha_trigger_buffer[i].target_group) {
+            slot = i;
+            break;
+        }
+    }
 
     if (slot >= 0) {
         struct AlphaTriggerBuffer *buffer = &alpha_trigger_buffer[slot];
-
+        
         buffer->new_alpha = obj->trigger.alpha_trigger.opacity;
-        buffer->target_group = obj->trigger.alpha_trigger.target_group;
+        buffer->target_group = target_group;
 
         buffer->time_run = 0;
         buffer->seconds = obj->trigger.trig_duration;
 
-        if (p) buffer->old_alpha = p->opacity;
+        buffer->old_alpha = p->opacity;
         
         buffer->active = TRUE;
     }

@@ -712,8 +712,8 @@ int parse_gd_object(const char *objStr, GDObject *obj) {
 
     obj->propCount = 0;
 
-    // Iterate through all keys, up to 15
-    for (int i = 0; i + 1 < count && obj->propCount < 15; i += 2) {
+    // Iterate through all keys, up to MAX_OBJECT_PROPERTIES
+    for (int i = 0; i + 1 < count && obj->propCount < MAX_OBJECT_PROPERTIES; i += 2) {
         int key = atoi(tokens[i]);
         const char *valStr = tokens[i + 1];
         GDValueType type = get_value_type_for_key(key);
