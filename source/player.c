@@ -616,10 +616,10 @@ void ufo_gamemode(Player *player) {
         player->buffering_state = BUFFER_END;
         player->ufo_last_y = player->y;
     } else {
-        if (player->vel_y > 103.485492) {
-            player->gravity = player->mini ? -1969.92 : -1671.84;
+        if (player->vel_y > 0) {
+            player->gravity = player->mini ? -1969.92 : -1676.84;
         } else {
-            player->gravity = player->mini ? -1308.96 : -1114.56;
+            player->gravity = player->mini ? -1308.96 : -1117.56;
         }
     }
 
