@@ -354,7 +354,7 @@ struct ObjectPos {
 
 
 extern GDGameObjectList *objectsArrayList;
-extern struct ObjectPos *origPositionsList;
+extern struct ObjectPos origPositionsList[MAX_SOA_OBJECTS];
 extern GDObjectLayerList *layersArrayList;
 
 extern GDLayerSortable gfx_player_layer;

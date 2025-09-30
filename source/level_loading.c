@@ -1340,8 +1340,6 @@ GDGameObjectList *parse_string(const char *levelString) {
     gameObjectList->count = objectCount;
     gameObjectList->objects = objectArray;
 
-    origPositionsList = malloc(sizeof(struct ObjectPos) * objectCount);
-
     for (int i = 0; i < objectCount; i++) {
         origPositionsList[i].x = *soa_x(gameObjectList->objects[i]);
         origPositionsList[i].y = *soa_y(gameObjectList->objects[i]);
@@ -1751,7 +1749,7 @@ int parse_old_channels(char *level_string, GDColorChannel **outArray) {
 }
 
 GDGameObjectList *objectsArrayList = NULL;
-struct ObjectPos *origPositionsList = NULL;
+struct ObjectPos origPositionsList[MAX_SOA_OBJECTS];
 
 GDObjectLayerList *layersArrayList = NULL;
 GameObjectSoA gameObjectSoA = { 0 };
@@ -1811,14 +1809,6 @@ GameObject* add_object(int object_id, float x, float y, float rotation) {
     assign_object_to_section(obj);
 
     load_obj_textures(*soa_id(obj));
-
-    // Update original positions list
-    origPositionsList = realloc(origPositionsList, 
-                               sizeof(struct ObjectPos) * objectsArrayList->count);
-    if (!origPositionsList) {
-        output_log("Couldn't reallocate original position list\n");
-        return NULL;
-    }
     origPositionsList[objectsArrayList->count - 1].x = x;
     origPositionsList[objectsArrayList->count - 1].y = y;
     return obj;
@@ -2066,12 +2056,6 @@ void unload_level() {
         free(colorChannels);
         colorChannels = NULL;
     }
-    
-    if (origPositionsList) {
-        free(origPositionsList);
-        origPositionsList = NULL;
-    }
-
 
     clear_groups();
 
@@ -2197,6 +2181,7 @@ void reload_level() {
     memset(move_trigger_buffer, 0, sizeof(move_trigger_buffer));
     memset(alpha_trigger_buffer, 0, sizeof(alpha_trigger_buffer));
     memset(pulse_trigger_buffer, 0, sizeof(pulse_trigger_buffer));
+    memset(spawn_trigger_buffer, 0, sizeof(spawn_trigger_buffer));
     memset(&state.particles, 0, sizeof(state.particles));
     for (int i = 0; i < objectsArrayList->count; i++) {
         GameObject *obj = objectsArrayList->objects[i];
@@ -2209,8 +2194,11 @@ void reload_level() {
         *soa_delta_x(obj) = 0;
         *soa_delta_y(obj) = 0;
         obj->opacity = 1.f;
-        obj->object.main_being_pulsed = FALSE;
-        obj->object.detail_being_pulsed = FALSE;
+        if (*soa_type(obj) == TYPE_NORMAL_OBJECT) {
+            obj->object.main_being_pulsed = FALSE;
+            obj->object.detail_being_pulsed = FALSE;
+        }
+        obj->dirty = FALSE;
         update_object_section(obj, origPositionsList[i].x, origPositionsList[i].y);
     }
     reset_color_channels();
