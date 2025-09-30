@@ -92,6 +92,7 @@ typedef struct {
     float trig_duration; // key 10
     u8 touch_triggered;  // key 11
     u8 spawn_triggered;  // key 62
+    u8 multi_triggered;  // key 87
     
     union {
         ColTrigger col_trigger;
@@ -106,40 +107,42 @@ typedef struct {
 typedef struct GameObject GameObject;
 
 typedef struct {
-    int u1p9_col_channel; // key 19
-    int main_col_channel;   // key 21
-    int detail_col_channel; // key 22
+    unsigned char u1p9_col_channel; // key 19
+    unsigned short main_col_channel;   // key 21
+    unsigned short detail_col_channel; // key 22
 
-    int zsheetlayer;     // no key has this, but used internally
-    int zlayer;          // key 24
-    int zorder;          // key 25
+    unsigned char zsheetlayer;     // no key has this, but used internally
+    char zlayer;         // key 24
+    short zorder;        // key 25
 
-    bool dont_fade;      // key 64
-    bool dont_enter;     // key 67
+    bool dont_fade:1;      // key 64
+    bool dont_enter:1;     // key 67
 
-    bool main_col_HSV_enabled;
-    bool detail_col_HSV_enabled;
+    bool main_col_HSV_enabled:1;
+    bool detail_col_HSV_enabled:1;
+    
+    bool main_being_pulsed:1;
+    bool detail_being_pulsed:1;
+
     HSV main_col_HSV;
     HSV detail_col_HSV;
 
     Color main_color;
     Color detail_color;
 
-    bool main_being_pulsed;
+    unsigned char num_pulses;
+
+    unsigned char touching_side;
+    // Slope
+    unsigned char orientation;
+
     Color main_col_pulse;
-    bool detail_being_pulsed;
     Color detail_col_pulse;
 
     float orange_tp_portal_y_offset; // key 54
     GameObject *child_object;
 
     float animation_timer;
-
-    unsigned char touching_side;
-    // Slope
-    unsigned char orientation;
-
-    unsigned char num_pulses;
 
     char *text; // key 31
     
@@ -170,9 +173,6 @@ typedef struct GameObjectSoA {
 
 typedef struct GameObject {
     int soa_index;
-
-    bool flippedH;       // key 4
-    bool flippedV;       // key 5
     float rotation;      // key 6
     short groups[MAX_GROUPS_PER_OBJECT]; // key 57
 
@@ -180,9 +180,6 @@ typedef struct GameObject {
     float scale_y;         // key 32 and 129
     
     float opacity;
-
-    bool has_two_channels;
-    bool both_channels_blending;
     
     union {
         NormalObject object;
@@ -190,24 +187,35 @@ typedef struct GameObject {
     };
 
     int random;                     // random number assigned to this object
-    bool activated[2];              // if it has been activated
-    unsigned int hitbox_counter[2]; // number of times the player has entered the hitbox
-    bool collided[2];               // if the object just started being touched
     float ampl_scaling;             // the amplitude scaling for pulsing objects
-    u8 transition_applied;          // the transition applied to the object
-    bool toggled;                   // toggle trigger status
-    bool hide_sprite;
     float width;
     float height;
 
-    Section *cur_section;
     int section_index;   // index in section->objects[]
+    Section *cur_section;
 
-    bool dirty;
-
-    int layer_count;
     GDLayerSortable *layers[MAX_OBJECT_LAYERS];
+
+    bool dirty:1;
+    bool has_two_channels:1;
+    bool both_channels_blending:1;
+    bool toggled:1;                 // toggle trigger status
+    bool hide_sprite:1;
+    bool flippedH:1;                // key 4
+    bool flippedV:1;                // key 5
+
+    u8 transition_applied;          // the transition applied to the object
+    u8 layer_count;
+    
+    u8 hitbox_counter[2];           // number of times the player has entered the hitbox
+    bool activated[2];              // if it has been activated
+    bool collided[2];               // if the object just started being touched
+
 } GameObject;
+
+#define gameobjectsize sizeof(GameObject)
+#define normalobjectsize sizeof(NormalObject)
+#define triggersize sizeof(Trigger)
 
 #define MAX_OBJECT_PROPERTIES 30
 

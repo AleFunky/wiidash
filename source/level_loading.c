@@ -694,6 +694,7 @@ GDValueType get_value_type_for_key(int key) {
         case 65: return GD_VAL_BOOL;   // (Pulse trigger) Main only
         case 66: return GD_VAL_BOOL;   // (Pulse trigger) Detail only
         case 67: return GD_VAL_BOOL;   // Don't enter
+        case 87: return GD_VAL_BOOL;   // (Triggers) Multi triggered
         case 128: return GD_VAL_FLOAT; // Scale x
         case 129: return GD_VAL_FLOAT; // Scale y
         default:
@@ -1074,6 +1075,8 @@ GameObject *convert_to_game_object(const GDObject *obj, int i) {
                 if (type == GD_VAL_BOOL) object->trigger.touch_triggered = val.b;
             } else if (key == 62) { // Spawn triggered
                 if (type == GD_VAL_BOOL) object->trigger.spawn_triggered = val.b;
+            } else if (key == 87) { // Multi triggered
+                if (type == GD_VAL_BOOL) object->trigger.multi_triggered = val.b;
             }
             switch (*soa_type(object)) {
                 case TYPE_COL_TRIGGER:

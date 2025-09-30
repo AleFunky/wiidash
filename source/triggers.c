@@ -729,8 +729,14 @@ void handle_spawn_triggers() {
                 // Set new alpha on all objects
                 for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                     GameObject *obj = p->obj;
-                    if (*soa_type(obj) != TYPE_NORMAL_OBJECT) {
-                        run_trigger(obj);
+                    // For it to be spawned, the following must be met:
+                    // - Spawn trigger checkbox is tick
+                    // - Object is a trigger
+                    // - Either the object is multi trigger or not activated
+                    // - The object is not toggled off
+                    if (obj->trigger.spawn_triggered && *soa_type(obj) != TYPE_NORMAL_OBJECT && (obj->trigger.multi_triggered || !obj->activated[0]) && !obj->toggled) {
+                        printf("Spawned trigger %d group %d\n", obj->soa_index, buffer->target_group);
+                        run_trigger(obj);   
                     }
                 }
             }
