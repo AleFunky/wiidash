@@ -85,6 +85,8 @@ int create_button(int x, int y, int width, int height, bool show, GRRLIB_texImg 
     return 0;
 }
 
+void create_main_menu_buttons();
+
 bool exit_menu = false;
 int error_code = 0;
 
@@ -360,9 +362,7 @@ int menu_loop() {
     difficulty_faces[5] = GRRLIB_LoadTexturePNG(demon_png);
     difficulty_faces[6] = GRRLIB_LoadTexturePNG(auto_png);
 
-    create_button((screenWidth) / 2 - 200, 100, 400, 160,false,menu_arrow,start_level,false,false); //main play button
-    create_button(5,200,56,120,true,menu_arrow,menu_go_left,false,false); //left arrow
-    create_button((screenWidth) - 61,200,56,120,true,menu_arrow,menu_go_right,true,false); //right arrow
+    create_main_menu_buttons();
 
     draw_menu();
     fade_in();
@@ -387,6 +387,7 @@ int menu_loop() {
             fade_out();
             level_id = 0;
             level_mode ^= 1;
+            create_main_menu_buttons();
 
             if (level_mode == 1) {
                 // Read first gmd
@@ -660,3 +661,9 @@ int main_levels() {
     return 0;
 }
 
+void create_main_menu_buttons() {
+    button_count = 0;
+    create_button((screenWidth) / 2 - 200, 100, 400, 160,false,menu_arrow,start_level,false,false); //main play button
+    create_button(5,200,56,120,true,menu_arrow,menu_go_left,false,false); //left arrow
+    create_button((screenWidth) - 61,200,56,120,true,menu_arrow,menu_go_right,true,false); //right arrow
+}
