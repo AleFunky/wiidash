@@ -1,9 +1,22 @@
 #pragma once
 
+#include "math.h"
+
+#define MAX_GROUPS_PER_OBJECT 20
+
+#define MAX_OBJECT_LAYERS 4
+
+typedef struct Section Section;
+typedef struct GFXSection GFXSection;
+typedef struct GDLayerSortable GDLayerSortable;
+
 typedef enum {
     GD_VAL_INT,
     GD_VAL_FLOAT,
     GD_VAL_BOOL,
+    GD_VAL_HSV,
+    GD_VAL_INT_ARRAY,
+    GD_VAL_STRING,
     GD_VAL_UNKNOWN
 } GDValueType;
 
@@ -11,58 +24,162 @@ typedef union {
     int i;
     float f;
     bool b;
+    short int_array[MAX_GROUPS_PER_OBJECT]; // For groups
+    char *str;
+    HSV hsv;
 } GDValue;
 
 typedef struct {
     u8 trig_colorR;      // key 7
     u8 trig_colorG;      // key 8
     u8 trig_colorB;      // key 9
+    float opacity;       // key 35
+
     u8 tintGround:1;     // key 14
     u8 p1_color:1;       // key 15
     u8 p2_color:1;       // key 16
     u8 blending:1;       // key 17
     
-    float trig_duration; // key 10
-    
     int target_color_id; // key 23
+    HSV copied_hsv;      // key 49
     int copied_color_id; // key 50
 } ColTrigger;
 
 typedef struct {
-    u8 touchTriggered; // key 11
+    Color color;           // keys 7, 8 and 9
+
+    int target_color_id;   // key 23
+
+    float fade_in;         // key 45
+    float hold;            // key 46
+    float fade_out;        // key 47
+    int pulse_mode;        // key 48
+    
+    HSV copied_hsv;        // key 49
+    int copied_color_id;   // key 50
+    int target_group;      // key 51
+    int pulse_target_type; // key 52
+
+    bool main_only;        // key 65
+    bool detail_only;      // key 66
+} PulseTrigger;
+
+typedef struct {
+    float opacity;       // key 35
+    int target_group;    // key 51
+} AlphaTrigger;
+
+typedef struct {
+    int target_group;       // key 51
+    bool activate_group;    // key 56
+} ToggleTrigger;
+
+typedef struct {
+    int target_group;     // key 51
+    float spawn_delay;    // key 63
+} SpawnTrigger;
+
+typedef struct {
+    int offsetX;           // key 28
+    int offsetY;           // key 29
+    int easing;            // key 30
+    int target_group;      // key 51
+    u8 lock_to_player_x:1; // key 58
+    u8 lock_to_player_y:1; // key 59
+} MoveTrigger;
+
+typedef struct {
+    float trig_duration; // key 10
+    u8 touch_triggered;  // key 11
+    u8 spawn_triggered;  // key 62
+    u8 multi_triggered;  // key 87
+    
     union {
         ColTrigger col_trigger;
+        MoveTrigger move_trigger;
+        PulseTrigger pulse_trigger;
+        AlphaTrigger alpha_trigger;
+        ToggleTrigger toggle_trigger;
+        SpawnTrigger spawn_trigger;
     };
 } Trigger;
 
+typedef struct GameObject GameObject;
+
 typedef struct {
-    int u1p9_col_channel; // key 19
-    int main_col_channel;   // key 21
-    int detail_col_channel; // key 22
+    unsigned char u1p9_col_channel; // key 19
+    unsigned short main_col_channel;   // key 21
+    unsigned short detail_col_channel; // key 22
 
-    int zsheetlayer;     // no key has this, but used internally
-    int zlayer;          // key 24
-    int zorder;          // key 25
+    unsigned char zsheetlayer;     // no key has this, but used internally
+    char zlayer;         // key 24
+    short zorder;        // key 25
 
+    bool dont_fade:1;      // key 64
+    bool dont_enter:1;     // key 67
+
+    bool main_col_HSV_enabled:1;
+    bool detail_col_HSV_enabled:1;
+    
+    bool main_being_pulsed:1;
+    bool detail_being_pulsed:1;
+
+    HSV main_col_HSV;
+    HSV detail_col_HSV;
+
+    Color main_color;
+    Color detail_color;
+
+    unsigned char num_pulses;
+
+    unsigned char touching_side;
     // Slope
     unsigned char orientation;
+
+    Color main_col_pulse;
+    Color detail_col_pulse;
+
+    float orange_tp_portal_y_offset; // key 54
+    GameObject *child_object;
+
+    float animation_timer;
+
+    char *text; // key 31
+    
 } NormalObject;
 
 typedef enum {
-    NORMAL_OBJECT,
-    COL_TRIGGER
+    TYPE_NORMAL_OBJECT,
+    TYPE_COL_TRIGGER,
+    TYPE_MOVE_TRIGGER,
+    TYPE_PULSE_TRIGGER,
+    TYPE_ALPHA_TRIGGER,
+    TYPE_TOGGLE_TRIGGER,
+    TYPE_SPAWN_TRIGGER,
 } ObjectType;
 
-typedef struct {
-    int id;              // key 1
+#define MAX_SOA_OBJECTS 100000
 
-    ObjectType type;     // Defines the type
+typedef struct GameObjectSoA {
+    int id[MAX_SOA_OBJECTS];
+    float x[MAX_SOA_OBJECTS];
+    float y[MAX_SOA_OBJECTS];
+    float delta_x[MAX_SOA_OBJECTS];
+    float delta_y[MAX_SOA_OBJECTS];
+    int type[MAX_SOA_OBJECTS];
+    unsigned char touching_player[MAX_SOA_OBJECTS];
+    unsigned char prev_touching_player[MAX_SOA_OBJECTS];
+} GameObjectSoA;
 
-    float x;             // key 2
-    float y;             // key 3
-    bool flippedH;       // key 4
-    bool flippedV;       // key 5
+typedef struct GameObject {
+    int soa_index;
     float rotation;      // key 6
+    short groups[MAX_GROUPS_PER_OBJECT]; // key 57
+
+    float scale_x;         // key 32 and 128
+    float scale_y;         // key 32 and 129
+    
+    float opacity;
     
     union {
         NormalObject object;
@@ -70,28 +187,44 @@ typedef struct {
     };
 
     int random;                     // random number assigned to this object
-    bool activated[2];              // if it has been activated
-    unsigned int hitbox_counter[2]; // number of times the player has entered the hitbox
-    bool collided[2];               // if the object just started being touched
     float ampl_scaling;             // the amplitude scaling for pulsing objects
-    u8 transition_applied;          // the transition applied to the object
-    bool toggled;                   // if its enabled or disabled
     float width;
     float height;
+
+    int section_index;   // index in section->objects[]
+    Section *cur_section;
+
+    GDLayerSortable *layers[MAX_OBJECT_LAYERS];
+
+    bool dirty:1;
+    bool has_two_channels:1;
+    bool both_channels_blending:1;
+    bool toggled:1;                 // toggle trigger status
+    bool hide_sprite:1;
+    bool flippedH:1;                // key 4
+    bool flippedV:1;                // key 5
+
+    u8 transition_applied;          // the transition applied to the object
+    u8 layer_count;
+    
+    u8 hitbox_counter[2];           // number of times the player has entered the hitbox
+    bool activated[2];              // if it has been activated
+    bool collided[2];               // if the object just started being touched
+
 } GameObject;
-#pragma pack(push, 1)
-typedef struct {
-    GDValue values[15];
-    unsigned char keys[15];
-    unsigned char types[15];
-    unsigned char propCount;
-} GDObject;
-#pragma pack(pop)
+
+#define gameobjectsize sizeof(GameObject)
+#define normalobjectsize sizeof(NormalObject)
+#define triggersize sizeof(Trigger)
+
+#define MAX_OBJECT_PROPERTIES 30
 
 typedef struct {
-    GDObject *objects;
-    int objectCount;
-} GDObjectList;
+    GDValue values[MAX_OBJECT_PROPERTIES];
+    unsigned char keys[MAX_OBJECT_PROPERTIES];
+    unsigned char types[MAX_OBJECT_PROPERTIES];
+    unsigned char propCount;
+} GDObject;
 
 typedef struct {
     int count;
@@ -111,12 +244,14 @@ typedef struct {
     int layerNum;
 } GDObjectLayer;
 
-typedef struct {
+typedef struct GDLayerSortable {
     GDObjectLayer *layer;
-    int zlayer;          
-    int zorder;          
+    int zlayer;
     int originalIndex;
     int layerNum;
+
+    GFXSection *cur_section;
+    int section_index;
 } GDLayerSortable;
 
 typedef struct {
@@ -134,7 +269,7 @@ typedef struct {
     float fromOpacity;
     bool toggleOpacity;
     int inheritedChannelID;
-    int hsv; // convert to struct
+    HSV hsv;
     int toRed;
     int toGreen;
     int toBlue;
@@ -152,6 +287,8 @@ struct LoadedLevelInfo {
     int object_count;
     int layer_count;
 
+    int font_used;
+
     int pulsing_type;
     int song_id;
     int custom_song_id;
@@ -168,8 +305,8 @@ struct LoadedLevelInfo {
     bool level_is_custom;
 };
 
-#define BG_COUNT 7
-#define G_COUNT 7
+#define BG_COUNT 13
+#define G_COUNT 11
 
 #define SECTION_HASH_SIZE 600
 
@@ -194,24 +331,36 @@ typedef struct GFXSection {
     struct GFXSection *next; // For chaining in hash map
 } GFXSection;
 
+bool is_ascii(const unsigned char *data, int len);
+
 extern Section *section_hash[SECTION_HASH_SIZE];
 extern GFXSection *section_gfx_hash[SECTION_HASH_SIZE];
 unsigned int section_hash_func(int x, int y);
 Section *get_or_create_section(int x, int y);
 GFXSection *get_or_create_gfx_section(int x, int y);
 void free_sections(void);
+void free_gfx_sections(void);
+void update_object_section(GameObject *obj, float new_x, float new_y);
 
 char *get_level_name(char *data_ptr);
 char *get_author_name(char *data_ptr);
-int compare_sortable_layers(const void *a, const void *b);
 
 extern struct LoadedLevelInfo level_info;
 
+struct ObjectPos {
+    float x;
+    float y;
+};
+
+
 extern GDGameObjectList *objectsArrayList;
+extern struct ObjectPos origPositionsList[MAX_SOA_OBJECTS];
 extern GDObjectLayerList *layersArrayList;
 
 extern GDLayerSortable gfx_player_layer;
 extern GameObject *player_game_object;
+
+GameObject* add_object(int object_id, float x, float y, float rotation);
 
 void free_game_object_list(GDGameObjectList *list);
 void free_game_object_array(GameObject **array, int count);
@@ -232,3 +381,37 @@ char *load_user_song(int id, size_t *out_size);
 
 bool check_song(int id);
 void update_percentage();
+//#include <stdio.h>
+extern GameObjectSoA gameObjectSoA;
+inline int* soa_id(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
+    return &gameObjectSoA.id[obj->soa_index]; 
+}
+inline float* soa_x(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);    
+    return &gameObjectSoA.x[obj->soa_index]; 
+}
+inline float* soa_y(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index);  
+    return &gameObjectSoA.y[obj->soa_index]; 
+}
+inline float* soa_delta_x(GameObject *obj) {
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA.delta_x[obj->soa_index]; 
+}
+inline float* soa_delta_y(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA.delta_y[obj->soa_index]; 
+}
+inline int* soa_type(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA.type[obj->soa_index]; 
+}
+inline unsigned char* soa_touching_player(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA.touching_player[obj->soa_index]; 
+}
+inline unsigned char* soa_prev_touching_player(GameObject *obj) { 
+    //if (obj->soa_index < 0 || obj->soa_index >= level_info.object_count) printf("OOB %d\n", obj->soa_index); 
+    return &gameObjectSoA.prev_touching_player[obj->soa_index]; 
+}

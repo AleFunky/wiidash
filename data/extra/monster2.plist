@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dict>
+  <key>usedTextures</key>
+  <dict>
+    <key>texture_0</key>
+    <dict>
+      <key>texture</key>
+      <string>0</string>
+      <key>tag</key>
+      <string>0</string>
+    </dict>
+    <key>texture_1</key>
+    <dict>
+      <key>texture</key>
+      <string>GJBeast02_01_001.png</string>
+      <key>tag</key>
+      <string>1</string>
+    </dict>
+  </dict>
+  <key>animationContainer</key>
+  <dict>
+    <key>GJBeast02_idle01_001.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.5}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_002.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.2}</string>
+        <key>scale</key>
+        <string>{1.00504, 0.98494}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.7}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.97395}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_003.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.65}</string>
+        <key>scale</key>
+        <string>{1.01711, 0.94888}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.2}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.91161}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_004.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -1.075}</string>
+        <key>scale</key>
+        <string>{1.02873, 0.91414}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.675}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.85153}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_005.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -1.25}</string>
+        <key>scale</key>
+        <string>{1.03333, 0.90041}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.875}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.82779}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_006.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.875}</string>
+        <key>scale</key>
+        <string>{1.02478, 0.92915}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.625}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.91525}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_007.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.525}</string>
+        <key>scale</key>
+        <string>{1.01666, 0.95642}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.225}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_008.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.4}</string>
+        <key>scale</key>
+        <string>{1.01102, 0.96765}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.025}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle01_009.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.125}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.98962}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.65}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_001.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.5}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_002.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.2}</string>
+        <key>scale</key>
+        <string>{1.00505, 0.98494}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.7}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_003.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.65}</string>
+        <key>scale</key>
+        <string>{1.01712, 0.94888}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.2}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_004.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -1.075}</string>
+        <key>scale</key>
+        <string>{1.02875, 0.91414}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_04_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.675}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_005.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -1.25}</string>
+        <key>scale</key>
+        <string>{1.03334, 0.90041}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_006.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.875}</string>
+        <key>scale</key>
+        <string>{1.02478, 0.92915}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_007.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.525}</string>
+        <key>scale</key>
+        <string>{1.01666, 0.95642}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_05_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.225}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_008.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.4}</string>
+        <key>scale</key>
+        <string>{1.01102, 0.96765}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_03_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -3.025}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+    <key>GJBeast02_idle02_009.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_01_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, -0.125}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.98962}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>GJBeast02_02_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>1</string>
+        <key>position</key>
+        <string>{0, -2.65}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+    </dict>
+  </dict>
+</dict>

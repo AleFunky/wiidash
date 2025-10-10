@@ -17,6 +17,7 @@
 #include <ogc/lwp_watchdog.h>
 #include <unistd.h>
 #include <math.h>
+#include "triggers.h"
 
 int paused_loop();
 int handle_wall_cutscene();
@@ -49,6 +50,8 @@ static InputBuffer input_buffer;
 
 static volatile u32 frames_processed = 0;
 
+int frame_skipped = 0;
+
 // Initialize the input buffer in game_loop before creating thread:
 void init_input_buffer() {
     LWP_MutexInit(&input_buffer.mutex, false);
@@ -58,7 +61,7 @@ void init_input_buffer() {
 }
 
 void *input_loop(void *arg) {
-    printf("Starting input thread\n");
+    output_log("Starting input thread\n");
     input_thread_active = TRUE;
     exit_level_flag = FALSE;
     while (1) {
@@ -80,7 +83,7 @@ void *input_loop(void *arg) {
 
         KeyInput input = input_buffer.inputs[input_buffer.write_index];
 
-        //if (input.pressedJump) printf("INPUT THREAD - Step n %d jump is %d\n", input_buffer.write_index, input.pressedJump);
+        //if (input.pressedJump) output_log("INPUT THREAD - Step n %d jump is %d\n", input_buffer.write_index, input.pressedJump);
         
         if (level_info.completing) {
             complete_level_flag = TRUE;
@@ -112,7 +115,7 @@ void *input_loop(void *arg) {
         if (calc_time > 0) usleep(calc_time);
     }
     input_thread_active = FALSE;
-    printf("Exiting input thread\n");
+    output_log("Exiting input thread\n");
     return NULL;
 }
 
@@ -154,6 +157,7 @@ int paused_loop() {
     return FALSE;
 }
 
+
 int game_loop() {
     size_t size;
     if (level_info.custom_song_id >= 0) {
@@ -176,7 +180,8 @@ int game_loop() {
     if (current_song_pointer) {
         MP3Player_PlayBuffer(current_song_pointer, size, NULL);
     }
-
+    
+    init_move_triggers();
     init_input_buffer();
     LWP_CreateThread(&input_thread, input_loop, NULL, NULL, 0, 100);
 
@@ -197,15 +202,16 @@ int game_loop() {
         accumulator += frameTime;
 
         u64 t0 = gettime();
-        while (accumulator >= STEPS_DT) {
+        while (accumulator >= STEPS_DT_UNMOD) {
             if (complete_level_flag || input_buffer.read_index != input_buffer.write_index) {
+                
                 if (!complete_level_flag) {
                     LWP_MutexLock(input_buffer.mutex);
                     state.input = input_buffer.inputs[input_buffer.read_index];
                     input_buffer.read_index = (input_buffer.read_index + 1) & INPUT_BUFFER_MASK;
                     LWP_MutexUnlock(input_buffer.mutex);
                 }
-    
+                u64 start_physics = gettime();
                 state.old_player = state.player;
                 if (level_info.custom_song_id >= 0) {
                     amplitude = CLAMP(MP3Player_GetAmplitude(), 0.1f, 1.f);
@@ -245,11 +251,6 @@ int game_loop() {
                 u64 t3 = gettime();
                 triggers_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
 
-                t2 = gettime();
-                update_particles();
-                t3 = gettime();
-                particles_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
-
                 update_beat();
                 
                 update_percentage();
@@ -257,9 +258,18 @@ int game_loop() {
 
                 frames_processed++;
 
-                if (state.dead) break;
+                u64 end_physics = gettime();
 
+                float physics_time = ticks_to_secs_float(end_physics - start_physics);
+
+                if (physics_time >= STEPS_DT_UNMOD) {
+                    frame_skipped = (int) (physics_time * STEPS_HZ);
+                }
+                else frame_skipped = 0;
+                
                 accumulator -= STEPS_DT;
+                
+                if (state.dead) break;
             } else {
                  // No input available, wait
                 usleep(100);
@@ -268,6 +278,12 @@ int game_loop() {
                 if (!input_thread_active) break;
             }
         }
+        
+        u64 t2 = gettime();
+        update_particles();
+        u64 t3 = gettime();
+        particles_time = ticks_to_microsecs(t3 - t2) / 1000.f;
+
         u64 t1 = gettime();
         physics_time = ticks_to_microsecs(t1 - t0) / 1000.f;
 
@@ -311,7 +327,11 @@ int game_loop() {
     LWP_JoinThread(input_thread, NULL);
 
     unload_level();
+    cleanup_move_triggers();
 
+#ifdef REPORT_LEAKS
+    report_leaks();
+#endif
     return FALSE;
 }
 

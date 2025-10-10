@@ -4,11 +4,12 @@
 #include <stdio.h>
 
 #include "filesystem.h"
+#include "game.h"
 
 char *read_file(const char *filepath, size_t *out_size) {
     FILE *f = fopen(filepath, "rb");
     if (!f) {
-        printf("Failed to open file: %s\n", filepath);
+        output_log("Failed to open file: %s\n", filepath);
         return NULL;
     }
     fseek(f, 0, SEEK_END);
@@ -17,7 +18,7 @@ char *read_file(const char *filepath, size_t *out_size) {
 
     char *buffer = malloc(size + 1);
     if (!buffer) {
-        printf("Failed to allocate buffer\n");
+        output_log("Failed to allocate file\n");
         fclose(f);
         return NULL;
     }

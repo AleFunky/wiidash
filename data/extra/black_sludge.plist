@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dict>
+  <key>usedTextures</key>
+  <dict>
+    <key>texture_0</key>
+    <dict>
+      <key>texture</key>
+      <string>dA_blackSludge_01_001.png</string>
+      <key>tag</key>
+      <string>0</string>
+    </dict>
+    <key>texture_1</key>
+    <dict>
+      <key>texture</key>
+      <string>dA_blackSludge_02_001.png</string>
+      <key>tag</key>
+      <string>1</string>
+    </dict>
+    <key>texture_2</key>
+    <dict>
+      <key>texture</key>
+      <string>dA_blackSludge_02_001.png</string>
+      <key>tag</key>
+      <string>2</string>
+    </dict>
+  </dict>
+  <key>animationContainer</key>
+  <dict>
+    <key>BlackSludge_loop_001.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 6.875}</string>
+        <key>scale</key>
+        <string>{1.01666, 1.32500}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 2.425}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.29688}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_002.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.275, 6.575}</string>
+        <key>scale</key>
+        <string>{1.01566, 1.26358}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 2.725}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.36583}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_003.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 5.85}</string>
+        <key>scale</key>
+        <string>{1.01279, 1.08922}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 3.525}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.55347}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_004.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.275, 4.75}</string>
+        <key>scale</key>
+        <string>{1.00867, 0.83882}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 4.55}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.79430}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_005.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 3.65}</string>
+        <key>scale</key>
+        <string>{1.00438, 0.57845}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 5.4}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.99127}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_006.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.275, 2.8}</string>
+        <key>scale</key>
+        <string>{1.00117, 0.38420}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 5.725}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.06612}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_007.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 2.5}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.31250}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 5.525}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.01764}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_008.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 2.875}</string>
+        <key>scale</key>
+        <string>{1.00145, 0.40048}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 4.925}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.88107}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_009.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 3.925}</string>
+        <key>scale</key>
+        <string>{1.00543, 0.64246}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 4.1}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.68756}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_010.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 5.275}</string>
+        <key>scale</key>
+        <string>{1.01064, 0.95869}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 3.25}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.48981}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+    <key>BlackSludge_loop_011.png</key>
+    <dict>
+      <key>sprite_0</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_01_001.png</string>
+        <key>tag</key>
+        <string>0</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{0, 0}</string>
+        <key>scale</key>
+        <string>{1.00000, 1.00000}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>0</string>
+      </dict>
+      <key>sprite_1</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>1</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{7.25, 6.4}</string>
+        <key>scale</key>
+        <string>{1.01498, 1.22290}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>1</string>
+      </dict>
+      <key>sprite_2</key>
+      <dict>
+        <key>texture</key>
+        <string>dA_blackSludge_02_001.png</string>
+        <key>tag</key>
+        <string>2</string>
+        <key>usesCustomTag</key>
+        <string>0</string>
+        <key>position</key>
+        <string>{-7.25, 2.625}</string>
+        <key>scale</key>
+        <string>{1.00000, 0.34483}</string>
+        <key>rotation</key>
+        <string>0</string>
+        <key>flipped</key>
+        <string>{0, 0}</string>
+        <key>zValue</key>
+        <string>2</string>
+      </dict>
+    </dict>
+  </dict>
+</dict>
+

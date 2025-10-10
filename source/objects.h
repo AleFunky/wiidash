@@ -4,8 +4,7 @@
 #include "player.h"
 #include "math.h"
 #include "level_loading.h"
-
-#define MAX_OBJECT_LAYERS 4
+#include "animation.h"
 
 #define BACKGROUND_SCALE 0.9
 #define BG_DIMENSIONS 4
@@ -935,16 +934,657 @@ enum Objects {
     COL4_TRIGGER,
     THREEDL_TRIGGER,
 
-    OBJECT_COUNT
+    ROBOT_PORTAL = 745,
+    BLUE_TP_PORTAL = 747,
+    ORANGE_TP_PORTAL = 749,
+
+    V2_0_TILESET_EDGE = 752,
+    V2_0_TILESET_CORNER,
+    V2_0_TILESET_INSIDE_CORNER,
+    V2_0_TILESET_FILLER,
+    V2_0_TILESET_PILLAR_END,
+    V2_0_TILESET_PILLAR,
+    V2_0_TILESET_DBL_INSIDE_CORNER,
+    V2_0_TILESET_FULL,
+
+    UNKNOWN_760,
+    UNKNOWN_761,
+
+    V2_0_TILESET_SLOPE_45,
+    V2_0_TILESET_SLOPE_22_66,
+    V2_0_TILESET_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_SLOPE_CONNECTOR_22_66_1,
+    V2_0_TILESET_SLOPE_CONNECTOR_22_66_2,
+
+    V2_0_TILESET_SLAB,
+    V2_0_TILESET_SLAB_EDGE,
+    V2_0_TILESET_SLAB_SLOPE_45,
+    V2_0_TILESET_SLAB_SLOPE_22_66,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_22_66_1,
+    V2_0_TILESET_SLAB_SLOPE_CONNECTOR_22_66_2,
+
+    V2_0_TILESET_2_EDGE = 807,
+    V2_0_TILESET_2_EDGE_ALT,
+    V2_0_TILESET_2_CORNER,
+    V2_0_TILESET_2_CORNER_ALT,
+    V2_0_TILESET_2_PILLAR,
+    V2_0_TILESET_2_PILLAR_ALT,
+    V2_0_TILESET_2_PILLAR_END,
+    V2_0_TILESET_2_PILLAR_END_ALT,
+    V2_0_TILESET_2_FULL,
+    V2_0_TILESET_2_FULL_ALT,
+
+    V2_0_TILESET_2_SLOPE_45,
+    V2_0_TILESET_2_SLOPE_45_ALT,
+    V2_0_TILESET_2_SLOPE_22_66,
+    V2_0_TILESET_2_SLOPE_22_66_ALT,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_45,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_45_ALT,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_22_66,
+    V2_0_TILESET_2_SLOPE_CONNECTOR_22_66_ALT,
+
+    BLOCK_7B_CORNER = 841,
+    BLOCK_7B_THREE,
+    BLOCK_7B_LINE,
+    BLOCK_7B_LINE_ALT,
+    BLOCK_7B_FOUR,
+    BLOCK_7B_PILLAR_END,
+    BLOCK_7B_FULL,
+    BLOCK_7B_FULL_ALT,
+
+    UNKNOWN_849,
+
+    BLOCK_8_FULL,
+
+    UNKNOWN_851,
+    UNKNOWN_852,
+    
+    BLOCK_8_LINE,
+    BLOCK_8_CORNER,
+    BLOCK_8_CORNER_2,
+    BLOCK_8_CORNER_3,
+    BLOCK_8_EDGE,
+
+    UNKNOWN_858,
+
+    BLOCK_8_EDGE_2,
+
+    UNKNOWN_860,
+
+    BLOCK_8_TRIPLE,
+    BLOCK_8_TRIPLE_2,
+    BLOCK_8_CUADRUPLE,
+
+    UNKNOWN_864,
+    UNKNOWN_865,
+    UNKNOWN_866,
+
+    BLOCK_9_1,
+    BLOCK_9_2,
+    BLOCK_9_3,
+    BLOCK_9_4,
+    BLOCK_9_5,
+    BLOCK_9_6,
+
+    BLOCK_9_PART_1,
+    BLOCK_9_PART_2,
+
+    UNKNOWN_875,
+    UNKNOWN_876,
+
+    BLOCK_9_SLOPE_45,
+    BLOCK_9_SLOPE_22_66,
+
+    UNKNOWN_879,
+
+    BLOCK_9B_1,
+    BLOCK_9B_2,
+    BLOCK_9B_3,
+    BLOCK_9B_4,
+    BLOCK_9B_5,
+    BLOCK_9B_6,
+    BLOCK_9B_SLOPE_45,
+    BLOCK_9B_SLOPE_22_66,
+    BLOCK_9B_SLOPE_45_NO_OUT,
+    BLOCK_9B_SLOPE_22_66_NO_OUT,
+
+    BLOCK_9C_1,
+    BLOCK_9C_2,
+
+    UNKNOWN_892, // block 9c 3 is skipped for some reason in the textures, maybe this was block 9c 3?
+    
+    BLOCK_9C_4,
+    BLOCK_9C_5,
+
+    BLOCK_9C_SLOPE_45,
+    BLOCK_9C_SLOPE_22_66,
+
+    COL_TRIGGER = 899,
+    G_2_TRIGGER,
+    MOVE_TRIGGER,
+
+    PERSP_08_10,
+    BLOCK_5_10,
+    BLOCK_5_11,
+    BLOCK_5_12,
+
+    D_GRASS_05,
+
+    GRASSART_01,
+    GRASSART_02,
+    GRASSART_03,
+    GRASSART_04,
+
+    BLOCK_5_13,
+
+    UNKNOWN_912,
+    UNKNOWN_913,
+
+    TEXT_OBJ,
+
+    V2_0_LINE_TRIGGER,
+
+    PIXEL_BLOCK_1,
+    PIXEL_BLOCK_2,
+
+    MONSTER_1,
+    BLACK_SLUDGE,
+
+    FIRE_1,
+    FIRE_2,
+
+    UNKNOWN_922,
+
+    FIRE_3,
+    FIRE_4,
+
+    RAINBOW_ARC_SMALL,
+    RAINBOW_ARC_BIG,
+
+    RAINBOW_BLOCK_1,
+    RAINBOW_BLOCK_2,
+    RAINBOW_BLOCK_3,
+    RAINBOW_BLOCK_4,
+    RAINBOW_BLOCK_5,
+    RAINBOW_BLOCK_6,
+    RAINBOW_BLOCK_7,
+    RAINBOW_BLOCK_8,
+    RAINBOW_BLOCK_9,
+
+    ART_CLOUD_1,
+    ART_CLOUD_2,
+    ART_CLOUD_3,
+
+    FLOWER,
+
+    DETAIL_GRASS_1,
+    DETAIL_GRASS_2,
+    DETAIL_GRASS_3,
+
+    PERSP_15_1,
+    PERSP_15_2,
+    PERSP_15_3,
+    PERSP_15_4,
+    PERSP_15_5,
+    PERSP_15_6,
+    PERSP_15_7,
+    PERSP_15_8,
+    PERSP_15_9,
+
+    BLOCK_5B_1,
+    BLOCK_5B_2,
+    BLOCK_5B_3,
+    BLOCK_5B_4,
+    BLOCK_5B_5,
+    BLOCK_5B_6,
+    BLOCK_5B_7,
+    BLOCK_5B_8,
+
+    BLOCK_5B_SLOPE_45,
+    BLOCK_5B_SLOPE_22_66,
+
+    UNKNOWN_962,
+    UNKNOWN_963,
+
+    BLOCK_5B_CONNECTOR_1,
+    BLOCK_5B_CONNECTOR_2,
+    BLOCK_5B_CONNECTOR_3,
+
+    BLOCK_5B_SLAB_1,
+    BLOCK_5B_SLAB_2,
+    
+    BLOCK_5B_SLAB_SLOPE_45,
+    BLOCK_5B_SLAB_SLOPE_22_66,
+    
+    BLOCK_5B_SLAB_CONNECTOR_1,
+    BLOCK_5B_SLAB_CONNECTOR_2,
+    BLOCK_5B_SLAB_CONNECTOR_3,
+    BLOCK_5B_10,
+    BLOCK_5B_11,
+    BLOCK_5B_12,
+    BLOCK_5B_13,
+
+    UNKNOWN_978,
+    UNKNOWN_979,
+
+    PERSP_17_1,
+    PERSP_17_2,
+    PERSP_17_3,
+    PERSP_17_4,
+    PERSP_17_5,
+    PERSP_17_6,
+    PERSP_17_7,
+    PERSP_17_8,
+    PERSP_17_9,
+
+    PIT_07_3,
+    PIT_07_3_SHINE,
+    
+    PIT_07_4,
+    PIT_07_4_SHINE,
+
+    UNKNOWN_993,
+    UNKNOWN_994,
+    UNKNOWN_995,
+    UNKNOWN_996,
+
+    RING_SEG_01,
+    RING_SEG_02,
+    RING_SEG_03,
+    RING_SEG_04,
+
+    DLINKD_01,
+    DLINKD_02,
+    DLINKD_03,
+    DLINKD_04,
+    DLINKD_05,
+
+    PULSE_TRIGGER = 1006,
+    ALPHA_TRIGGER = 1007,
+
+    GLOW_MINI_01,
+    GLOW_MINI_02,
+    GLOW_MINI_03,
+    
+    GLOW_BIG_01,
+    GLOW_BIG_02,
+    GLOW_BIG_03,
+
+    RAINBOW_SLOPE_45,
+    RAINBOW_SLOPE_22_66,
+    RAINBOW_CONNECTOR_1,
+    RAINBOW_CONNECTOR_2,
+    RAINBOW_CONNECTOR_3,
+
+    FLASH_RING_1,
+    FLASH_RING_2,
+    FLASH_RING_3,
+
+    GREEN_ORB = 1022,
+
+    UNKNOWN_1023,
+
+    PERSP_16_1,
+    PERSP_16_2,
+    PERSP_16_3,
+    PERSP_16_4,
+    PERSP_16_5,
+    PERSP_16_6,
+    PERSP_16_7,
+    PERSP_16_8,
+    PERSP_16_9,
+
+    BLOCK_05_SLOPE_45_ALT,
+    BLOCK_05_SLOPE_22_66_ALT,
+    BLOCK_05_SLOPE_CONNECTOR_1_ALT,
+    BLOCK_05_SLOPE_CONNECTOR_2_ALT,
+
+    BLOCK_05B_SLOPE_45_ALT,
+    BLOCK_05B_SLOPE_22_66_ALT,
+    BLOCK_05B_SLOPE_CONNECTOR_1_ALT,
+    BLOCK_05B_SLOPE_CONNECTOR_2_ALT,
+
+    BLOCK_05_SLOPE_45_ALT_2,
+    BLOCK_05_SLOPE_22_66_ALT_2,
+    BLOCK_05B_SLOPE_45_ALT_2,
+    BLOCK_05B_SLOPE_22_66_ALT_2,
+
+    BLOCK_05_16,
+    BLOCK_05_17,
+    BLOCK_05B_16,
+    BLOCK_05B_17,
+
+    TOGGLE_TRIGGER = 1049,
+
+    ANIMATED_WATER_1,
+    ANIMATED_WATER_2,
+    ANIMATED_WATER_3,
+    ANIMATED_LOADING_1,
+    ANIMATED_LOADING_2,
+
+    PICKUP_CIRCLE_1,
+    PICKUP_CIRCLE_2,
+    PICKUP_CIRCLE_3,
+
+    SPIRAL_1,
+    SPIRAL_2,
+    SPIRAL_3,
+    SPIRAL_4,
+
+    BLOCK_7B_7,
+
+    PERSP_18_1,
+    PERSP_18_2,
+    PERSP_18_3,
+    PERSP_18_4,
+    PERSP_18_5,
+    PERSP_18_6,
+    PERSP_18_7,
+    PERSP_18_8,
+    PERSP_18_9,
+
+    UNKNOWN_1072,
+    UNKNOWN_1073,
+    UNKNOWN_1074,
+
+    V1_9_TILESET_ALT,
+    V1_9_TILESET_ALT_2,
+    V1_9_TILESET_ALT_3,
+
+    BLOCK_07_MINIBLOCK,
+    BLOCK_07_PLANK,
+    BLOCK_07_PLANK_2,
+    BLOCK_07_PLANK_3,
+
+    BLOCK_07_EMPTY_1,
+    BLOCK_07_EMPTY_2,
+    BLOCK_07_EMPTY_3,
+    BLOCK_07_EMPTY_4,
+    BLOCK_07_EMPTY_5,
+    
+    BLOCK_07_FRAME_EMPTY_1,
+    BLOCK_07_FRAME_EMPTY_2,
+    BLOCK_07_FRAME_EMPTY_3,
+    BLOCK_07_FRAME_EMPTY_4,
+
+    BLOCK_07_EMPTY_SLOPE_45,
+    BLOCK_07_EMPTY_SLOPE_22_66,
+    BLOCK_07_EMPTY_CONNECTOR_1,
+    BLOCK_07_EMPTY_CONNECTOR_2,
+
+    BLOCK_07_EMPTY_MINIBLOCK,
+    BLOCK_07_EMPTY_PLANK,
+    BLOCK_07_EMPTY_PLANK_2,
+    BLOCK_07_EMPTY_PLANK_3,
+
+    BLOCK_07_BGCOLOR_1,
+    BLOCK_07_BGCOLOR_2,
+    BLOCK_07_BGCOLOR_3,
+    BLOCK_07_BGCOLOR_4,
+    BLOCK_07_BGCOLOR_5,
+    BLOCK_07_BGCOLOR_6,
+    BLOCK_07_BGCOLOR_7,
+    BLOCK_07_BGCOLOR_8,
+    BLOCK_07_BGCOLOR_9,
+    BLOCK_07_BGCOLOR_10,
+    BLOCK_07_BGCOLOR_11,
+    BLOCK_07_BGCOLOR_1_AGAIN,
+    BLOCK_07_BGCOLOR_12,
+
+    BLOCK_07B_BGCOLOR_1,
+    BLOCK_07B_BGCOLOR_2,
+    BLOCK_07B_BGCOLOR_3,
+    BLOCK_07B_BGCOLOR_5,
+    BLOCK_07B_BGCOLOR_6,
+    BLOCK_07B_BGCOLOR_7,
+    BLOCK_07B_BGCOLOR_8,
+
+    UNKNOWN_1119,
+
+    BLOCK_08_TOPCOLOR_1,
+
+    UNKNOWN_1121,
+
+    BLOCK_08_TOPCOLOR_29,
+    BLOCK_08_TOPCOLOR_14,
+    BLOCK_08_TOPCOLOR_16,
+    BLOCK_08_TOPCOLOR_18,
+    BLOCK_08_TOPCOLOR_24,
+    BLOCK_08_TOPCOLOR_24_02,
+
+    BLOCK_08_TOPCOLOR_22 = 1132,
+    BLOCK_08_TOPCOLOR_23,
+    BLOCK_08_TOPCOLOR_25,
+    BLOCK_08_TOPCOLOR_26,
+    BLOCK_08_TOPCOLOR_27,
+    BLOCK_08_TOPCOLOR_28,
+    BLOCK_08_TOPCOLOR_12,
+    BLOCK_08_TOPCOLOR_13,
+
+    BLOCK_G_03,
+    BLOCK_G_04,
+    BLOCK_G_05,
+    BLOCK_G_06,
+    BLOCK_G_07,
+    BLOCK_G_08,
+    BLOCK_G_09,
+    BLOCK_G_10,
+    BLOCK_G_11,
+    BLOCK_G_12,
+    BLOCK_G_13,
+    BLOCK_G_14,
+    BLOCK_G_15,
+    BLOCK_G_16,
+
+    SMALL_OUTLINE_1,
+    SMALL_OUTLINE_2,
+    SMALL_OUTLINE_3,
+    SMALL_OUTLINE_4,
+    SMALL_OUTLINE_5,
+
+    BLOCK_9B_8,
+    BLOCK_9B_9,
+    BLOCK_9B_10,
+
+    BLOCK_6_1,
+    BLOCK_6_2,
+    BLOCK_6_3,
+    BLOCK_6_4,
+    BLOCK_6_5,
+    BLOCK_6_6,
+    BLOCK_6_7,
+    BLOCK_6_8,
+    BLOCK_6_9,
+    BLOCK_6_10,
+    BLOCK_6_11,
+    BLOCK_6_12,
+    BLOCK_6_13,
+    BLOCK_6_14,
+    BLOCK_6_15,
+    BLOCK_6_16,
+    BLOCK_6_17,
+    BLOCK_6_18,
+    BLOCK_6_19,
+    BLOCK_6_20,
+    BLOCK_6_21,
+    BLOCK_6_22,
+    BLOCK_6_23,
+    BLOCK_6_24,
+    BLOCK_6_25,
+
+    BLOCK_6_SLOPE_45,
+    BLOCK_6_SLOPE_22_66,
+    BLOCK_6_SLOPE_CONNECTOR_45,
+    BLOCK_6_SLOPE_CONNECTOR_22_66,
+
+    BLOCK_6_OUTLINE_1,
+    BLOCK_6_OUTLINE_2,
+    BLOCK_6_OUTLINE_3,
+    BLOCK_6_OUTLINE_4,
+    BLOCK_6_OUTLINE_5,
+    BLOCK_6_OUTLINE_6,
+    BLOCK_6_OUTLINE_7,
+    BLOCK_6_OUTLINE_8,
+    BLOCK_6_OUTLINE_9,
+    BLOCK_6_OUTLINE_10,
+    BLOCK_6_OUTLINE_11,
+
+    OUTLINE_THICK_1,
+    OUTLINE_THICK_2,
+    OUTLINE_THICK_3,
+    OUTLINE_THICK_4,
+    OUTLINE_THICK_5,
+    OUTLINE_THICK_6,
+    OUTLINE_THICK_7,
+    OUTLINE_THICK_8,
+    OUTLINE_THICK_9,
+
+    OUTLINE_THICKB_1 = 1220,
+    OUTLINE_THICKB_2,
+    OUTLINE_THICKB_3,
+    OUTLINE_THICKB_4,
+    OUTLINE_THICKB_5,
+    OUTLINE_THICKB_6,
+    OUTLINE_THICKB_8,
+    OUTLINE_THICKB_9,
+
+    ANIM_WAVE_BASE,
+
+    RAINBOW_BLOCK_10,
+    RAINBOW_BLOCK_11,
+    RAINBOW_BLOCK_12,
+    RAINBOW_BLOCK_13,
+    RAINBOW_BLOCK_14,
+    RAINBOW_BLOCK_15,
+    RAINBOW_BLOCK_16,
+    RAINBOW_BLOCK_17,
+    RAINBOW_BLOCK_18,
+    RAINBOW_BLOCK_19,
+    RAINBOW_BLOCK_20,
+    RAINBOW_BLOCK_21,
+
+    BLOCK_08_TOPCOLOR_02,
+    BLOCK_08_TOPCOLOR_06,
+    BLOCK_08_TOPCOLOR_07,
+    BLOCK_08_TOPCOLOR_08,
+    BLOCK_08_TOPCOLOR_10,
+    BLOCK_08_TOPCOLOR_11,
+
+    BLOCK_09D_1,
+    BLOCK_09D_2,
+    BLOCK_09D_3,
+    BLOCK_09D_4,
+    BLOCK_09D_5,
+    BLOCK_09D_6,
+    BLOCK_09D_7,
+    BLOCK_09D_8,
+    BLOCK_09D_9,
+
+    BLOCK_09D_SLOPE_45,
+    BLOCK_09D_SLOPE_22_66,
+    
+    BLOCK_09D_SLOPE_45_ALT,
+    BLOCK_09D_SLOPE_22_66_ALT,
+
+    OUTLINE_OUTER_1,
+    OUTLINE_OUTER_2,
+    OUTLINE_OUTER_THICK_1,
+    OUTLINE_OUTER_THICK_2,
+    OUTLINE_OUTER_THICKER_1,
+    OUTLINE_OUTER_THICKER_2,
+
+    BLOCK_09_7,
+    BLOCK_09_8,
+
+    SPAWN_TRIGGER = 1268,
+
+    GRADIENT_CORNER_1,
+    GRADIENT_CORNER_2,
+    GRADIENT_CORNER_3,
+    GRADIENT_CORNER_4,
+    GRADIENT_CORNER_5,
+    GRADIENT_CORNER_6,
+
+    KEY_OBJ,
+    KEYHOLE,
+
+    BLOCK_09D_10,
+    BLOCK_09D_11,
+    BLOCK_09D_12,
+    BLOCK_09D_13,
+    BLOCK_09D_14,
+    BLOCK_09D_15,
+    BLOCK_09D_16,
+    BLOCK_09D_17,
+    BLOCK_09D_18,
+    BLOCK_09D_19,
+    BLOCK_09D_20,
+    BLOCK_09D_21,
+    BLOCK_09D_22,
+    BLOCK_09D_23,
+
+    GLOW_6_1,
+    GLOW_6_2,
+    GLOW_6_3,
+
+    BLOCK_005_2B,
+    BLOCK_005_4B,
+    
+    BLOCK_005B_2B,
+    BLOCK_005B_4B,
+
+    BLOCK_03_ONEMORE,
+
+    BLOCK_05_SLAB_1,
+    BLOCK_05_SLAB_2,
+    BLOCK_05_SLAB_3,
+    BLOCK_05_SLAB_4,
+    BLOCK_05_SLAB_5,
+    BLOCK_05_THREESLAB,
+    BLOCK_05_SLABSLOPE_45,
+    BLOCK_05_SLABSLOPE_22_66,
+    BLOCK_05_SLABSLOPE_CONNECTOR_1,
+    BLOCK_05_SLABSLOPE_CONNECTOR_2,
+    BLOCK_05_SLABSLOPE_CONNECTOR_3,
+
+    BLOCK_05C_OUTLINE_1,
+    BLOCK_05C_OUTLINE_2,
+    BLOCK_05C_OUTLINE_3,
+    BLOCK_05C_OUTLINE_4,
+    BLOCK_05C_OUTLINE_5,
+    BLOCK_05C_OUTLINE_PILLAR_END,
+    BLOCK_05C_OUTLINE_SLOPE_45,
+    BLOCK_05C_OUTLINE_SLOPE_22_66,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_1,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_2,
+    BLOCK_05C_OUTLINE_SLOPE_CONNECTOR_3,
+
+    UNKNOWN_1321,
+
+    BLOCK_06_25,
+
+    UNKNOWN_1323,
+    UNKNOWN_1324,
+
+    BLOCK_06_CONNECTOR_3,
+    BLOCK_06_CONNECTOR_4,
+
+    MONSTER_2,
+    MONSTER_3,
+
+    OBJECT_COUNT = 1329 // 2.0 object count
 };
 
 enum ZLayers {
+    LAYER_B4 = -3,
     LAYER_B3 = -1,
     LAYER_B2 = 1,
     LAYER_B1 = 3,
     LAYER_T1 = 5,
     LAYER_T2 = 7,
     LAYER_T3 = 9,
+    LAYER_T4 = 11,
     LAYER_MAX
 };
 
@@ -971,6 +1611,7 @@ enum ColChannels {
     G2,
     BLACK,
     WHITE,
+    LIGHTER,
     LBG_NO_LERP,
     COL_CHANNEL_COUNT
 };
@@ -998,23 +1639,27 @@ enum SpriteSheets {
     SHEET_BLOCKS,
     SHEET_SPEED_PORTALS,
     SHEET_PORTALS,
+    SHEET_ANIMATED,
     SHEET_COUNT
 };
 
+#define MAX_PULSES_PER_CHANNEL 10
+
 struct ColorChannel {
     Color color;
+    Color non_pulse_color;
+    float alpha;
+    HSV hsv;
     bool blending;
     int copy_color_id;
+
+    int num_pulses;
+    Color pulses[MAX_PULSES_PER_CHANNEL];
 };
 
-struct TriggerBuffer {
-    bool active;
-    Color old_color;
-    Color new_color;
-    int copy_channel_id;
-    float seconds;
-    float time_run;
-};
+#define MAX_OBJECTS_IN_GROUP 1000
+
+#define MOVE_SPEED_DIVIDER 315
 
 enum HitboxTypes {
     HITBOX_NONE,
@@ -1022,10 +1667,13 @@ enum HitboxTypes {
     HITBOX_SPIKE,
     HITBOX_SPECIAL,
     HITBOX_BREAKABLE_BLOCK,
+    HITBOX_TRIGGER,
     HITBOX_TYPES
 };
 
 typedef struct {
+    float x_off;
+    float y_off;
     float width;
     float height;
     float radius;
@@ -1045,6 +1693,8 @@ struct ObjectLayer {
 enum ColorTypes {
     COLOR_MAIN,
     COLOR_DETAIL,
+    COLOR_UNMOD,
+    COLOR_GLOW,
 };
 
 typedef struct {
@@ -1057,8 +1707,15 @@ typedef struct {
     u8 is_saw:1;
     u8 is_slope:1;
     u8 fades:1;
+    u8 has_movement:1;
+    u8 frame_animation:1;
     ObjectHitbox hitbox;
 } ObjectDefinition;
+
+typedef struct {
+    uint32_t key;           // packed sort key
+    GDLayerSortable *ptr; 
+} SortEntry;
 
 #define BLOCK_SIZE_PX (44.f * screen_factor_y)
 #define BASE_SCALE (0.733333 * screen_factor_y)
@@ -1083,8 +1740,6 @@ extern const ObjectDefinition objects[];
 
 extern GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS];
 
-extern struct TriggerBuffer trigger_buffer[COL_CHANNEL_COUNT];
-
 extern int layersDrawn;
 
 extern int beat_pulse;
@@ -1093,6 +1748,15 @@ extern GRRLIB_texImg *prev_tex;
 
 extern GRRLIB_texImg *bg;
 extern GRRLIB_texImg *ground;
+extern GRRLIB_texImg *ground_l2;
+extern GRRLIB_texImg *level_font;
+
+extern AnimationDefinition monster_1_anim;
+extern AnimationDefinition monster_2_anim;
+extern AnimationDefinition monster_3_anim;
+
+void load_obj_textures(int object);
+void unload_obj_textures();
 
 void update_beat();
 void draw_end_wall();
@@ -1111,6 +1775,9 @@ GRRLIB_texImg *get_coin_particle_texture();
 extern GRRLIB_texImg *level_complete_texture;
 extern float complete_text_elapsed;
 
+float get_rotated_x_hitbox(float x_offset, float y_offset, float rotation);
+float get_rotated_y_hitbox(float x_offset, float y_offset, float rotation);
+
 void draw_all_object_layers();
 void draw_background(f32 x, f32 y);
 void draw_ground(f32 x, bool is_ceiling);
@@ -1121,5 +1788,14 @@ void set_dual_bounds();
 void flip_other_player(int current_player);
 void do_ball_reflection();
 void set_particle_color(int template_id, int r, int g, int b);
-bool is_modifiable(int col_channel);
+bool is_modifiable(int col_channel, int color_type);
 void set_intended_ceiling();
+
+bool is_object_unimplemented(int id);
+void run_trigger(GameObject *obj);
+
+AnimationDefinition prepare_monster_1_animation();
+AnimationDefinition prepare_monster_2_animation();
+AnimationDefinition prepare_monster_3_animation();
+void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer);
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity, int def_col_channel);

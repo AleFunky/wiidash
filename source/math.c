@@ -11,6 +11,8 @@
 #include "font_stuff.h"
 #include <stdio.h>
 
+#include "../libraries/color.h"
+
 Vec2D normalize(Vec2D v) {
     float len = sqrtf(v.x*v.x + v.y*v.y);
     return (Vec2D){ v.x / len, v.y / len };
@@ -192,7 +194,7 @@ float lerp(float from, float to, float alpha) {
 }
 
 float iLerp(float a, float b, float ratio, float dt) {
-	const float rDelta = dt / STEPS_DT;
+	const float rDelta = dt * STEPS_HZ;
 	const float s	  = 1.f - ratio;
 
 	float iRatio = 1.f - powf(s, rDelta);
@@ -201,7 +203,7 @@ float iLerp(float a, float b, float ratio, float dt) {
 }
 
 float iSlerp(float a, float b, float ratio, float dt) {
-	const float rDelta = dt / STEPS_DT;
+	const float rDelta = dt * STEPS_HZ;
 	const float s	  = 1.f - ratio;
 
 	float iRatio = 1.f - powf(s, rDelta);
@@ -791,10 +793,10 @@ void fade_in_level() {
         while (accumulator >= STEPS_DT) {
             update_percentage();
             handle_objects();
-            update_particles();
             accumulator -= STEPS_DT;
         }
         
+        update_particles();
         draw_game();
         draw_fade();
     }
@@ -817,11 +819,11 @@ void wait_initial_time() {
         if (opacity < 0) opacity = 0;
 
         while (accumulator >= STEPS_DT) {
-            update_particles();
             update_beat();
             accumulator -= STEPS_DT;
         }
-        
+        update_particles();
+    
         draw_game();
         draw_fade();
     }
@@ -902,8 +904,22 @@ void  draw_glyph (const f32 xpos, const f32 ypos, const f32 partx, const f32 par
 
 struct glyph *get_glyph(struct charset font, char character) {
     for (int i = 0; i < font.char_num; i++) {
-        if (character == font.chars[i].id) return &font.chars[i];
+        if (character == font.chars[i].id) {
+            return &font.chars[i];
+        }
     }
+    // If not found and a lowercase letter, convert to uppercase
+    if (character >= 'a' && character <= 'z') {
+        character -= 32;
+
+        // Search again
+        for (int i = 0; i < font.char_num; i++) {
+            if (character == font.chars[i].id) {
+                return &font.chars[i];
+            }
+        }
+    }
+    
     return NULL;
 }
 
@@ -960,4 +976,98 @@ void draw_text(struct charset font, GRRLIB_texImg *tex, const float x, const flo
             offset += xadvance;
         }
     }
+}
+
+void draw_rotated_text(struct charset font, GRRLIB_texImg *tex, const float x, const float y, const float rotation, const float zoom_x, const float zoom_y, const u32 color, const char *text, ...) {
+    if (!text || !tex || !tex->data) {
+        return;
+    }
+    
+    GRRLIB_SetHandle(tex, tex->w / 2, tex->h / 2);
+
+    char tmp[1024];
+
+    va_list argp;
+    va_start(argp, text);
+    const int size = vsnprintf(tmp, sizeof(tmp), text, argp);
+    va_end(argp);
+
+    float length = get_text_length(font, fabsf(zoom_x), tmp);
+
+    float rad = DegToRad(rotation); // convert to radians
+    float offset = 0;
+
+    int flip_x = (zoom_x < 0 ? -1 : 1);
+    int flip_y = (zoom_y < 0 ? -1 : 1);
+
+    for (int i = 0; i < size; i++) {
+        struct glyph *character = get_glyph(font, tmp[i]);
+        
+        if (character != NULL) {
+            int tile_x = character->x;
+            int tile_y = character->y;
+            int width = character->width;
+            int height = character->height;
+            float xoffset = character->xoffset * zoom_x;
+            float yoffset = character->yoffset * zoom_y;
+            float xadvance = character->xadvance * zoom_x;
+
+            // Compute glyph center position before rotation
+            float gx = (x - length * flip_x / 2.f) + offset + xoffset + width * zoom_x / 2.0f;
+            float gy = (y - 55 * fabsf(zoom_y) * flip_y / 2.f) + yoffset + height * zoom_y / 2.0f;
+
+            // Rotate glyph center around text center (x, y)
+            float dx = gx - x;
+            float dy = gy - y;
+            float final_x = x + dx * cosf(rad) - dy * sinf(rad);
+            float final_y = y + dx * sinf(rad) + dy * cosf(rad);
+
+            // Draw glyph so its center is at (final_x, final_y)
+            draw_glyph(final_x - width * zoom_x / 2.0f, final_y - height * zoom_y / 2.0f,
+                       tile_x, tile_y, width, height,
+                       tex, rotation, zoom_x, zoom_y, color);
+
+            offset += xadvance;
+        }
+    }
+    
+    GX_SetVtxDesc(GX_VA_TEX0,   GX_DIRECT);
+    GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+}
+
+Color HSV_combine(Color color, HSV hsv) {
+    if (hsv.h == 0 && hsv.s == 0 && hsv.v == 0) {
+        return color;
+    }
+
+    HSV color_hsv;
+    convertRGBtoHSV(color.r, color.g, color.b, &color_hsv.h, &color_hsv.s, &color_hsv.v);
+
+    hsv.h += color_hsv.h;
+
+    if (hsv.sChecked) {
+        hsv.s += color_hsv.s;
+    } else {
+        hsv.s *= color_hsv.s;
+    }
+    
+    if (hsv.vChecked) {
+        hsv.v += color_hsv.v;
+    } else {
+        hsv.v *= color_hsv.v;
+    }
+
+    if (hsv.h < 0) hsv.h += 360;
+    if (hsv.h >= 360) hsv.h -= 360;
+    if (hsv.s > 1) hsv.s = 1;
+    if (hsv.v > 1) hsv.v = 1;
+
+    Color returned_color;
+    convertHSVtoRGB(hsv.h, hsv.s, hsv.v, &returned_color.r, &returned_color.g, &returned_color.b);
+
+    return returned_color;
+}
+
+bool colors_equal(Color a, Color b) {
+    return a.r == b.r && a.g == b.g && a.b == b.b;
 }

@@ -1,10 +1,3 @@
-/*===========================================
-        GRRLIB (GX Version)
-        Example code by Xane
-
-        This example shows the different
-        new blending modes.
-============================================*/
 #include <grrlib.h>
 
 #include <stdlib.h>
@@ -29,7 +22,6 @@
 #include "level_loading.h"
 #include "objects.h"
 
-#include "font_png.h"
 #include "cursor_png.h"
 
 #include "player.h"
@@ -39,7 +31,12 @@
 #include "menu.h"
 
 #include "trail.h"
-#include "bigFont_png.h"
+
+#include "animation.h"
+
+#include <fat.h>
+
+#include <system.h>
 
 // Declare Static Functions
 static void ExitGame(void);
@@ -81,6 +78,7 @@ float player_draw_time = 0;
 
 int number_of_collisions = 0;
 int number_of_collisions_checks = 0;
+int number_of_moving_objects = 0;
 
 char launch_dir[256] = SDCARD_FOLDER;
 float ir_x;
@@ -89,6 +87,8 @@ float ir_angle;
 float cursor_rotated_point_x;
 float cursor_rotated_point_y;
 int ir_is_valid;
+
+AnimationLibrary robot_animations = {0};
 
 void draw_game() {
     draw_background(state.background_x / 8, -(state.camera_y / 8) + 416);
@@ -158,23 +158,27 @@ void draw_game() {
         char physics[128];
         snprintf(physics, sizeof(physics), "Physics: %.2f ms (P: %.2f Obj: %.2f E: %.2f)", physics_time, player_time, triggers_time, particles_time);
         draw_text(big_font, big_font_text, 20, 170, 0.25, physics);
+        
+        char objects[128];
+        snprintf(objects, sizeof(objects), "Obj: Move %d", number_of_moving_objects);
+        draw_text(big_font, big_font_text, 20, 200, 0.25, objects);
 
         char collision[128];
         snprintf(collision, sizeof(collision), "Collision: %.2f ms (Checks: %d Succeded: %d)", collision_time, number_of_collisions_checks, number_of_collisions);
-        draw_text(big_font, big_font_text, 20, 200, 0.25, collision);
+        draw_text(big_font, big_font_text, 20, 230, 0.25, collision);
 
         t1 = gettime();
         float text = ticks_to_microsecs(t1 - t0) / 1000.f;
         
         char text_ms[64];
         snprintf(text_ms, sizeof(text_ms), "Text: %.2f ms", text);
-        draw_text(big_font, big_font_text, 20, 230, 0.25, text_ms);
+        draw_text(big_font, big_font_text, 20, 260, 0.25, text_ms);
 
         u64 last_frame = gettime();
         float cpu_time = ticks_to_microsecs(last_frame - start_frame) / 1000.f;
         
         char cpu_usage[64];
-        snprintf(cpu_usage, sizeof(cpu_usage), "CPU: %.2f%%%%", (cpu_time / 16.666666) * 100);
+        snprintf(cpu_usage, sizeof(cpu_usage), "CPU: %.2f%%%% Free MEM1: %d Free MEM2: %d", (cpu_time / 16.666666) * 100, SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
         draw_text(big_font, big_font_text, 20, 400, 0.25, cpu_usage);
     }
     
@@ -189,6 +193,8 @@ void draw_game() {
         draw_ir_cursor();
     }
     layersDrawn = 0;
+
+    state.timer += dt;
 }
 
 #include <mad.h>
@@ -272,9 +278,13 @@ int main(int argc, char **argv) {
         set_launch_dir(argv[0]);
     }
 
+    if (!fatInitDefault()) {
+		output_log("fatInitDefault failure\n");
+	}
+
     SYS_STDIO_Report(true);
     // Init GRRLIB & WiiUse
-    printf("grrlib status %d, is dolphin %d\n", GRRLIB_Init(), is_dolphin());
+    output_log("grrlib status %d, is dolphin %d\n", GRRLIB_Init(), is_dolphin());
     
     WPAD_Init();
     PAD_Init();
@@ -299,18 +309,30 @@ int main(int argc, char **argv) {
     screen_factor_x = (float) screenWidth / 640;
     screen_factor_y = (float) screenHeight / 480;
 
-    printf("%d, %d mode %d\n", screenWidth, screenHeight, rmode->viTVMode);
+    output_log("xfb[0]=%p xfb[1]=%p\n", xfb[0], xfb[1]);
+
+    output_log("%d, %d mode %d\n", screenWidth, screenHeight, rmode->viTVMode);
 
     startTime = gettime();    
 
-    font = GRRLIB_LoadTexturePNG(font_png);
-    GRRLIB_InitTileSet(font, 24, 36, 32);
     cursor = GRRLIB_LoadTexturePNG(cursor_png);
     GRRLIB_SetHandle(cursor, 14, 22);
     big_font_text = GRRLIB_LoadTexturePNG(bigFont_png);
 
     // hopefully this fixes the ir position
     WPAD_SetVRes(WPAD_CHAN_0,screenWidth,screenHeight);
+    
+    char robot_plist_path[278];
+    
+    snprintf(robot_plist_path, sizeof(robot_plist_path), "%s/%s/%s", launch_dir, RESOURCES_FOLDER, "robot.plist");
+    parsePlist(robot_plist_path, &robot_animations);
+
+    output_log("Loaded %d animations\n", robot_animations.animCount);
+    for (int i = 0; i < robot_animations.animCount; i++) {
+        output_log("Animation %s: %d frames\n",
+               robot_animations.animations[i].name,
+               robot_animations.animations[i].frameCount);
+    }
     WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
 
     full_init_variables();
@@ -330,8 +352,58 @@ Exit:
     return 0;
 }
 
+static FILE *log_file = NULL;
+
+static void ensure_log_file(void) {
+    if (log_file) return;  // already open
+
+    // Initialize SD/USB filesystem
+    if (!fatInitDefault()) return;
+
+    char log_filename[278];
+    snprintf(log_filename, sizeof(log_filename), "%s/%s", launch_dir, "output.txt");
+    
+    log_file = fopen(log_filename, "a");
+}
+
+static void close_log_file(void) {
+    if (log_file) {
+        fclose(log_file);
+        log_file = NULL;
+    }
+}
+
+int output_log(const char *fmt, ...) {
+    ensure_log_file();
+
+    if (!log_file) return 0; // failed to open log
+
+    va_list args1, args2;
+    int ret;
+
+    va_start(args1, fmt);
+    va_copy(args2, args1);  // duplicate args for two outputs
+
+    // Output to log file
+    ensure_log_file();
+    if (log_file) {
+        ret = vfprintf(log_file, fmt, args1);
+        fflush(log_file);
+    }
+
+    // Output to console (stdout)
+    ret = vprintf(fmt, args2);
+    
+    va_end(args2);
+    va_end(args1);
+
+    return ret;
+}
+
 static void ExitGame(void) {
     unload_spritesheet();
+
+    close_log_file();
 
     // Deinitialize GRRLIB & Video
     GRRLIB_Exit();
@@ -345,3 +417,99 @@ bool is_dolphin() {
     return (mfspr(SPR_ECID_U) == 0x0d96e200);
 }
 
+unsigned long allocation = 0;
+
+#ifdef REPORT_LEAKS
+
+#ifdef malloc
+    #undef malloc
+#endif
+#ifdef realloc
+    #undef realloc
+#endif
+#ifdef free
+    #undef free
+#endif
+#include <malloc.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct AllocInfo {
+    void* ptr;
+    size_t size;
+    const char* file;
+    int line;
+    struct AllocInfo* next;
+} AllocInfo;
+
+static AllocInfo* allocList = NULL;
+
+void add_alloc(void* ptr, size_t size, const char* file, int line) {
+    AllocInfo* info = (AllocInfo*)malloc(sizeof(AllocInfo));
+    info->ptr = ptr;
+    info->size = size;
+    info->file = file;
+    info->line = line;
+    info->next = allocList;
+    allocList = info;
+}
+
+void remove_alloc(void* ptr) {
+    AllocInfo** current = &allocList;
+    while (*current) {
+        if ((*current)->ptr == ptr) {
+            AllocInfo* toDelete = *current;
+            *current = toDelete->next;
+            free(toDelete);
+            return;
+        }
+        current = &(*current)->next;
+    }
+}
+
+void* dbg_malloc(size_t size, const char* file, int line) {
+    void* ptr = malloc(size);
+    if (ptr) add_alloc(ptr, size, file, line);
+    //printf("[malloc] %zu bytes at %p (%s:%d)\n", size, ptr, file, line);
+    return ptr;
+}
+
+void dbg_free(void* ptr, const char* file, int line) {
+    remove_alloc(ptr);
+    //printf("[free] %p (%s:%d)\n", ptr, file, line);
+    free(ptr);
+}
+
+void* dbg_realloc(void* ptr, size_t size, const char* file, int line) {
+    void *old_ptr = ptr;
+    void* new_ptr = realloc(ptr, size);
+    if (new_ptr) {
+        remove_alloc(old_ptr);  // old one
+        add_alloc(new_ptr, size, file, line);  // new one
+    }
+    //printf("[realloc] %p -> %p (%zu bytes, %s:%d)\n",
+    //       old_ptr, new_ptr, size, file, line);
+    return new_ptr;
+}
+
+void report_leaks(void) {
+    AllocInfo* current = allocList;
+    while (current) {
+        printf("[LEAK] %zu bytes at %p allocated in %s:%d\n",
+               current->size, current->ptr,
+               current->file, current->line);
+        current = current->next;
+    }
+}
+#ifndef malloc
+    #define malloc(x) dbg_malloc(x, __FILE__, __LINE__)
+#endif
+#ifndef realloc
+    #define realloc(p, s)   dbg_realloc(p, s, __FILE__, __LINE__)
+#endif
+#ifndef free
+    #define free(x)   dbg_free(x, __FILE__, __LINE__)
+#endif
+
+#endif

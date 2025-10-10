@@ -16,6 +16,8 @@
 #include "oggplayer.h"
 #include "explode_11_ogg.h"
 
+#include "animation.h"
+
 #include "easing.h"
 
 GRRLIB_texImg *icon_l1;
@@ -29,6 +31,14 @@ GRRLIB_texImg *ufo_l2;
 GRRLIB_texImg *ufo_dome;
 GRRLIB_texImg *wave_l1;
 GRRLIB_texImg *wave_l2;
+GRRLIB_texImg *robot_1_l1;
+GRRLIB_texImg *robot_1_l2;
+GRRLIB_texImg *robot_2_l1;
+GRRLIB_texImg *robot_2_l2;
+GRRLIB_texImg *robot_3_l1;
+GRRLIB_texImg *robot_3_l2;
+GRRLIB_texImg *robot_4_l1;
+GRRLIB_texImg *robot_4_l2;
 
 GRRLIB_texImg *trail_tex;
 
@@ -42,43 +52,6 @@ MotionTrail wave_trail_p2;
 
 Color p1;
 Color p2;
-
-inline static float getTop(Player *player)  { return player->y + player->height / 2; }
-inline static float getBottom(Player *player)  { return player->y - player->height / 2; }
-
-inline static float getGroundTop(Player *player)  { return player->y + (player->height / 2) + ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0); }
-inline static float getGroundBottom(Player *player)  { return player->y - (player->height / 2) - ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0); }
-
-inline static float getRight(Player *player)  { return player->x + player->width / 2; }
-inline static float getLeft(Player *player)  { return player->x - player->width / 2; }
-
-inline static float getInternalTop(Player *player)  { return player->y + player->internal_hitbox.height / 2; }
-inline static float getInternalBottom(Player *player)  { return player->y - player->internal_hitbox.height / 2; }
-inline static float getInternalRight(Player *player)  { return player->x + player->internal_hitbox.width / 2; }
-inline static float getInternalLeft(Player *player)  { return player->x - player->internal_hitbox.width / 2; }
-
-inline static float gravBottom(Player *player) { return player->upside_down ? -getTop(player) : getBottom(player); }
-inline static float gravTop(Player *player) { return player->upside_down ? -getBottom(player) : getTop(player); }
-
-inline static float gravInternalBottom(Player *player) { return player->upside_down ? -getInternalTop(player) : getInternalBottom(player); }
-inline static float gravInternalTop(Player *player) { return player->upside_down ? -getInternalBottom(player) : getInternalTop(player); }
-
-inline static float grav(Player *player, float val) { return player->upside_down ? -val : val; }
-
-inline static float obj_getTop(GameObject *object)  { 
-    return object->y + object->height / 2; 
-}
-inline static float obj_getBottom(GameObject *object)  { 
-    return object->y - object->height / 2; 
-}
-inline static float obj_getRight(GameObject *object)  {  
-    return object->x + object->width / 2; 
-}
-inline static float obj_getLeft(GameObject *object)  { 
-    return object->x - object->width / 2; 
-}
-inline static float obj_gravBottom(Player *player, GameObject *object) { return player->upside_down ? -obj_getTop(object) : obj_getBottom(object); }
-inline static float obj_gravTop(Player *player, GameObject *object) { return player->upside_down ? -obj_getBottom(object) : obj_getTop(object); }
 
 const float player_speeds[SPEED_COUNT] = {
 	251.16007972276924,
@@ -126,7 +99,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             }
             
             // Collide with slope if object is an slope
-            if (objects[obj->id].is_slope) {
+            if (objects[*soa_id(obj)].is_slope) {
                 slope_collide(obj, player);
                 break;
             }
@@ -135,7 +108,7 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                 // Only do the funny grav snap if player is touching a gravity object and internal hitbox is touching block
                 bool internalCollidingBlock = intersect(
                     player->x, player->y, internal.width, internal.height, 0, 
-                    obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+                    *soa_x(obj), *soa_y(obj), hitbox->width, hitbox->height, obj->rotation
                 );
 
                 gravSnap = (!state.old_player.on_ground || player->ceiling_inv_time > 0) && internalCollidingBlock && obj_gravTop(player, obj) - gravInternalBottom(player) <= clip;
@@ -144,9 +117,9 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             bool slope_height_check = FALSE;
             if (player->touching_slope) {
                 if (grav_slope_orient(player->potentialSlope, player) == ORIENT_NORMAL_DOWN) {
-                    slope_height_check = gravBottom(player) < grav(player, player->potentialSlope->y);
+                    slope_height_check = gravBottom(player) < grav(player, *soa_y(player->potentialSlope));
                 } else if (grav_slope_orient(player->potentialSlope, player) == ORIENT_UD_DOWN) {
-                    slope_height_check = gravTop(player) > grav(player, player->potentialSlope->y);
+                    slope_height_check = gravTop(player) > grav(player, *soa_y(player->potentialSlope));
                 }
             }
 
@@ -162,22 +135,24 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
             
             if ((player->gamemode == GAMEMODE_WAVE || (!gravSnap && !safeZone)) && intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+                *soa_x(obj), *soa_y(obj), hitbox->width, hitbox->height, obj->rotation
             )) {
                 if (hitbox->type == HITBOX_BREAKABLE_BLOCK) {
                     // Spawn breakable brick particles
-                    obj->toggled = TRUE;
+                    obj->hide_sprite = TRUE;
                     for (s32 i = 0; i < 10; i++) {
-                        spawn_particle(BREAKABLE_BRICK_PARTICLES, obj->x, obj->y, obj);
+                        spawn_particle(BREAKABLE_BRICK_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                     }
                 } else {
                     // Not a brick, die
                     state.dead = TRUE;
                 }
             // Check snap for player bottom
-            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip && player->vel_y <= 0 && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
+            } else if (obj_gravTop(player, obj) - gravBottom(player) <= clip + fabsf(*soa_delta_y(obj)) && player->vel_y <= CLAMP(*soa_delta_y(obj) * STEPS_HZ, 0, INFINITY) && !slope_condition && player->gamemode != GAMEMODE_WAVE) {
                 player->y = grav(player, obj_gravTop(player, obj)) + grav(player, player->height / 2);
-                player->vel_y = 0;
+                if (player->vel_y <= 0) player->vel_y = 0;
+                *soa_touching_player(obj) = state.current_player + 1;
+                obj->object.touching_side = 1;
                 player->on_ground = TRUE;
                 player->inverse_rotation = FALSE;
                 player->time_since_ground = 0;
@@ -188,14 +163,16 @@ void handle_collision(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
                     break;
                 }
                 // Behave normally
-                if (player->gamemode != GAMEMODE_CUBE || gravSnap) {
-                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip && player->vel_y > 0) || gravSnap) && !slope_condition) {
-                        player->vel_y = 0;
+                if (!player->is_cube_or_robot || gravSnap) {
+                    if (((gravTop(player) - obj_gravBottom(player, obj) <= clip + fabsf(*soa_delta_y(obj)) && player->vel_y >= *soa_delta_y(obj) * STEPS_HZ) || gravSnap) && !slope_condition) {
                         if (!gravSnap) player->on_ceiling = TRUE;
                         player->inverse_rotation = FALSE;
                         player->time_since_ground = 0;
                         player->ceiling_inv_time = 0;
+                        *soa_touching_player(obj) = state.current_player + 1;
+                        obj->object.touching_side = 2;
                         player->y = grav(player, obj_gravBottom(player, obj)) - grav(player, player->height / 2);
+                        if (player->vel_y >= 0) player->vel_y = 0;
                     }
                 }
             }
@@ -213,15 +190,35 @@ float player_get_vel(Player *player, float vel) {
     return vel * (player->upside_down ? -1 : 1);
 }
 
-void collide_with_obj(Player *player, GameObject *obj) {
-    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+bool obj_hitbox_static(int id) {
+    switch (id) {
+        case YELLOW_ORB:
+        case BLUE_ORB:
+        case PINK_ORB:
+        case GREEN_ORB:
+            return TRUE;
+    }
+    return FALSE;
+}
 
-    if (hitbox->type != HITBOX_NONE && !obj->toggled && obj->id < OBJECT_COUNT) {
+void collide_with_obj(Player *player, GameObject *obj) {
+    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
+
+    if ((hitbox->type != HITBOX_NONE && hitbox->type != HITBOX_TRIGGER) && !obj->toggled && !obj->hide_sprite && *soa_id(obj) < OBJECT_COUNT) {
         number_of_collisions_checks++;
+        *soa_prev_touching_player(obj) = *soa_touching_player(obj);
+        *soa_touching_player(obj) = 0;
+        obj->object.touching_side = 0;
+
+        float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
+        float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox->x_off, hitbox->y_off, obj->rotation);
+        float width = hitbox->width * obj->scale_x;
+        float height = hitbox->height * obj->scale_y;
+
         if (hitbox->is_circular) {
             if (intersect_rect_circle(
                 player->x, player->y, player->width, player->height, player->rotation, 
-                obj->x, obj->y, hitbox->radius
+                x, y, hitbox->radius * MAX(obj->scale_x, obj->scale_y)
             )) {
                 handle_collision(player, obj, hitbox);
                 obj->collided[state.current_player] = TRUE;
@@ -231,18 +228,23 @@ void collide_with_obj(Player *player, GameObject *obj) {
             }
         } else {
             float obj_rot = normalize_angle(obj->rotation);
+
+            if (obj_hitbox_static(*soa_id(obj))) {
+                obj_rot = 0;
+            }
+
             float rotation = (obj_rot == 0 || obj_rot == 90 || obj_rot == 180 || obj_rot == 270) ? 0 : player->rotation;
             
             bool checkColl = intersect(
                 player->x, player->y, player->width, player->height, rotation, 
-                obj->x, obj->y, hitbox->width, hitbox->height, obj_rot
+                x, y, width, height, obj_rot
             );
             
             // Rotated hitboxes must also collide with the unrotated hitbox
             if (rotation != 0) {
                 checkColl = checkColl && intersect(
                     player->x, player->y, player->width, player->height, 0, 
-                    obj->x, obj->y, hitbox->width, hitbox->height, obj_rot
+                    x, y, width, height, obj_rot
                 );
             }
 
@@ -261,11 +263,17 @@ void collide_with_obj(Player *player, GameObject *obj) {
 }
 
 void collide_with_slope(Player *player, GameObject *obj, bool has_slope) {
-    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+    ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
     number_of_collisions_checks++;
+    
+    float width = hitbox->width * obj->scale_x;
+    float height = hitbox->height * obj->scale_y;
+
+    if (obj->toggled) return;
+
     if (intersect(
         player->x, player->y, player->width, player->height, 0, 
-        obj->x, obj->y, hitbox->width, hitbox->height, obj->rotation
+        *soa_x(obj), *soa_y(obj), width, height, obj->rotation
     )) {
         // The same check in handle_collision
         if (has_slope) {
@@ -299,11 +307,11 @@ void collide_with_objects(Player *player) {
             Section *sec = get_or_create_section(sx + dx, sy + dy);
             for (int i = 0; i < sec->object_count; i++) {
                 GameObject *obj = sec->objects[i];
-                ObjectHitbox *hitbox = (ObjectHitbox *) &objects[obj->id].hitbox;
+                ObjectHitbox *hitbox = (ObjectHitbox *) &objects[*soa_id(obj)].hitbox;
                 
                 // Save some types to buffer, so they can be checked in a type order
                 if (hitbox->type == HITBOX_SOLID) {
-                    if (objects[obj->id].is_slope) {
+                    if (objects[*soa_id(obj)].is_slope) {
                         slope_buffer[slope_count++] = obj;
                     } else {
                         block_buffer[block_count++] = obj;
@@ -327,9 +335,9 @@ void collide_with_objects(Player *player) {
         GameObject *obj = slope_buffer[i];
         if (intersect(
             player->x, player->y, player->width, player->height, 0, 
-            obj->x, obj->y, obj->width, obj->height, obj->rotation
+            *soa_x(obj), *soa_y(obj), obj->width, obj->height, obj->rotation
         )) {
-            float dist = fabsf(obj->y - player->y);
+            float dist = fabsf(*soa_y(obj) - player->y);
             if (dist < closestDist) {
                 player->touching_slope = TRUE;
                 player->potentialSlope = obj;
@@ -369,6 +377,7 @@ void cube_gamemode(Player *player) {
     player->gravity = -2794.1082;
     
     if (player->vel_y < -810) player->vel_y = -810;
+    if (player->vel_y > 1080) player->vel_y = 1080;
 
     if (player->y > 2794.f) state.dead = TRUE;
 
@@ -418,9 +427,9 @@ void cube_gamemode(Player *player) {
         if (!state.input.pressedJump) {
             // This simulates the holding jump
             player->vel_y -= player->gravity * STEPS_DT;
-            printf("Second jump\n");
+            output_log("Second jump\n");
         } else {
-            printf("First jump\n");
+            output_log("First jump\n");
         }
     }
 }
@@ -538,13 +547,19 @@ void ball_gamemode(Player *player) {
     }
 
     // Jump
-    if ((state.input.holdJump) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {
+    if ((state.input.holdJump) && (player->on_ground || player->on_ceiling || player->slope_data.slope) && player->buffering_state == BUFFER_READY) {        
+        float delta_y = player->vel_y;
+
         player->upside_down ^= 1;
+
         set_p_velocity(player, ballJumpHeights[state.speed]);
 
+        player->vel_y -= (delta_y < 0) ? 0 : delta_y;
         player->buffering_state = BUFFER_END;
         
         player->ball_rotation_speed = -1.f;
+
+        player->on_ground = FALSE;
     }
     
     player->rotation += player->ball_rotation_speed * mult * (player_speeds[state.speed] / player_speeds[SPEED_NORMAL]) / (player->mini ? 0.8 : 1);
@@ -595,16 +610,16 @@ void ufo_particles(Player *player) {
 
 void ufo_gamemode(Player *player) {
     int mult = (player->upside_down ? -1 : 1);
-    bool buffering_check = ((state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_CUBE) && (state.input.holdJump));
+    bool buffering_check = ((state.old_player.gamemode == GAMEMODE_CUBE || state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_WAVE) && (state.input.holdJump));
     if (player->buffering_state == BUFFER_READY && (state.input.pressedJump || buffering_check)) {
         player->vel_y = maxf(player->vel_y, player->mini ? 358.992 : 371.034);
         player->buffering_state = BUFFER_END;
         player->ufo_last_y = player->y;
     } else {
-        if (player->vel_y > 103.485492) {
-            player->gravity = player->mini ? -1969.92 : -1671.84;
+        if (player->vel_y > (player->mini ? 103.485494 : 0)) {
+            player->gravity = player->mini ? -1969.92 : -1676.84;
         } else {
-            player->gravity = player->mini ? -1308.96 : -1114.56;
+            player->gravity = player->mini ? -1308.96 : -1117.56;
         }
     }
 
@@ -653,6 +668,65 @@ void wave_gamemode(Player *player) {
     }
 }
 
+void robot_gamemode(Player *player) {
+    trail.positionR = (Vec2){player->x, player->y};  
+    trail.startingPositionInitialized = TRUE;
+
+    
+    if (player->vel_y < -810) player->vel_y = -810;
+
+    if (player->y > 2794.f) state.dead = TRUE;
+
+    if (player->on_ground) {
+        player->curr_robot_animation_id = ROBOT_RUN;
+        MotionTrail_StopStroke(&trail);
+        if (!player->slope_data.slope) player->rotation = round(player->rotation / 90.0f) * 90.0f;
+    }
+
+    // Player on ground or just left the ground
+    if ((player->time_since_ground < 0.05f) && (frame_counter & 0b11) == 0) {
+        particle_templates[CUBE_DRAG].angle = (player->upside_down ? -90 : 90);
+        particle_templates[CUBE_DRAG].gravity_y = (player->upside_down ? 300 : -300);
+        spawn_particle(CUBE_DRAG, player->x, (player->upside_down ? getTop(player) - 2 : getBottom(player) + 2), NULL);
+    }
+
+    SlopeData slope_data = player->slope_data;
+
+    // If not currently on slope, look at the last frame
+    if (!player->slope_data.slope && player->slope_slide_coyote_time) {
+        slope_data = player->coyote_slope;
+    }
+
+    if (!slope_data.slope) {    
+        player->rotation = 0;
+    }
+
+    if ((slope_data.slope || player->on_ground) && (state.input.holdJump && player->buffering_state == BUFFER_READY)) {
+        set_p_velocity(player, cube_jump_heights[state.speed] / 2);
+        player->inverse_rotation = FALSE;
+
+        player->on_ground = FALSE;
+        player->robot_anim_timer = 0;
+        player->curr_robot_animation_id = ROBOT_JUMP_START;
+        player->buffering_state = BUFFER_END;
+
+        player->robot_air_time = 0.f;
+
+        player->gravity = 0;
+    }
+
+    if (player->robot_air_time >= 1.5 || (!state.input.holdJump)) {   
+        player->gravity = -2794.1082 * 0.9;
+        if (player->curr_robot_animation_id == ROBOT_JUMP) {
+            player->robot_anim_timer = 0;
+            player->curr_robot_animation_id = ROBOT_FALL_START;
+        }
+    } else if (player->buffering_state == BUFFER_END) {
+        if ((frame_counter & 0b11) == 0) spawn_particle(ROBOT_JUMP_PARTICLES, getLeft(player) + 5 * (player->mini ? 0.6f : 1.f), (player->upside_down ? getTop(player) - 2 : getBottom(player) + 2), NULL);
+        player->robot_air_time += 5.4 * STEPS_DT;
+    }
+}
+
 void run_camera() {
     Player *player = &state.player;
 
@@ -661,7 +735,7 @@ void run_camera() {
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;
 
-    if (state.player.gamemode != GAMEMODE_CUBE || state.dual) {
+    if (!player->is_cube_or_robot || state.dual) {
         calc_height = (SCREEN_HEIGHT_AREA - playable_height) / 2;
     }
 
@@ -706,7 +780,7 @@ void run_camera() {
             state.camera_x = final_camera_x_wall + 3.f * random_float(-1, 1);
             state.camera_y = final_camera_y_wall + 3.f * random_float(-1, 1);
         }
-    } else if (player->gamemode == GAMEMODE_CUBE && !state.dual) {
+    } else if (player->is_cube_or_robot && !state.dual) {
         float distance = state.camera_y_lerp + (SCREEN_HEIGHT_AREA / 2) - player->y;
         float distance_abs = fabsf(distance);
 
@@ -714,12 +788,12 @@ void run_camera() {
 
         float difference = player->y - state.old_player.y;
 
-        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground)) {
+        if (distance_abs > 60.f && (difference * -mult > 0 || player->on_ground || player->has_teleported_timer)) {
             float lerp_ratio = 0.1f;
-            if (player->on_ground) {
+            if (player->on_ground || player->has_teleported_timer) {
                 // Slowly make player in bounds (60 units from player center)
                 state.camera_y_lerp = player->y + 60.f * mult - (SCREEN_HEIGHT_AREA / 2);
-                lerp_ratio = 0.2f;
+                lerp_ratio = (player->has_teleported_timer) ? 0.05f : 0.2f;
             } else {
                 // Move camera
                 state.camera_y_lerp += difference;
@@ -844,6 +918,15 @@ void run_player(Player *player) {
                 spawn_particle(P1_TRAIL, player->x, player->y, NULL);
             }
             break;
+        case GAMEMODE_ROBOT:
+            robot_gamemode(player);
+
+            if (p1_trail && (frame_counter & 0b1111) == 0) {
+                particle_templates[P1_TRAIL].start_scale = 0.73333f * scale;
+                particle_templates[P1_TRAIL].end_scale = 0.73333f * scale;
+                spawn_particle(P1_TRAIL, player->x, player->y, NULL);
+            }
+            break;
     }
     
     player->time_since_ground += STEPS_DT;
@@ -891,8 +974,8 @@ void run_player(Player *player) {
     
     bool slopeCheck = player->slope_data.slope && (grav_slope_orient(player->slope_data.slope, player) == ORIENT_NORMAL_DOWN || grav_slope_orient(player->slope_data.slope, player) == ORIENT_UD_DOWN);
 
-    if (getGroundBottom(player) < state.ground_y) {
-        if (player->ceiling_inv_time <= 0 && player->gamemode == GAMEMODE_CUBE && player->upside_down) {
+    if (getGroundBottom(player) < state.ground_y && !player->just_teleported) {
+        if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && player->upside_down) {
             state.dead = TRUE;
         }
 
@@ -900,13 +983,13 @@ void run_player(Player *player) {
             clear_slope_data(player);
         }
         
-        if (player->gamemode != GAMEMODE_WAVE) player->vel_y = 0;
+        if (player->gamemode != GAMEMODE_WAVE && grav(player, player->vel_y) <= 0) player->vel_y = 0;
         player->y = state.ground_y + (player->height / 2) + ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0);;
     }
 
     // Ceiling
-    if (getGroundTop(player) > state.ceiling_y) {
-        if (player->ceiling_inv_time <= 0 && player->gamemode == GAMEMODE_CUBE && !player->upside_down) {
+    if (getGroundTop(player) > state.ceiling_y && !player->just_teleported) {
+        if (player->ceiling_inv_time <= 0 && player->is_cube_or_robot && !player->upside_down) {
             state.dead = TRUE;
         }
 
@@ -914,7 +997,7 @@ void run_player(Player *player) {
             clear_slope_data(player);
         }
         
-        if (player->gamemode != GAMEMODE_WAVE) player->vel_y = 0;
+        if (player->gamemode != GAMEMODE_WAVE && grav(player, player->vel_y) >= 0) player->vel_y = 0;
         player->y = state.ceiling_y - (player->height / 2) - ((player->gamemode == GAMEMODE_WAVE) ? (player->mini ? 3 : 5) : 0);;
     } 
     
@@ -993,6 +1076,11 @@ void handle_player(Player *player) {
         set_particle_color(UFO_JUMP, p2.r, p2.g, p2.b);
         set_particle_color(UFO_TRAIL, p1.r, p1.g, p1.b);
     }
+
+    player->has_teleported_timer -= STEPS_DT;
+    if (player->has_teleported_timer < 0) {
+        player->has_teleported_timer = 0;
+    }
     
     if (state.input.holdJump) {
         if (player->buffering_state == BUFFER_NONE) {
@@ -1001,6 +1089,8 @@ void handle_player(Player *player) {
     } else {
         player->buffering_state = BUFFER_NONE;
     }
+
+    player->is_cube_or_robot = player->gamemode == GAMEMODE_CUBE || player->gamemode == GAMEMODE_ROBOT;
     
     player->on_ground = FALSE;
     player->on_ceiling = FALSE;
@@ -1009,8 +1099,10 @@ void handle_player(Player *player) {
     
     player->timeElapsed += STEPS_DT;
 
+    player->just_teleported = FALSE;
+
     u32 t0 = gettime();
-    collide_with_objects(player);
+    if (player->cutscene_timer == 0) collide_with_objects(player);
     u32 t1 = gettime();
     collision_time = ticks_to_microsecs(t1 - t0) / 1000.f * 4.f;
     
@@ -1048,6 +1140,8 @@ void handle_player(Player *player) {
     if (state.noclip) state.dead = FALSE;
     
     do_ball_reflection();
+    
+    player->delta_y = player->y - state.old_player.y;
 
     if (state.hitbox_display == 2) add_new_hitbox(player);
 
@@ -1063,7 +1157,7 @@ float get_camera_x_scroll_pos() {
     if (screenWidth <= 640)
         factor_x = 1.0f;
     else
-        factor_x = 1.0f + 0.00535714f * (screenWidth - 640);
+        factor_x = 1.0f + 0.00735714f * (screenWidth - 640);
     return 120 * factor_x;
 }
 
@@ -1092,7 +1186,6 @@ void init_variables() {
     state.camera_wall_timer = 0;
     state.camera_wall_initial_y = 0;
 
-    state.ground_y_gfx = 0;
     state.mirror_factor = 0;
     state.mirror_speed_factor = 1.f;
     state.intended_mirror_factor = 0;
@@ -1149,6 +1242,7 @@ void init_variables() {
             set_intended_ceiling();
             break;
         case GAMEMODE_CUBE:
+        case GAMEMODE_ROBOT:
             state.camera_intended_y = -95.f;
     }
     
@@ -1163,10 +1257,12 @@ void init_variables() {
     state.camera_y_lerp = state.camera_y;
     state.intermediate_camera_y = state.camera_y;
 
+    player->has_teleported_timer = 0;
+
     float playable_height = state.ceiling_y - state.ground_y;
     float calc_height = 0;
 
-    if (state.player.gamemode != GAMEMODE_CUBE || state.dual) {
+    if (!player->is_cube_or_robot || state.dual) {
         calc_height = (SCREEN_HEIGHT_AREA - playable_height) / 2;
     }
 
@@ -1210,6 +1306,15 @@ void load_icons() {
     ufo_dome = GRRLIB_LoadTexturePNG(bird_01_3_001_png);
     wave_l1 = GRRLIB_LoadTexturePNG(dart_01_001_png);
     wave_l2 = GRRLIB_LoadTexturePNG(dart_01_2_001_png);
+    
+    robot_1_l1 = GRRLIB_LoadTexturePNG(robot_01_01_001_png);
+    robot_1_l2 = GRRLIB_LoadTexturePNG(robot_01_01_2_001_png);
+    robot_2_l1 = GRRLIB_LoadTexturePNG(robot_01_02_001_png);
+    robot_2_l2 = GRRLIB_LoadTexturePNG(robot_01_02_2_001_png);
+    robot_3_l1 = GRRLIB_LoadTexturePNG(robot_01_03_001_png);
+    robot_3_l2 = GRRLIB_LoadTexturePNG(robot_01_03_2_001_png);
+    robot_4_l1 = GRRLIB_LoadTexturePNG(robot_01_04_001_png);
+    robot_4_l2 = GRRLIB_LoadTexturePNG(robot_01_04_2_001_png);
 
     trail_tex = GRRLIB_LoadTexturePNG(trail_png);
 
@@ -1234,6 +1339,14 @@ void unload_icons() {
     GRRLIB_FreeTexture(ufo_dome);
     GRRLIB_FreeTexture(wave_l1);
     GRRLIB_FreeTexture(wave_l2);
+    GRRLIB_FreeTexture(robot_1_l1);
+    GRRLIB_FreeTexture(robot_1_l2);
+    GRRLIB_FreeTexture(robot_2_l1);
+    GRRLIB_FreeTexture(robot_2_l2);
+    GRRLIB_FreeTexture(robot_3_l1);
+    GRRLIB_FreeTexture(robot_3_l2);
+    GRRLIB_FreeTexture(robot_4_l1);
+    GRRLIB_FreeTexture(robot_4_l2);
     GRRLIB_FreeTexture(trail_tex);
 }
 
@@ -1418,9 +1531,15 @@ void draw_ufo(Player *player, float calc_x, float calc_y) {
     );
 }
 
+char *robot_animations_names[ROBOT_ANIMATIONS_COUNT] = {
+    [ROBOT_RUN]         = "Robot_run",
+    [ROBOT_JUMP_START]  = "Robot_jump_start",
+    [ROBOT_JUMP]        = "Robot_jump_loop",
+    [ROBOT_FALL_START]  = "Robot_fall_start",
+    [ROBOT_FALL]        = "Robot_fall_loop",
+};
 
 void draw_player(Player *player) {
-
     float calc_x = ((player->x - state.camera_x) * SCALE) - widthAdjust;
     float calc_y = screenHeight - ((player->y - state.camera_y) * SCALE);
     
@@ -1445,7 +1564,7 @@ void draw_player(Player *player) {
         case GAMEMODE_CUBE:
             GRRLIB_SetHandle(icon_l1, 30, 30);
             GRRLIB_SetHandle(icon_l2, 30, 30);
-        
+            
             set_texture(icon_l1);
             custom_drawImg(
                 get_mirror_x(calc_x, state.mirror_factor) + 6 - (30), calc_y + 6 - (30),
@@ -1518,6 +1637,15 @@ void draw_player(Player *player) {
                 RGBA(p2.r, p2.g, p2.b, 255)
             );
             break;
+        case GAMEMODE_ROBOT:
+            player->prev_robot_animation = player->curr_robot_animation;
+            player->curr_robot_animation = getAnimation(&robot_animations, robot_animations_names[player->curr_robot_animation_id]);
+            if (player->curr_robot_animation && player->prev_robot_animation) {
+                float speed_mult = (player_speeds[state.speed] / player_speeds[SPEED_NORMAL]);
+                playRobotAnimation(player, player->prev_robot_animation, player->curr_robot_animation, player->robot_anim_timer, scale, player->lerp_rotation, 0.5f);
+                player->robot_anim_timer += dt * speed_mult;
+            }
+            break;
     }
     set_texture(prev_tex);
 }
@@ -1532,6 +1660,9 @@ GRRLIB_texImg *get_p1_trail_tex() {
 
         case GAMEMODE_WAVE:
             return wave_l1;
+
+        case GAMEMODE_ROBOT:
+            return robot_1_l1;
         
     }
     return icon_l1;
@@ -1546,7 +1677,6 @@ const float falls[SPEED_COUNT] = {
 
 void clear_slope_data(Player *player) {
     player->slope_data.slope = NULL;
-    player->slope_data.elapsed = 0.f;
     player->slope_data.snapDown = FALSE;
 }
 
@@ -1568,7 +1698,7 @@ int grav_slope_orient(GameObject *obj, Player *player) {
 }
 
 bool is_spike_slope(GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case GROUND_SPIKE_SLOPE_45:
         case GROUND_SPIKE_SLOPE_22_66:
         case WAVY_GROUND_SPIKE_SLOPE_45:
@@ -1604,7 +1734,7 @@ float slope_snap_angle(GameObject *obj, Player *player) {
 }
 
 float expected_slope_y(GameObject *obj, Player *player) {
-    int flipping = grav_slope_orient(obj, player) >= 2;
+    int flipping = grav_slope_orient(obj, player) >= ORIENT_UD_DOWN;
     int mult = (player->upside_down ^ flipping) ? -1 : 1;
     
     float angle = slope_angle(obj, player);
@@ -1714,7 +1844,7 @@ void slope_calc(GameObject *obj, Player *player) {
 
             vel *= time;
 
-            //printf("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, obj->y);
+            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, *soa_y(obj));
             player->vel_y = vel;
             player->inverse_rotation = TRUE;
             player->coyote_slope = player->slope_data;
@@ -1746,7 +1876,7 @@ void slope_calc(GameObject *obj, Player *player) {
         
         bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
         
-        if (player->gamemode == GAMEMODE_CUBE && !gravSnap) {
+        if (player->is_cube_or_robot && !gravSnap) {
             state.dead = TRUE;
         }
 
@@ -1776,7 +1906,7 @@ void slope_calc(GameObject *obj, Player *player) {
             vel *= time;
 
             player->vel_y = -vel;
-            //printf("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, obj->y);
+            //output_log("%d - vel %.2f orig %.2f time %.2f elapsed %.2f %.2f y %.2f obj_y %.2f\n", state.current_player, -vel, -orig, time, player->timeElapsed, player->slope_data.elapsed, player->y, *soa_y(obj));
 
             player->inverse_rotation = TRUE;
             player->coyote_slope = player->slope_data;
@@ -1792,7 +1922,7 @@ void slope_calc(GameObject *obj, Player *player) {
         
         bool gravSnap = (player->ceiling_inv_time > 0) || (player->gravObj && player->gravObj->hitbox_counter[state.current_player] == 1);
         
-        if (player->gamemode == GAMEMODE_CUBE && !gravSnap) {
+        if (player->is_cube_or_robot && !gravSnap) {
             state.dead = TRUE;
         }
 
@@ -1821,17 +1951,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_UD_DOWN:
-            x1 = obj->x - hw;
-            y1 = obj->y - hh;
-            x2 = obj->x + hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) - hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) + hw;
+            y2 = *soa_y(obj) + hh;
             break;
         case ORIENT_NORMAL_DOWN:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -1843,17 +1973,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x + hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) + hw;
+            y2 = *soa_y(obj) + hh;
             break;
         case ORIENT_NORMAL_DOWN:
         case ORIENT_UD_DOWN:
-            x1 = obj->x - hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) - hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -1866,17 +1996,17 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
     switch (orientation) {
         case ORIENT_NORMAL_UP:
         case ORIENT_NORMAL_DOWN:
-            x1 = obj->x + hw;
-            y1 = obj->y - hh;
-            x2 = obj->x - hw;
-            y2 = obj->y - hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) - hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) - hh;
             break;
         case ORIENT_UD_DOWN:
         case ORIENT_UD_UP:
-            x1 = obj->x + hw;
-            y1 = obj->y + hh;
-            x2 = obj->x - hw;
-            y2 = obj->y + hh;
+            x1 = *soa_x(obj) + hw;
+            y1 = *soa_y(obj) + hh;
+            x2 = *soa_x(obj) - hw;
+            y2 = *soa_y(obj) + hh;
             break;
         default:
             x1 = y1 = x2 = y2 = 0;
@@ -1891,7 +2021,7 @@ bool player_circle_touches_slope(GameObject *obj, Player *player) {
 void slope_collide(GameObject *obj, Player *player) {
     int clip = (player->gamemode == GAMEMODE_SHIP || player->gamemode == GAMEMODE_UFO) ? 7 : 10;
     int orient = grav_slope_orient(obj, player);  
-    int mult = orient >= 2 ? -1 : 1;
+    int mult = orient >= ORIENT_UD_DOWN ? -1 : 1;
 
     InternalHitbox internal = player->internal_hitbox;
 
@@ -1901,7 +2031,7 @@ void slope_collide(GameObject *obj, Player *player) {
     if (orient == ORIENT_NORMAL_UP || orient == ORIENT_UD_UP) {
         bool internalCollidingSlope = intersect(
             player->x, player->y, internal.width, internal.height, 0, 
-            obj_getRight(obj), obj->y, 1, obj->height, 0
+            obj_getRight(obj), *soa_y(obj), 1, obj->height, 0
         );
 
         // Die if so
@@ -1914,7 +2044,7 @@ void slope_collide(GameObject *obj, Player *player) {
         orient < ORIENT_UD_DOWN && 
         gravTop(player) - obj_gravBottom(player, obj) <= clip + 5 * !player->mini // Remove extra if mini
     ) {
-        if (player->gamemode != GAMEMODE_WAVE && ((player->gamemode != GAMEMODE_CUBE && (player->vel_y >= 0)) || gravSnap)) {
+        if (player->gamemode != GAMEMODE_WAVE && ((!player->is_cube_or_robot && (player->vel_y >= 0)) || gravSnap)) {
             player->vel_y = 0;
             if (!gravSnap) player->on_ceiling = TRUE;
             player->time_since_ground = 0;
@@ -1922,7 +2052,7 @@ void slope_collide(GameObject *obj, Player *player) {
         } else {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -1945,7 +2075,7 @@ void slope_collide(GameObject *obj, Player *player) {
         } else {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -1964,7 +2094,7 @@ void slope_collide(GameObject *obj, Player *player) {
         if (obj_gravTop(player, obj) - gravBottom(player) > clip) {
             bool internalCollidingSlope = intersect(
                 player->x, player->y, internal.width, internal.height, 0, 
-                obj->x, obj->y, obj->width, obj->height, 0
+                *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
             );
 
             if (internalCollidingSlope) state.dead = TRUE;
@@ -1983,12 +2113,12 @@ void slope_collide(GameObject *obj, Player *player) {
             return;
         }
     }
-    
-    if (!gravSnap && player->gamemode == GAMEMODE_CUBE && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
+
+    if (!gravSnap && player->is_cube_or_robot && grav_slope_orient(obj, player) >= 2 && !player_circle_touches_slope(obj, player)) return;
 
     bool colliding = intersect(
         player->x, player->y, player->width, player->height, 0, 
-        obj->x, obj->y, obj->width, obj->height, 0
+        *soa_x(obj), *soa_y(obj), obj->width, obj->height, 0
     );
 
     GameObject *slope = player->slope_data.slope;
@@ -2023,7 +2153,7 @@ void slope_collide(GameObject *obj, Player *player) {
         bool clip = slope_touching(obj, player);
         bool snapDown = (orient == ORIENT_NORMAL_DOWN || orient == ORIENT_UD_DOWN) && player->vel_y * mult > 0 && player->x - obj_getLeft(obj) > 0;
 
-        //printf("p %d - orient %d, slope angle %.2f - hasSlope %d, projectedHit %d clip %d snapDown %d (clip val %.2f)\n", state.current_player, orient, slope_angle(obj,player), hasSlope, projectedHit, clip, snapDown, grav(player, player->y) - grav(player, expected_slope_y(obj, player)));
+        //output_log("p %d - orient %d, slope angle %.2f - hasSlope %d, projectedHit %d clip %d snapDown %d (clip val %.2f)\n", state.current_player, orient, slope_angle(obj,player), hasSlope, projectedHit, clip, snapDown, grav(player, player->y) - grav(player, expected_slope_y(obj, player)));
         
         if ((projectedHit && clip) || snapDown) {
             // If wave, just die, nothing else, wave hates slopes
@@ -2055,6 +2185,10 @@ void slope_collide(GameObject *obj, Player *player) {
                 }
             }
 
+            if (!state.old_player.slope_data.slope && !player->coyote_slope.slope) {
+                player->slope_data.elapsed = 0.f;
+            }
+
             // If the player wasn't on an slope, initialize the time elapsed
             if (!player->slope_data.elapsed) {
                 Player *other_player = (state.current_player == 0 ? &state.player2 : &state.player);
@@ -2062,9 +2196,9 @@ void slope_collide(GameObject *obj, Player *player) {
                 // Make both times synced if close enough
                 if (other_player->slope_data.slope && fabsf(player->timeElapsed - other_player->slope_data.elapsed) < 0.10) {
                     player->slope_data.elapsed = other_player->slope_data.elapsed;
-                    //printf("yes elapsing %.2f\n", other_player->slope_data.elapsed);
+                    //output_log("yes elapsing %.2f\n", other_player->slope_data.elapsed);
                 } else {
-                    //printf("no elapsing %.2f becoz other player slope %d and fabsf = %.2f\n", player->timeElapsed, (int) other_player->slope_data.slope, fabsf(player->timeElapsed - other_player->slope_data.elapsed));
+                    //output_log("no elapsing %.2f becoz other player slope %d and fabsf = %.2f\n", player->timeElapsed, (int) other_player->slope_data.slope, fabsf(player->timeElapsed - other_player->slope_data.elapsed));
                     player->slope_data.elapsed = player->timeElapsed;
                 }
             }
@@ -2083,6 +2217,8 @@ bool slope_touching(GameObject *obj, Player *player) {
     float deg = RadToDeg(fabsf(slope_angle(obj, player)));
     float snap_height = 20 * (deg / 45);
     float min = hasSlope ? -3 : 0;
+    
+    if (obj_getRight(obj) < getLeft(player)) return false;
 
     switch (grav_slope_orient(obj, player)) {
         case ORIENT_NORMAL_UP:
@@ -2119,9 +2255,9 @@ void snap_player_to_slope(GameObject *obj, Player *player) {
             }
         }
 
-        //printf("best snap %.2f prev rotation %.2f\n", bestSnap, player->rotation);
+        //output_log("best snap %.2f prev rotation %.2f\n", bestSnap, player->rotation);
         player->rotation = bestSnap;
-    } else if (player->gamemode == GAMEMODE_UFO) {
+    } else if (player->gamemode == GAMEMODE_UFO || player->gamemode == GAMEMODE_ROBOT) {
         player->rotation = RadToDeg(slope_snap_angle(obj, player));
     }
 }
@@ -2171,38 +2307,43 @@ void draw_square(Vec2D rect[4], uint32_t color) {
 }
 
 void draw_hitbox(GameObject *obj) {
-    ObjectHitbox hitbox = objects[obj->id].hitbox;
+    ObjectHitbox hitbox = objects[*soa_id(obj)].hitbox;
 
-    float x = obj->x;
-    float y = obj->y;
-    float w = hitbox.width;
-    float h = hitbox.height;
     float angle = obj->rotation;
+
+    float x = *soa_x(obj) + get_rotated_x_hitbox(hitbox.x_off, hitbox.y_off, angle);
+    float y = *soa_y(obj) + get_rotated_y_hitbox(hitbox.x_off, hitbox.y_off, angle);
+    float w = hitbox.width * obj->scale_x;
+    float h = hitbox.height * obj->scale_y;
+
+    if (obj_hitbox_static(*soa_id(obj))) {
+        angle = 0;
+    }
+
+    if (obj->toggled) return;
 
     unsigned int color = RGBA(0x00, 0xff, 0xff, 0xff);
 
     int hitbox_type = hitbox.type;
     if (hitbox_type == HITBOX_SPIKE) color = RGBA(0xff, 0x00, 0x00, 0xff);
     if (hitbox_type == HITBOX_SOLID) color = RGBA(0x00, 0x00, 0xff, 0xff);
+    if (hitbox_type == HITBOX_TRIGGER) color = RGBA(0x00, 0xff, 0x00, 0xff);
     
     if (obj == state.player.slope_data.slope || obj == state.player2.slope_data.slope) color = RGBA(0x00, 0xff, 0x00, 0xff);
 
     Vec2D rect[4];
-    if (objects[obj->id].is_slope) {
+    if (objects[*soa_id(obj)].is_slope) {
         w = obj->width;
         h = obj->height;
         get_corners(x, y, w, h, 0, rect);
 
         draw_triangle_from_rect(rect, 3 - obj->object.orientation,color);
-    } else if (objects[obj->id].is_saw) {
-        if (hitbox.radius == 0) return;
-
-        float calc_radius = hitbox.radius * SCALE;
+    } else if (hitbox.radius != 0) {
+        float calc_radius = hitbox.radius * MAX(obj->scale_x, obj->scale_y) * SCALE;
 
         custom_circunference(calc_x_on_screen(x), calc_y_on_screen(y), calc_radius, color, 2.f);
-    } else {
-        if (w == 0 || h == 0) return;
-
+    } else if (w != 0 && h != 0) {
+        if (hitbox.type == HITBOX_TRIGGER && !obj->trigger.touch_triggered) return;
         get_corners(x, y, w, h, angle, rect);
         draw_square(rect, color);
     }

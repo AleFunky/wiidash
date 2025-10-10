@@ -63,6 +63,7 @@ enum ParticleTextures {
     PARTICLE_CIRCUNFERENCE,
     PARTICLE_P1_TRAIL,
     PARTICLE_COIN,
+    PARTICLE_KEY,
 };
 
 enum ParticleGroupID {
@@ -93,6 +94,9 @@ enum ParticleGroupID {
     END_WALL_COMPLETE_CIRCLES,
     END_WALL_FIREWORK,
     END_WALL_TEXT_EFFECT,
+    ROBOT_JUMP_PARTICLES,
+    KEY_OBJ_PART,
+    KEY_PARTICLES
 };
 
 extern ParticleTemplate particle_templates[];

@@ -1,7 +1,14 @@
 #pragma once
 
+#define LIKELY(x)   __builtin_expect(!!(x), 1)
+#define UNLIKELY(x) __builtin_expect(!!(x), 0)
+
+// Enable printing of mallocs and frees
+//#define REPORT_LEAKS
+
 #include "player.h"
 #include "particles.h"
+
 
 extern int screenWidth;
 extern int widthAdjust;
@@ -97,6 +104,8 @@ typedef struct {
     bool paused;
 
     float level_progress;
+
+    float timer;
     
     Particle particles[MAX_PARTICLES];
 
@@ -105,7 +114,6 @@ typedef struct {
 
     KeyInput input;
 } GameState;
-
 
 enum GameRoutine {
     ROUTINE_MENU,
@@ -144,6 +152,7 @@ extern float player_draw_time;
 
 extern int number_of_collisions;
 extern int number_of_collisions_checks;
+extern int number_of_moving_objects;
 
 extern char launch_dir[256];
 
@@ -154,6 +163,10 @@ extern GameState state;
 extern GRRLIB_texImg *big_font_text;
 extern GRRLIB_texImg *font;
 extern GRRLIB_texImg *cursor;
+
+#include "animation.h"
+
+extern AnimationLibrary robot_animations;
 
 void update_ir_cursor();
 void draw_ir_cursor();
@@ -166,6 +179,15 @@ extern float cursor_rotated_point_y;
 extern float dt;
 
 bool is_dolphin();
+#ifdef REPORT_LEAKS
+void* dbg_malloc(size_t size, const char* file, int line);
+void* dbg_realloc(void* ptr, size_t size, const char* file, int line);
+void dbg_free(void* ptr, const char* file, int line);
+#define malloc(x) dbg_malloc(x, __FILE__, __LINE__)
+#define realloc(p, s) dbg_realloc(p, s, __FILE__, __LINE__)
+#define free(x)   dbg_free(x, __FILE__, __LINE__)
+void report_leaks(void);
+#endif
 
 void draw_game();
 void update_input();

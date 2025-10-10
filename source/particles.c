@@ -656,7 +656,77 @@ ParticleTemplate particle_templates[] = {
         .maxRadius = 0,
         .priority = 100,
         .texture_id = PARTICLE_SQUARE
-    }
+    },
+    [ROBOT_JUMP_PARTICLES] = {
+        .angle = 0, .angleVar = 180,
+        .speed = 15, .speedVar = 4,
+        .gravity_x = 0, .gravity_y = -300,
+        .rel_gravity = FALSE,
+        .life = 0.5f, .lifeVar = 0.15f,
+        .start_scale = 0.5, .start_scaleVar = 0.1,
+        .end_scale = 0, .end_scaleVar = 0,
+        .start_color = {255,0,0,255},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,0,255},
+        .end_colorVar = {0,0,0,0},
+        .blending = TRUE,
+        .sourcePosVarX = 0, .sourcePosVarY = 0,
+        .rotatePerSecond = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 70,
+        .texture_id = PARTICLE_SQUARE
+    },
+    [KEY_OBJ_PART] = {
+        .angle = 90, .angleVar = 7,
+        .speed = 400, .speedVar = 10,
+        .gravity_x = 0, .gravity_y = -1500,
+        .rel_gravity = FALSE,
+        .life = 3.f, .lifeVar = 0,
+        .start_scale = 0.733333f, .start_scaleVar = 0,
+        .end_scale = 0.733333f, .end_scaleVar = 0,
+        .start_color = {255,255,255,255},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,255,0},
+        .end_colorVar = {0,0,0,0},
+        .blending = FALSE,
+        .sourcePosVarX = 0, .sourcePosVarY = 0,
+        .rotatePerSecond = 0,
+        .rotatePerSecondVariance = 0,
+        .rotationStart = 0,
+        .rotationStartVariance = 0,
+        .rotationEnd = 0,
+        .rotationEndVariance = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 100,
+        .texture_id = PARTICLE_KEY
+    },
+    [KEY_PARTICLES] = {
+        .angle = 0, .angleVar = 180,
+        .speed = 5, .speedVar = 5,
+        .gravity_x = 0, .gravity_y = 0,
+        .rel_gravity = FALSE,
+        .life = 0.6f, .lifeVar = 0.15f,
+        .start_scale = 0.07, .start_scaleVar = 0.05,
+        .end_scale = 0, .end_scaleVar = 0,
+        .start_color = {255,255,255,127},
+        .start_colorVar = {0,0,0,0},
+        .end_color = {255,255,255,0},
+        .end_colorVar = {0,0,0,0},
+        .blending = TRUE,
+        .sourcePosVarX = 15, .sourcePosVarY = 10,
+        .rotatePerSecond = 0,
+        .rotatePerSecondVariance = 0,
+        .rotationStart = 0,
+        .rotationStartVariance = 0,
+        .rotationEnd = 0,
+        .rotationEndVariance = 0,
+        .minRadius = 0,
+        .maxRadius = 0,
+        .priority = 50,
+        .texture_id = PARTICLE_SQUARE
+    },
 };
 
 void add_particle(int i, int group_id, float x, float y, GameObject *parent_obj) {
@@ -705,15 +775,21 @@ void add_particle(int i, int group_id, float x, float y, GameObject *parent_obj)
     particles[i].life = life;
     particles[i].elapsed = 0;
 
+    float opacity = 1.f;
+
+    if (parent_obj && !(group_id == USE_EFFECT || group_id == ORB_HITBOX_EFFECT)) {
+        opacity = parent_obj->opacity;
+    }
+
     // Color interpolation
     particles[i].start_color.r = sc.r + scv.r * random_float(-1, 1);
     particles[i].start_color.g = sc.g + scv.g * random_float(-1, 1);
     particles[i].start_color.b = sc.b + scv.b * random_float(-1, 1);
-    particles[i].start_color.a = sc.a + scv.a * random_float(-1, 1);
+    particles[i].start_color.a = (sc.a + scv.a * random_float(-1, 1)) * opacity;
     particles[i].end_color.r = ec.r + ecv.r * random_float(-1, 1);
     particles[i].end_color.g = ec.g + ecv.g * random_float(-1, 1);
     particles[i].end_color.b = ec.b + ecv.b * random_float(-1, 1);
-    particles[i].end_color.a = ec.a + ecv.a * random_float(-1, 1);
+    particles[i].end_color.a = (ec.a + ecv.a * random_float(-1, 1)) * opacity;
 
     particles[i].color = particles[i].start_color;
     particles[i].color_delta.r = (particles[i].end_color.r - particles[i].start_color.r) / life;
@@ -775,17 +851,17 @@ void update_particles() {
     for (int i = 0; i < MAX_PARTICLES; i++) {
         Particle *p = &state.particles[i];
         if (p->active) {
-            p->velocity_angle += p->rotate_per_second * STEPS_DT;
+            p->velocity_angle += p->rotate_per_second * dt;
             if (p->rel_gravity) {
-                p->vx += (p->gravity_y * cosf(DegToRad(p->velocity_angle)) - p->gravity_x * sinf(DegToRad(p->velocity_angle))) * STEPS_DT;
-                p->vy += (p->gravity_y * sinf(DegToRad(p->velocity_angle)) + p->gravity_x * cosf(DegToRad(p->velocity_angle))) * STEPS_DT;
+                p->vx += (p->gravity_y * cosf(DegToRad(p->velocity_angle)) - p->gravity_x * sinf(DegToRad(p->velocity_angle))) * dt;
+                p->vy += (p->gravity_y * sinf(DegToRad(p->velocity_angle)) + p->gravity_x * cosf(DegToRad(p->velocity_angle))) * dt;
             } else {
-                p->vx += p->gravity_x * STEPS_DT;
-                p->vy += p->gravity_y * STEPS_DT;
+                p->vx += p->gravity_x * dt;
+                p->vy += p->gravity_y * dt;
             }
 
-            p->x += p->vx * STEPS_DT;
-            p->y += p->vy * STEPS_DT;
+            p->x += p->vx * dt;
+            p->y += p->vy * dt;
 
             if (p->lock_to_player) {
                 if (p->player_id == 0) {
@@ -798,9 +874,9 @@ void update_particles() {
             }
 
             p->scale = easeValue(EASE_OUT, p->start_scale, p->end_scale, p->elapsed, p->life, 2.f);
-            p->color.r += p->color_delta.r * STEPS_DT;
-            p->color.g += p->color_delta.g * STEPS_DT;
-            p->color.b += p->color_delta.b * STEPS_DT;
+            p->color.r += p->color_delta.r * dt;
+            p->color.g += p->color_delta.g * dt;
+            p->color.b += p->color_delta.b * dt;
             if (p->trifading) {
                 if (p->elapsed / p->life < 0.5f) {
                     p->color.a = easeValue(EASE_IN, p->start_color.a, p->end_color.a, p->elapsed, p->life / 2, 2.f);
@@ -810,7 +886,7 @@ void update_particles() {
             } else {
                 p->color.a = easeValue(EASE_OUT, p->start_color.a, p->end_color.a, p->elapsed, p->life, 2.f);
             }
-            p->elapsed += STEPS_DT;
+            p->elapsed += dt;
             if (p->elapsed >= p->life) {
                 p->active = FALSE;
             }
@@ -932,7 +1008,7 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
 
     float fade_scale = 1.f;
     
-    float x = ((parent_obj->x - state.camera_x) * SCALE) - widthAdjust;
+    float x = ((*soa_x(parent_obj) - state.camera_x) * SCALE) - widthAdjust;
     get_fade_vars(parent_obj, x, &fade_x, &fade_y, &fade_scale);
 
     GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
@@ -987,6 +1063,42 @@ void draw_obj_particles(int group_id, GameObject *parent_obj) {
                         ),
                         2
                     );
+                    break;
+                case PARTICLE_KEY:
+                    GX_SetTevOp(GX_TEVSTAGE0, GX_MODULATE);
+                    GX_SetVtxDesc(GX_VA_TEX0,   GX_DIRECT);
+                    int col_channel;
+                    u32 color;
+
+                    GRRLIB_texImg *key_tex = object_images[KEY_OBJ][0]; // First layer
+                    if (!key_tex) break;
+
+                    col_channel = parent_obj->object.main_col_channel;
+                    color = get_layer_color(parent_obj, COLOR_MAIN, col_channel, 255, 1);
+                    set_texture(key_tex);
+                    custom_drawImg(
+                        get_mirror_x(calc_x, state.mirror_factor) + 6 - (key_tex->w/2), calc_y + 6 - (key_tex->h/2),
+                        key_tex,
+                        p->rotation * state.mirror_mult,
+                        p->scale * state.mirror_mult, p->scale,
+                        color
+                    );
+                    key_tex = object_images[KEY_OBJ][1]; // Second layer
+                    if (!key_tex) break;
+
+                    col_channel = parent_obj->object.detail_col_channel;
+                    color = get_layer_color(parent_obj, COLOR_DETAIL, col_channel, 255, WHITE);
+
+                    set_texture(key_tex);
+                    custom_drawImg(
+                        get_mirror_x(calc_x, state.mirror_factor) + 6 - (key_tex->w/2), calc_y + 6 - (key_tex->h/2),
+                        key_tex,
+                        p->rotation * state.mirror_mult,
+                        p->scale * state.mirror_mult, p->scale,
+                        color
+                    );
+                    GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+                    GX_SetVtxDesc(GX_VA_TEX0,   GX_NONE);
                     break;
             }
             GRRLIB_SetBlend(GRRLIB_BLEND_ALPHA);

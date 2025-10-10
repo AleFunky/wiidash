@@ -21,6 +21,26 @@
 #include "particle_png.h"
 #include <ogc/lwp_watchdog.h>
 
+#include "triggers.h"
+
+#include "groups.h"
+
+AnimationDefinition monster_1_anim;
+AnimationDefinition monster_2_anim;
+AnimationDefinition monster_3_anim;
+AnimationDefinition black_sludge_anim;
+
+FramesDefinition fire1_anim;
+FramesDefinition fire2_anim;
+FramesDefinition fire3_anim;
+FramesDefinition fire4_anim;
+
+FramesDefinition water_1_anim;
+FramesDefinition water_2_anim;
+FramesDefinition water_3_anim;
+FramesDefinition loading_1_anim;
+FramesDefinition loading_2_anim;
+
 GRRLIB_texImg *prev_tex = NULL;
 int prev_blending = GRRLIB_BLEND_ALPHA;
 
@@ -32,40 +52,41 @@ const int dual_gamemode_heights[GAMEMODE_COUNT] = {
     9,  // Ball
     10, // Ufo
     10, // Wave
+    9, // Robot
 };
 
 const float jump_heights_table[SPEED_COUNT][JUMP_TYPES_COUNT][GAMEMODE_COUNT][2] = {
-    { // SLOW               CUBE                   SHIP                  BALL                    UFO                 WAVE
-    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {573.48,   458.784},  {0, 0}},
-    /* YELLOW ORB */ {{573.48,   458.784},  {573.48,   458.784},  {401.435993,  321.148795},  {573.48,   458.784},  {0, 0}},
-    /* BLUE PAD   */ {{-345.6,   -276.48},  {-229.392, -183.519}, {-160.574397, -128.463298}, {-229.392, -183.519}, {0, 0}},
-    /* BLUE ORB   */ {{-229.392, -183.519}, {-229.392, -183.519}, {-160.574397, -128.463298}, {-229.392, -183.519}, {0, 0}},
-    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}},
-    /* PINK ORB   */ {{412.884,  330.318},  {212.166,  169.776},  {309.090595,  247.287596},  {240.84,   192.672},  {0, 0}},
+    { // SLOW               CUBE                   SHIP                  BALL                    UFO                 WAVE         ROBOT
+    /* YELLOW PAD */ {{875.64,   691.2},    {432,      508.248},  {518.4,       414.72002},   {573.48,   458.784},  {0, 0}, {864,      691.2}},
+    /* YELLOW ORB */ {{585.12,   458.784},  {573.48,   458.784},  {401.435993,  321.148795},  {573.48,   458.784},  {0, 0}, {516.132,  430.9056}},
+    /* BLUE PAD   */ {{-345.6,   -276.48},  {-229.392, -183.519}, {-160.574397, -128.463298}, {-229.392, -183.519}, {0, 0}, {-345.6,   -276.48}},
+    /* BLUE ORB   */ {{-229.392, -183.519}, {-229.392, -183.519}, {-160.574397, -128.463298}, {-229.392, -183.519}, {0, 0}, {-229.392, -183.519}},
+    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}, {561.6,    449.28}},
+    /* PINK ORB   */ {{412.884,  330.318},  {212.166,  169.776},  {309.090595,  247.287596},  {240.84,   192.672},  {0, 0}, {412.884,  330.318}},
     },
     { // NORMAL
-    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}},
-    /* YELLOW ORB */ {{603.72,   482.976},  {603.72,   482.976},  {422.60399,   338.08319},   {603.72,   482.976},  {0, 0}},
-    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}},
-    /* BLUE ORB   */ {{-241.488, -193.185}, {-241.488, -193.18},  {-169.04160,  -135.2295},   {-241.488, -193.185}, {0, 0}},
-    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}},
-    /* PINK ORB   */ {{434.7,    347.76},   {223.398,  178.686},  {325.42019,   260.3286},    {258.984,  207.198},  {0, 0}},
+    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}, {864,      691.2}},
+    /* YELLOW ORB */ {{603.72,   482.976},  {603.72,   482.976},  {422.60399,   338.08319},   {603.72,   482.976},  {0, 0}, {543.348,  434.6784}},
+    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}, {-345.6,   -276.48}},
+    /* BLUE ORB   */ {{-241.488, -193.185}, {-241.488, -193.18},  {-169.04160,  -135.2295},   {-241.488, -193.185}, {0, 0}, {-241.488, -193.185}},
+    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}, {561.6,    449.28}},
+    /* PINK ORB   */ {{434.7,    347.76},   {223.398,  178.686},  {325.42019,   260.3286},    {258.984,  207.198},  {0, 0}, {434.7,    347.76}},
     },
     { // FAST
-    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}},
-    /* YELLOW ORB */ {{616.68,   481.734},  {616.68,   481.734},  {431.67599,   345.34079},   {616.68,   481.734},  {0, 0}},
-    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}},
-    /* BLUE ORB   */ {{-246.672, -197.343}, {-246.672, -197.343}, {-172.6704,   -138.1401},   {-246.672, -197.343}, {0, 0}},
-    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}},
-    /* PINK ORB   */ {{443.988,  355.212},  {228.15,   182.52},   {332.37539,   265.923},     {258.984,  207.198},  {0, 0}},
+    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}, {864,      691.2}},
+    /* YELLOW ORB */ {{616.68,   481.734},  {616.68,   481.734},  {431.67599,   345.34079},   {616.68,   481.734},  {0, 0}, {555.012,  433.5687}},
+    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}, {-345.6,   -276.48}},
+    /* BLUE ORB   */ {{-246.672, -197.343}, {-246.672, -197.343}, {-172.6704,   -138.1401},   {-246.672, -197.343}, {0, 0}, {-246.672, -197.343}},
+    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}, {561.6,    449.28}},
+    /* PINK ORB   */ {{443.988,  355.212},  {228.15,   182.52},   {332.37539,   265.923},     {258.984,  207.198},  {0, 0}, {443.988,  355.212}},
     },
     { // FASTER
-    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}},
-    /* YELLOW ORB */ {{606.42,   485.136},  {606.42,   485.136},  {424.493993,  339.59519},   {606.42,   485.136},  {0, 0}},
-    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}},
-    /* BLUE ORB   */ {{-242.568, -194.049}, {-242.568, -194.049}, {-169.7976,   -135.8343},   {-242.568, -194.049}, {0, 0}},
-    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}},
-    /* PINK ORB   */ {{436.644,  349.272},  {224.37,   179.496},  {326.85659,   261.5004},    {254.718,  203.742},  {0, 0}},
+    /* YELLOW PAD */ {{864,      691.2},    {432,      508.248},  {518.4,       414.72002},   {432,      691.2},    {0, 0}, {864,      691.2}},
+    /* YELLOW ORB */ {{606.42,   485.136},  {606.42,   485.136},  {424.493993,  339.59519},   {606.42,   485.136},  {0, 0}, {545.778,  436.6224}},
+    /* BLUE PAD   */ {{-345.6,   -276.48},  {-345.6,   -276.48},  {-207.36001,  -165.88801},  {-345.6,   -276.48},  {0, 0}, {-345.6,   -276.48}},
+    /* BLUE ORB   */ {{-242.568, -194.049}, {-242.568, -194.049}, {-169.7976,   -135.8343},   {-242.568, -194.049}, {0, 0}, {-242.568, -194.049}},
+    /* PINK PAD   */ {{561.6,    449.28},   {302.4,    241.92},   {362.88001,   290.30401},   {345.6,    276.4},    {0, 0}, {561.6,    449.28}},
+    /* PINK ORB   */ {{436.644,  349.272},  {224.37,   179.496},  {326.85659,   261.5004},    {254.718,  203.742},  {0, 0}, {436.644,  349.272}},
     }
 };
 
@@ -91,7 +112,7 @@ void set_particle_color(int template_id, int r, int g, int b) {
 }
 
 void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_PAD:
             if (!obj->activated[state.current_player]) {
                 MotionTrail_ResumeStroke(&trail);
@@ -101,6 +122,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 player->left_ground = TRUE;
                 player->ufo_last_y = player->y;
                 
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
+                
                 particle_templates[USE_EFFECT].start_scale = 0;
                 particle_templates[USE_EFFECT].end_scale = 60;
                 particle_templates[USE_EFFECT].trifading = FALSE;
@@ -109,7 +133,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 255;
                 particle_templates[USE_EFFECT].end_color.a = 0;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             }
@@ -124,6 +148,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 player->left_ground = TRUE;
                 player->ufo_last_y = player->y;
                 
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
+                
                 particle_templates[USE_EFFECT].start_scale = 0;
                 particle_templates[USE_EFFECT].end_scale = 60;
                 particle_templates[USE_EFFECT].trifading = FALSE;
@@ -132,7 +159,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 255;
                 particle_templates[USE_EFFECT].end_color.a = 0;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             }
@@ -162,6 +189,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 player->inverse_rotation = FALSE;
                 player->ufo_last_y = player->y;
                 
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
+                
                 particle_templates[USE_EFFECT].start_scale = 0;
                 particle_templates[USE_EFFECT].end_scale = 60;
                 particle_templates[USE_EFFECT].trifading = FALSE;
@@ -170,7 +200,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 255;
                 particle_templates[USE_EFFECT].end_color.a = 0;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             }
@@ -190,6 +220,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 player->left_ground = TRUE;
                 player->buffering_state = BUFFER_END;
                 player->ufo_last_y = player->y;
+                
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
 
                 particle_templates[USE_EFFECT].start_scale = 70;
                 particle_templates[USE_EFFECT].end_scale = 0;
@@ -199,11 +232,11 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             } 
-            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
             break;
         
         case PINK_ORB:
@@ -221,6 +254,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 player->buffering_state = BUFFER_END;
                 player->ufo_last_y = player->y;
 
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
+
                 particle_templates[USE_EFFECT].start_scale = 70;
                 particle_templates[USE_EFFECT].end_scale = 0;
                 particle_templates[USE_EFFECT].trifading = TRUE;
@@ -229,11 +265,11 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             } 
-            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
             break;
         
         case BLUE_ORB:
@@ -248,6 +284,9 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 flip_other_player(state.current_player);
                 
                 player->ball_rotation_speed = -1.f;
+
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
                 
                 player->on_ground = FALSE;
                 player->on_ceiling = FALSE;
@@ -264,11 +303,53 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 obj->activated[state.current_player] = TRUE;
             } 
-            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
+            break;
+        
+        case GREEN_ORB:
+            if (!obj->activated[state.current_player] && (state.input.holdJump) && player->buffering_state == BUFFER_READY) {    
+                MotionTrail_ResumeStroke(&trail);
+                player->gravObj = obj;
+                player->ceiling_inv_time = 0.5f;
+                
+                player->upside_down ^= 1;
+                player->vel_y = jump_heights_table[state.speed][JUMP_YELLOW_ORB][player->gamemode][player->mini];
+                
+                if (player->gamemode == GAMEMODE_SHIP) {
+                    player->vel_y *= 0.7f;
+                }
+
+                player->ball_rotation_speed = -1.f;
+                
+                player->robot_anim_timer = 0;
+                player->curr_robot_animation_id = ROBOT_JUMP_START;
+                
+                flip_other_player(state.current_player);
+                
+                player->on_ground = FALSE;
+                player->on_ceiling = FALSE;
+                player->inverse_rotation = FALSE;
+                player->left_ground = TRUE;
+                player->buffering_state = BUFFER_END;
+                player->ufo_last_y = player->y;
+
+                particle_templates[USE_EFFECT].start_scale = 70;
+                particle_templates[USE_EFFECT].end_scale = 0;
+                particle_templates[USE_EFFECT].trifading = TRUE;
+
+                set_particle_color(USE_EFFECT, 0, 255, 0);
+                particle_templates[USE_EFFECT].start_color.a = 0;
+                particle_templates[USE_EFFECT].end_color.a = 255;
+
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
+
+                obj->activated[state.current_player] = TRUE;
+            } 
+            if (!obj->collided[state.current_player]) spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
             break;
 
         case CUBE_PORTAL: 
@@ -276,7 +357,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 state.ground_y = 0;
                 state.ceiling_y = 999999;
                 if (player->gamemode != GAMEMODE_CUBE) {
-                    if (player->gamemode != GAMEMODE_BALL) {
+                    if (player->gamemode != GAMEMODE_BALL && player->gamemode != GAMEMODE_ROBOT) {
                         MotionTrail_StopStroke(&trail);
                         player->vel_y /= 2;
                     }
@@ -286,6 +367,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     player->ceiling_inv_time = 0.1f;
                     player->snap_rotation = TRUE;
                     player->gamemode = GAMEMODE_CUBE;
+                    player->is_cube_or_robot = TRUE;
                     flip_other_player(state.current_player ^ 1);
 
                     particle_templates[USE_EFFECT].start_scale = 80;
@@ -296,7 +378,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
 
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 if (state.dual) {
                     set_dual_bounds();
@@ -307,7 +389,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
             
         case SHIP_PORTAL: 
             if (!obj->activated[state.current_player]) {
-                state.ground_y = maxf(0, ip1_ceilf((obj->y - 180) / 30.f)) * 30;
+                state.ground_y = maxf(0, ip1_ceilf((*soa_y(obj) - 180) / 30.f)) * 30;
                 state.ceiling_y = state.ground_y + 300;
                 set_intended_ceiling();
 
@@ -337,7 +419,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
 
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 if (state.dual) {
                     set_dual_bounds();
@@ -361,6 +443,11 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     player->left_ground = TRUE;
                     player->ufo_last_y = player->y;
 
+                    player->robot_air_time = 1.5f;
+                    
+                    player->robot_anim_timer = 0;
+                    player->curr_robot_animation_id = ROBOT_FALL_START;
+
                     particle_templates[USE_EFFECT].start_scale = 80;
                     particle_templates[USE_EFFECT].end_scale = 0;
                     particle_templates[USE_EFFECT].trifading = TRUE;
@@ -369,7 +456,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
                     
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 obj->activated[state.current_player] = TRUE;
             }
@@ -387,6 +474,11 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     flip_other_player(state.current_player);
                     player->left_ground = TRUE;
                     player->ufo_last_y = player->y;
+                    
+                    player->robot_air_time = 1.5f;
+                    
+                    player->robot_anim_timer = 0;
+                    player->curr_robot_animation_id = ROBOT_FALL_START;
 
                     particle_templates[USE_EFFECT].start_scale = 80;
                     particle_templates[USE_EFFECT].end_scale = 0;
@@ -396,7 +488,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
                     
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
             }
             obj->activated[state.current_player] = TRUE;
@@ -411,7 +503,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
                 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 state.intended_mirror_factor = 1.f;
                 state.intended_mirror_speed_factor = -1.f;
@@ -428,7 +520,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
                 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 state.intended_mirror_factor = 0.f;
                 state.intended_mirror_speed_factor = 1.f;
@@ -438,7 +530,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         
         case BALL_PORTAL: 
             if (!obj->activated[state.current_player]) {
-                state.ground_y = maxf(0, ip1_ceilf((obj->y - 150) / 30.f)) * 30;
+                state.ground_y = maxf(0, ip1_ceilf((*soa_y(obj) - 150) / 30.f)) * 30;
                 state.ceiling_y = state.ground_y + 240;
                 set_intended_ceiling();
 
@@ -468,7 +560,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
 
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 if (state.dual) {
                     set_dual_bounds();
@@ -489,7 +581,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 
                 obj->activated[state.current_player] = TRUE;
             }
@@ -507,14 +599,14 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
                 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 
                 obj->activated[state.current_player] = TRUE;
             }
             break;
         case UFO_PORTAL:
             if (!obj->activated[state.current_player]) {
-                state.ground_y = maxf(0, ip1_ceilf((obj->y - 180) / 30.f)) * 30;
+                state.ground_y = maxf(0, ip1_ceilf((*soa_y(obj) - 180) / 30.f)) * 30;
                 state.ceiling_y = state.ground_y + 300;
                 set_intended_ceiling();
                 
@@ -527,7 +619,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     player->snap_rotation = TRUE;
                     flip_other_player(state.current_player ^ 1);
 
-                    if (state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_CUBE) {
+                    if (state.old_player.gamemode == GAMEMODE_CUBE || state.old_player.gamemode == GAMEMODE_SHIP || state.old_player.gamemode == GAMEMODE_WAVE) {
                         player->buffering_state = BUFFER_READY;
                     }
 
@@ -539,7 +631,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
 
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 if (state.dual) {
                     set_dual_bounds();
@@ -550,12 +642,12 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
         case SECRET_COIN:
             if (!obj->activated[state.current_player]) {
                 // Coin particle
-                spawn_particle(COIN_OBJ, obj->x, obj->y, NULL);
+                spawn_particle(COIN_OBJ, *soa_x(obj), *soa_y(obj), NULL);
 
                 // Explode particles
                 particle_templates[BREAKABLE_BRICK_PARTICLES].start_color.a = 127;
                 for (s32 i = 0; i < 10; i++) {
-                    spawn_particle(BREAKABLE_BRICK_PARTICLES, obj->x, obj->y, obj);
+                    spawn_particle(BREAKABLE_BRICK_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 }
 
                 // Use particles
@@ -571,10 +663,10 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 255;
                 particle_templates[USE_EFFECT].end_color.a = 0;
 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
-                spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
+                spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
-                obj->toggled = TRUE;
+                obj->hide_sprite = TRUE;
                 obj->activated[state.current_player] = TRUE;
             }
             break;
@@ -588,7 +680,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                         spawn_particle(SPEEDUP, state.camera_x + SCREEN_WIDTH_AREA + 20, state.camera_y + (SCREEN_HEIGHT_AREA / 2), NULL);
                     }
                 }
-                spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 state.speed = SPEED_SLOW;
                 obj->activated[state.current_player] = TRUE;
             }
@@ -603,7 +695,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                         spawn_particle(SPEEDUP, state.camera_x + SCREEN_WIDTH_AREA + 90, state.camera_y + (SCREEN_HEIGHT_AREA / 2), NULL);
                     }
                 }
-                spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 state.speed = SPEED_NORMAL;
                 obj->activated[state.current_player] = TRUE;
             }
@@ -618,7 +710,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                         spawn_particle(SPEEDUP, state.camera_x + SCREEN_WIDTH_AREA + 120, state.camera_y + (SCREEN_HEIGHT_AREA / 2), NULL);
                     }
                 }
-                spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 state.speed = SPEED_FAST;
                 obj->activated[state.current_player] = TRUE;
             }
@@ -633,7 +725,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                         spawn_particle(SPEEDUP, state.camera_x + SCREEN_WIDTH_AREA + 200, state.camera_y + (SCREEN_HEIGHT_AREA / 2), NULL);
                     }
                 }
-                spawn_particle(ORB_HITBOX_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(ORB_HITBOX_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 state.speed = SPEED_FASTER;
                 obj->activated[state.current_player] = TRUE;
             }
@@ -649,11 +741,11 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
                 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 
                 player->ceiling_inv_time = 0.1f;
                 state.dual = TRUE;
-                state.dual_portal_y = obj->y;
+                state.dual_portal_y = *soa_y(obj);
                 setup_dual();
                 
                 if (player->gamemode == GAMEMODE_WAVE) {
@@ -678,7 +770,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 particle_templates[USE_EFFECT].start_color.a = 0;
                 particle_templates[USE_EFFECT].end_color.a = 255;
                 
-                spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
 
                 state.dual = FALSE;
                 obj->activated[state.current_player] = TRUE;
@@ -690,6 +782,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 
                 switch (state.player.gamemode) {
                     case GAMEMODE_CUBE:
+                    case GAMEMODE_ROBOT:
                         state.ground_y = 0;
                         state.ceiling_y = 999999;
                         break;
@@ -707,7 +800,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
             
         case WAVE_PORTAL:
             if (!obj->activated[state.current_player]) {
-                state.ground_y = maxf(0, ip1_ceilf((obj->y - 180) / 30.f)) * 30;
+                state.ground_y = maxf(0, ip1_ceilf((*soa_y(obj) - 180) / 30.f)) * 30;
                 state.ceiling_y = state.ground_y + 300;
                 set_intended_ceiling();
 
@@ -728,7 +821,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     particle_templates[USE_EFFECT].start_color.a = 0;
                     particle_templates[USE_EFFECT].end_color.a = 255;
 
-                    spawn_particle(USE_EFFECT, obj->x, obj->y, obj);
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
                 if (state.dual) {
                     set_dual_bounds();
@@ -736,8 +829,106 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 obj->activated[state.current_player] = TRUE;
             }
             break;
+        case BLUE_TP_PORTAL:
+            if (!obj->activated[state.current_player]) {
+                // Teleport
+                player->y = *soa_y(obj->object.child_object);
+                state.old_player.y = player->y; // delta_y should not be set on blue tp portal
+
+                particle_templates[USE_EFFECT].start_scale = 80;
+                particle_templates[USE_EFFECT].end_scale = 0;
+                particle_templates[USE_EFFECT].trifading = TRUE;
+
+                particle_templates[USE_EFFECT].start_color.a = 0;
+                particle_templates[USE_EFFECT].end_color.a = 255;
+
+                MotionTrail_Clear(&trail);
+
+                set_particle_color(USE_EFFECT, 56, 200, 255);
+                spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
+
+                set_particle_color(USE_EFFECT, 255, 255, 0);
+                spawn_particle(USE_EFFECT, *soa_x(obj->object.child_object), *soa_y(obj->object.child_object), obj);
+                
+                float camera_y = state.camera_y + SCREEN_HEIGHT_AREA / 2;
+                if (player->is_cube_or_robot && fabsf(camera_y - *soa_y(obj->object.child_object)) >= SCREEN_HEIGHT_AREA/2 + 60) {
+                    state.intermediate_camera_y = state.camera_y = player->y - SCREEN_HEIGHT_AREA / 2;
+                }
+
+                player->has_teleported_timer = 0.5f;
+                player->just_teleported = TRUE;
+
+                obj->activated[state.current_player] = TRUE;
+            }
+            break;
+
+        case ROBOT_PORTAL: 
+            if (!obj->activated[state.current_player]) {
+                state.ground_y = 0;
+                state.ceiling_y = 999999;
+                if (player->gamemode != GAMEMODE_ROBOT) {
+                    if (player->gamemode != GAMEMODE_BALL && player->gamemode != GAMEMODE_CUBE) {
+                        MotionTrail_StopStroke(&trail);
+                        player->vel_y /= 2;
+                    }
+
+                    if (player->gamemode == GAMEMODE_WAVE) player->vel_y *= 0.9f;
+                    
+                    player->ceiling_inv_time = 0.1f;
+                    player->snap_rotation = TRUE;
+                    player->gamemode = GAMEMODE_ROBOT;
+                    player->is_cube_or_robot = TRUE;
+                    flip_other_player(state.current_player ^ 1);
+
+                    particle_templates[USE_EFFECT].start_scale = 80;
+                    particle_templates[USE_EFFECT].end_scale = 0;
+                    particle_templates[USE_EFFECT].trifading = TRUE;
+
+                    set_particle_color(USE_EFFECT, 255, 255, 255);
+                    particle_templates[USE_EFFECT].start_color.a = 0;
+                    particle_templates[USE_EFFECT].end_color.a = 255;
+
+                    spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
+                }
+                if (state.dual) {
+                    set_dual_bounds();
+                } 
+                obj->activated[state.current_player] = TRUE;
+            }
+            break;
+        case KEY_OBJ:
+            if (!obj->activated[state.current_player]) {
+                // Coin particle
+                spawn_particle(KEY_OBJ_PART, *soa_x(obj), *soa_y(obj), obj);
+
+                // Explode particles
+                particle_templates[BREAKABLE_BRICK_PARTICLES].start_color.a = 127;
+                for (s32 i = 0; i < 10; i++) {
+                    spawn_particle(BREAKABLE_BRICK_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+                }
+
+                obj->hide_sprite = TRUE;
+                obj->activated[state.current_player] = TRUE;
+            }
+            break;
     }
     if (!obj->collided[state.current_player]) obj->hitbox_counter[state.current_player]++; 
+}
+
+float get_rotated_x_hitbox(float x_offset, float y_offset, float rotation) {
+    float angle_rad = DegToRad(rotation); // Convert degrees to radians
+    float cos_a = cosf(angle_rad);
+    float sin_a = sinf(angle_rad);
+
+    return (x_offset * cos_a - y_offset * sin_a);
+}
+
+float get_rotated_y_hitbox(float x_offset, float y_offset, float rotation) {
+    float angle_rad = DegToRad(rotation); // Convert degrees to radians
+    float cos_a = cosf(angle_rad);
+    float sin_a = sinf(angle_rad);
+
+    return -(x_offset * sin_a + y_offset * cos_a);
 }
 
 void setup_dual() {
@@ -821,18 +1012,30 @@ void do_ball_reflection() {
 // Prepare Graphics
 GRRLIB_texImg *bg;
 GRRLIB_texImg *ground;
+GRRLIB_texImg *ground_l2;
 GRRLIB_texImg *ground_line;
 GRRLIB_texImg *level_complete_texture;
 GRRLIB_texImg *object_images[OBJECT_COUNT][MAX_OBJECT_LAYERS]; 
+GRRLIB_texImg *level_font;
 
 int current_fading_effect = FADE_NONE;
 
 bool p1_trail = FALSE;
 
-struct TriggerBuffer trigger_buffer[COL_CHANNEL_COUNT];
+int find_existing_texture(const unsigned char *texture) {
+    for (s32 object = 1; object < OBJECT_COUNT; object++) {
+        for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
+            const unsigned char *loaded_texture = objects[object].layers[layer].texture;
+            if (loaded_texture == texture) {
+                return (object * MAX_OBJECT_LAYERS) + layer;
+            }
+        }
+    }
+    return -1;
+}
 
-int find_existing_texture(int curr_object, const unsigned char *texture) {
-    for (s32 object = 1; object < curr_object; object++) {
+int find_existing_previous_texture(int current_object, const unsigned char *texture) {
+    for (s32 object = 1; object < current_object; object++) {
         for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
             const unsigned char *loaded_texture = objects[object].layers[layer].texture;
             if (loaded_texture == texture) {
@@ -847,87 +1050,133 @@ void load_spritesheet() {
     // Load Textures 
     ground_line = GRRLIB_LoadTexturePNG(ground_line_png);
     level_complete_texture = GRRLIB_LoadTexturePNG(levelCompleteText_png);
+    monster_1_anim = prepare_monster_1_animation();
+    monster_2_anim = prepare_monster_2_animation();
+    monster_3_anim = prepare_monster_3_animation();
+    black_sludge_anim = prepare_black_sludge_animation();
+    fire1_anim = prepare_fire_1_animation();
+    fire2_anim = prepare_fire_2_animation();
+    fire3_anim = prepare_fire_3_animation();
+    fire4_anim = prepare_fire_4_animation();
+    
+    water_1_anim = prepare_water_1_animation();
+    water_2_anim = prepare_water_2_animation();
+    water_3_anim = prepare_water_3_animation();
 
-    for (s32 object = 1; object < OBJECT_COUNT; object++) {
+    loading_1_anim = prepare_loading_1_animation();
+    loading_2_anim = prepare_loading_2_animation();
+
+    load_icons();
+}
+
+void load_layer_texture(const u8 *texture, int object, int layer) {
+    GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8 *) texture);
+    if (image == NULL || image->data == NULL) {
+        printf("Couldn't load texture of object %d layer %d\n", object, layer);
+    } else {
+        GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
+        object_images[object][layer] = image;
+    }
+}
+
+void load_obj_textures(int object) {
+    if (is_object_unimplemented(object)) return;
+
+    // Skip unused layers
+    for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
+        const unsigned char *texture = objects[object].layers[layer].texture;
+        if (!texture) continue;
+
+        // Skip if already loaded
+        if (object_images[object][layer]) continue;
+        
+        int existing = find_existing_texture(texture);
+
+        if (existing < 0) {
+            output_log("Loading texture of object %d layer %d\n", object, layer);
+            load_layer_texture((const u8 *) texture, object, layer);
+        } else {
+            int object_found = existing / MAX_OBJECT_LAYERS;
+            int layer_found = existing % MAX_OBJECT_LAYERS;
+
+            if (object_images[object_found][layer_found]) {
+                output_log("Found texture of object %d layer %d in object %d layer %d: %p\n", object, layer, object_found, layer_found, object_images[object_found][layer_found]);
+            } else {
+                const unsigned char *texture = objects[object_found].layers[layer_found].texture;
+                output_log("Loading texture of object %d layer %d\n", object_found, layer_found);
+                load_layer_texture((const u8 *) texture, object_found, layer_found);
+            }
+            object_images[object][layer] = object_images[object_found][layer_found];
+        }
+    }
+}
+
+void unload_obj_textures() {
+    for (s32 object = 0; object < OBJECT_COUNT; object++) {
         for (s32 layer = 0; layer < MAX_OBJECT_LAYERS; layer++) {
-            // Skip unused layers
             const unsigned char *texture = objects[object].layers[layer].texture;
             if (!texture) continue;
 
-            printf("Loading texture of object %d layer %d\n", object, layer);
-            
-            int existing = find_existing_texture(object, texture);
+            int existing = find_existing_previous_texture(object, texture);
+            // Dont double free textures
             if (existing < 0) {
-                GRRLIB_texImg *image = GRRLIB_LoadTexturePNG((const u8 *) texture);
-                if (image == NULL || image->data == NULL) {
-                    printf("Couldn't load texture of object %d layer %d\n", object, layer);
-                } else {
-                    printf("Loaded texture of object %d layer %d\n", object, layer);
-                    GRRLIB_SetHandle(image, (image->w/2), (image->h/2));
-                    object_images[object][layer] = image;
-                }
-            } else {
-                int object_found = existing / MAX_OBJECT_LAYERS;
-                int layer_found = existing % MAX_OBJECT_LAYERS;
-
-                printf("Texture already loaded in object %d layer %d\n", object_found, layer_found);
-                object_images[object][layer] = object_images[object_found][layer_found];
+                GRRLIB_FreeTexture(object_images[object][layer]);
             }
+            object_images[object][layer] = NULL;
         }
     }
-
-    load_icons();
 }
 
 void unload_spritesheet() {
     // Free all memory used by textures.
     GRRLIB_FreeTexture(ground_line);
     GRRLIB_FreeTexture(big_font_text);
-
-    for (s32 object = 0; object < OBJECT_COUNT; object++) {
-        for (s32 layer = 0; layer < objects[object].num_layers; layer++) {
-            const unsigned char *texture = objects[object].layers[layer].texture;
-            int existing = find_existing_texture(object, texture);
-            // Dont double free textures
-            if (existing < 0) {
-                GRRLIB_FreeTexture(object_images[object][layer]);
-            }
-        }
-    }
     
+    unload_animation_definition(monster_1_anim);
+    unload_animation_definition(black_sludge_anim);
+    unload_frame_definition(fire1_anim);
+    unload_frame_definition(fire2_anim);
+    unload_frame_definition(fire3_anim);
+    unload_frame_definition(fire4_anim);
+    unload_frame_definition(water_1_anim);
+    unload_frame_definition(water_2_anim);
+    unload_frame_definition(water_3_anim);
+    unload_frame_definition(loading_1_anim);
+    unload_frame_definition(loading_2_anim);
+
     unload_icons();
 }
 void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case SLOW_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[SLOW_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[SLOW_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 255, 220, 0);
-            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
+            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case NORMAL_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[NORMAL_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[NORMAL_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 0, 255, 255);
-            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
+            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case FAST_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[FAST_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[FAST_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 64, 255, 64);
-            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
+            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
         case FASTER_SPEED_PORTAL:
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = objects[FASTER_SPEED_PORTAL].hitbox.width / 2;
-            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = objects[FASTER_SPEED_PORTAL].hitbox.height / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarX = obj->width / 2;
+            particle_templates[SPEED_PORTAL_AMBIENT].sourcePosVarY = obj->height / 2;
             set_particle_color(SPEED_PORTAL_AMBIENT, 255, 127, 255);
-            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, obj->x, obj->y, obj);
+            if ((frameCount & 0b1111) == 0) spawn_particle(SPEED_PORTAL_AMBIENT, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
             draw_obj_particles(SPEED_PORTAL_AMBIENT, obj);
             break;
@@ -939,10 +1188,10 @@ void handle_post_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
 }
 
 void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
             set_particle_color(ORB_PARTICLES, 255, 255, 0);
-            spawn_particle(ORB_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(ORB_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
@@ -952,14 +1201,14 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
             particle_templates[PAD_PARTICLES].angle = 180.f - (adjust_angle_y(obj->rotation, obj->flippedV) + 90.f);
 
             set_particle_color(PAD_PARTICLES, 255, 255, 0);
-            spawn_particle(PAD_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(PAD_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(PAD_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             break;
 
         case PINK_ORB:
             set_particle_color(ORB_PARTICLES, 255, 31, 255);
-            spawn_particle(ORB_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(ORB_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
@@ -969,14 +1218,14 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
             particle_templates[PAD_PARTICLES].angle = 180.f - (adjust_angle_y(obj->rotation, obj->flippedV) + 90.f);
 
             set_particle_color(PAD_PARTICLES, 255, 31, 255);
-            spawn_particle(PAD_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(PAD_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(PAD_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             break;
 
         case BLUE_ORB:
             set_particle_color(ORB_PARTICLES, 56, 200, 255);
-            spawn_particle(ORB_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(ORB_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(ORB_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             draw_obj_particles(ORB_HITBOX_EFFECT, obj);
@@ -986,11 +1235,18 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
             particle_templates[PAD_PARTICLES].angle = 180.f - (adjust_angle_y(obj->rotation, obj->flippedV) + 90.f);
             
             set_particle_color(PAD_PARTICLES, 56, 200, 255);
-            spawn_particle(PAD_PARTICLES, obj->x, obj->y, obj);
+            spawn_particle(PAD_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
             draw_obj_particles(PAD_PARTICLES, obj);
             draw_obj_particles(USE_EFFECT, obj);
             break;
-            
+        
+        case GREEN_ORB:
+            set_particle_color(ORB_PARTICLES, 0, 255, 0);
+            spawn_particle(ORB_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+            draw_obj_particles(ORB_PARTICLES, obj);
+            draw_obj_particles(USE_EFFECT, obj);
+            draw_obj_particles(ORB_HITBOX_EFFECT, obj);
+            break;
             
         case YELLOW_GRAVITY_PORTAL:
             if (layer->layerNum == 1) {
@@ -999,7 +1255,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 set_particle_color(PORTAL_PARTICLES, 255, 255, 0);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
@@ -1009,13 +1265,14 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
         case BLUE_MIRROR_PORTAL:
         case DIVORCE_PORTAL:
         case WAVE_PORTAL:
+        case BLUE_TP_PORTAL:
             if (layer->layerNum == 1) {
                 particle_templates[PORTAL_PARTICLES].angle = 180.f - adjust_angle_y(obj->rotation, obj->flippedH);
 
                 set_particle_color(PORTAL_PARTICLES, 56, 200, 255);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
@@ -1029,7 +1286,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 set_particle_color(PORTAL_PARTICLES, 0, 255, 50);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
@@ -1043,13 +1300,14 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 set_particle_color(PORTAL_PARTICLES, 255, 31, 255);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
             break;
 
         case ORANGE_MIRROR_PORTAL:
+        case ORANGE_TP_PORTAL:
         case UFO_PORTAL:
         case DUAL_PORTAL:
             if (layer->layerNum == 1) {
@@ -1058,7 +1316,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 set_particle_color(PORTAL_PARTICLES, 255, 91, 0);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
@@ -1071,7 +1329,7 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                 set_particle_color(PORTAL_PARTICLES, 255, 0, 0);
                 particle_templates[PORTAL_PARTICLES].start_color.a = 127;
                 particle_templates[PORTAL_PARTICLES].end_color.a = 255;
-                spawn_particle(PORTAL_PARTICLES, obj->x, obj->y, obj);
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
                 draw_obj_particles(PORTAL_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
             }
@@ -1090,14 +1348,35 @@ void handle_pre_draw_object_particles(GameObject *obj, GDObjectLayer *layer) {
                     set_particle_color(COIN_PARTICLES, 255, 255, 0);
                 }
                 
-                spawn_particle(COIN_PARTICLES, obj->x - 2, obj->y, obj);
-                spawn_particle(COIN_PARTICLES, obj->x - 2, obj->y, obj);
-                spawn_particle(COIN_PARTICLES, obj->x - 2, obj->y, obj);
+                spawn_particle(COIN_PARTICLES, *soa_x(obj) - 2, *soa_y(obj), obj);
+                spawn_particle(COIN_PARTICLES, *soa_x(obj) - 2, *soa_y(obj), obj);
+                spawn_particle(COIN_PARTICLES, *soa_x(obj) - 2, *soa_y(obj), obj);
                 draw_obj_particles(COIN_PARTICLES, obj);
             } else {
                 draw_obj_particles(BREAKABLE_BRICK_PARTICLES, obj);
                 draw_obj_particles(USE_EFFECT, obj);
                 draw_obj_particles(ORB_HITBOX_EFFECT, obj);
+            }
+            break;
+        case ROBOT_PORTAL:
+            if (layer->layerNum == 1) {
+                particle_templates[PORTAL_PARTICLES].angle = 180.f - adjust_angle_y(obj->rotation, obj->flippedH);
+
+                set_particle_color(PORTAL_PARTICLES, 255, 255, 255);
+                particle_templates[PORTAL_PARTICLES].start_color.a = 127;
+                particle_templates[PORTAL_PARTICLES].end_color.a = 255;
+                spawn_particle(PORTAL_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+                draw_obj_particles(PORTAL_PARTICLES, obj);
+                draw_obj_particles(USE_EFFECT, obj);
+            }
+            break;
+        case KEY_OBJ:
+            if (!obj->activated[state.current_player]) {                
+                spawn_particle(KEY_PARTICLES, *soa_x(obj), *soa_y(obj), obj);
+                draw_obj_particles(KEY_PARTICLES, obj);
+            } else {
+                draw_obj_particles(BREAKABLE_BRICK_PARTICLES, obj);
+                draw_obj_particles(KEY_OBJ_PART, obj);
             }
             break;
     }
@@ -1130,6 +1409,13 @@ float get_out_scale_fade(float x, int right_edge) {
 }
 
 void get_fade_vars(GameObject *obj, float x, int *fade_x, int *fade_y, float *fade_scale) {
+    switch (*soa_id(obj)) {
+        case RAINBOW_ARC_SMALL:
+        case RAINBOW_ARC_BIG:
+            // Those are hardcoded to not fade
+            return;
+    }
+    
     switch (obj->transition_applied) {
         case FADE_NONE:
             break;
@@ -1165,10 +1451,11 @@ void get_fade_vars(GameObject *obj, float x, int *fade_x, int *fade_y, float *fa
 }
 
 int layer_pulses(GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
+        case GREEN_ORB:
         case PULSING_CIRCLE:
         case PULSING_CIRCUNFERENCE:
         case PULSING_HEART:
@@ -1202,10 +1489,11 @@ int layer_pulses(GameObject *obj, GDObjectLayer *layer) {
 }
 
 float get_object_pulse(float amplitude, GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case YELLOW_ORB:
         case BLUE_ORB:
         case PINK_ORB:
+        case GREEN_ORB:
             return map_range(amplitude, 0.f, 1.f, 0.3f, 1.2f);
         case PULSING_CIRCLE:
         case PULSING_CIRCUNFERENCE:
@@ -1236,7 +1524,7 @@ float get_object_pulse(float amplitude, GameObject *obj) {
 }
 
 GRRLIB_texImg *get_randomized_texture(GRRLIB_texImg *image, GameObject *obj, GDObjectLayer *layer) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case GROUND_SPIKE:
             return object_images[GROUND_SPIKE][obj->random % 3];
         case ROD_BIG:
@@ -1284,7 +1572,11 @@ void unload_coin_texture() {
 int get_opacity(GameObject *obj, float x) {
     int opacity = get_fade_value(x, screenWidth);
 
-    switch (obj->id) {
+    if (obj->object.dont_fade) {
+        return 255;
+    }
+
+    switch (*soa_id(obj)) {
         case BLACK_FULL:
         case BLACK_EDGE:
         case BLACK_CORNER:
@@ -1311,6 +1603,10 @@ int get_opacity(GameObject *obj, float x) {
             bool blending = channels[obj->object.detail_col_channel].blending;
             if (!blending && obj->transition_applied == FADE_NONE) opacity = 255;
             break;
+        case RAINBOW_ARC_SMALL:
+        case RAINBOW_ARC_BIG:
+            // Those are hardcoded to not fade
+            return 255;
     }
 
     return opacity;
@@ -1329,7 +1625,7 @@ float get_fading_obj_fade(GameObject *obj, float x, float right_edge) {
 }
 
 float get_rotation_speed(GameObject *obj) {
-    switch (obj->id) {
+    switch (*soa_id(obj)) {
         case SAW_BIG: 
         case SAW_MEDIUM:
         case SAW_SMALL:
@@ -1376,15 +1672,32 @@ float get_rotation_speed(GameObject *obj) {
         case ROTATING_HEXAGON_BIG:
         case ROTATING_HEXAGON_MEDIUM:
         case ROTATING_HEXAGON_TINY:
+        case GREEN_ORB:
+        case RING_SEG_01:
+        case RING_SEG_02:
+        case RING_SEG_03:
+        case RING_SEG_04:
+        case PICKUP_CIRCLE_1:
+        case PICKUP_CIRCLE_2:
+        case PICKUP_CIRCLE_3:
             return 180.f;
+        case FLASH_RING_1:
+            return 180.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
+        case FLASH_RING_2:
+            return 100.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
+        case FLASH_RING_3:
+            return 80.f + map_range(obj->random & 0xff, 0, 255, -10, 10);
+        case SPIRAL_1:
+        case SPIRAL_2:
+        case SPIRAL_3:
+        case SPIRAL_4:
+            return 300.f;
     }
     return 0.f;
 }
 
-bool is_modifiable(int col_channel) {
+bool is_modifiable(int col_channel, int color_type) {
     switch(col_channel) {
-        case BLACK:
-        case WHITE:
         case OBJ_BLENDING:
         case LBG_NO_LERP:
             return FALSE;
@@ -1392,19 +1705,125 @@ bool is_modifiable(int col_channel) {
     return TRUE;
 }
 
-static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
-    int obj_id = obj->id;
+const HSV lighter_hsv = {
+    .h = 0,
+    .s = 0.65,
+    .v = 1.30,
+    .sChecked = FALSE,
+    .vChecked = FALSE,
+};
+
+u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opacity, int def_col_channel) {
+    Color color;
+    color.r = channels[col_channel].color.r;
+    color.g = channels[col_channel].color.g;
+    color.b = channels[col_channel].color.b;
+
+    // Handle lighter color channel
+    if (col_channel == LIGHTER) {
+        color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
+
+        if (obj->object.main_col_HSV_enabled) {
+            color = HSV_combine(color, obj->object.main_col_HSV);
+        }
+    }
+
+    if (get_main_channel_id(*soa_id(obj)) <= 0 && obj->object.main_col_HSV_enabled) {
+        // Detail only objects use the main slot
+        color = HSV_combine(color, obj->object.main_col_HSV);
+    } else if (color_type == COLOR_MAIN && obj->object.main_col_HSV_enabled) {
+        color = HSV_combine(color, obj->object.main_col_HSV);
+    } else if (color_type == COLOR_DETAIL && obj->object.detail_col_HSV_enabled) {
+        color = HSV_combine(color, obj->object.detail_col_HSV);
+    }
+
+    if (obj->object.num_pulses < 2) {
+        // Proceed to reset color
+        if (color_type == COLOR_MAIN) {
+            obj->object.main_color = color;
+        } else if (color_type == COLOR_DETAIL) {
+            obj->object.detail_color = color;
+        }
+    }
+
+    if (obj->object.main_being_pulsed && color_type == COLOR_MAIN) {
+        color = obj->object.main_col_pulse;
+    } else if (obj->object.detail_being_pulsed && color_type == COLOR_DETAIL) {
+        color = obj->object.detail_col_pulse;
+        
+        // Reapply lighter
+        if (col_channel == LIGHTER) {
+            color = HSV_combine(obj->object.main_col_pulse, lighter_hsv);
+
+            if (obj->object.main_col_HSV_enabled) {
+                color = HSV_combine(color, obj->object.main_col_HSV);
+            }
+        }
+    }
+
+    // Force unmodifiable channels to default channel color
+    if (color_type == COLOR_UNMOD) {
+        color = channels[def_col_channel].color;
+    }
+
+    float group_opacity = 1.f;
+    for (int i = 0; i < MAX_GROUPS_PER_OBJECT; i++) {
+        Node *p = get_group(obj->groups[i]);
+        if (p) group_opacity *= p->opacity;
+    }
+    obj->opacity = group_opacity;
+
+    float new_opacity = opacity * channels[col_channel].alpha * group_opacity;
+    float transformed_opacity = new_opacity;
+
+    if (channels[col_channel].blending) transformed_opacity = CLAMP((0.175656971639325 * powf(7.06033051530761, new_opacity / 255.f) - 0.213355914301931), 0, 1) * 255;
+    return RGBA(color.r, color.g, color.b, transformed_opacity);
+}
+
+GRRLIB_texImg *get_animated_texture(GameObject *obj, int layer_num, float *scale_out, bool *flip_x) {
+    switch (*soa_id(obj)) {
+        case FIRE_1:
+            return get_frame(fire1_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
+        case FIRE_2:
+            return get_frame(fire2_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
+        case FIRE_3:
+            return get_frame(fire3_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
+        case FIRE_4:
+            return get_frame(fire4_anim, layer_num, obj->object.animation_timer, scale_out, flip_x);
+        case ANIMATED_WATER_1:
+            return get_frame(water_1_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_WATER_2:
+            return get_frame(water_2_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_WATER_3:
+            return get_frame(water_3_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_LOADING_1:
+            return get_frame(loading_1_anim, layer_num, state.timer, scale_out, flip_x);
+        case ANIMATED_LOADING_2:
+            return get_frame(loading_2_anim, layer_num, state.timer, scale_out, flip_x);
+    }
+    return NULL;
+}
+
+void put_object_layer(GameObject *obj, float x, float y, GDObjectLayer *layer) {
+    int obj_id = *soa_id(obj);
 
     int layer_index = layer->layerNum;
 
-    int x_flip_mult = (obj->flippedH ? -1 : 1);
-    int y_flip_mult = (obj->flippedV ? -1 : 1);
-
     struct ObjectLayer *objectLayer = layer->layer;
-    float x_offset = objectLayer->x_offset * x_flip_mult;
-    float y_offset = objectLayer->y_offset * y_flip_mult;
 
     GRRLIB_texImg *tex = get_randomized_texture(object_images[obj_id][layer_index], obj, layer);
+    float default_scale = 1;
+    bool flip_x = FALSE;
+
+    if (objects[obj_id].frame_animation) {
+        tex = get_animated_texture(obj, layer->layerNum, &default_scale, &flip_x);
+    }
+
+    int x_flip_mult = (obj->flippedH ^ flip_x ? -1 : 1);
+    int y_flip_mult = (obj->flippedV ? -1 : 1);
+
+    float x_offset = objectLayer->x_offset * x_flip_mult;
+    float y_offset = objectLayer->y_offset * y_flip_mult;
 
     int width = tex->w;
     int height = tex->h;
@@ -1425,7 +1844,7 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
         opacity *= get_fading_obj_fade(obj, x, screenWidth);
     }
 
-    u32 color = RGBA(channels[col_channel].color.r, channels[col_channel].color.g, channels[col_channel].color.b, opacity);
+    u32 color = get_layer_color(obj, objectLayer->color_type, col_channel, opacity, objectLayer->col_channel);
 
     // If it is invisible because of blending, skip
     if ((blending == GRRLIB_BLEND_ADD && !(color & ~0xff)) || opacity == 0) return;
@@ -1442,7 +1861,7 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
 
     float fade_scale = 1.f;
 
-    get_fade_vars(obj, x, &fade_x, &fade_y, &fade_scale);
+    if (!obj->object.dont_enter) get_fade_vars(obj, x, &fade_x, &fade_y, &fade_scale);
 
     // Get scaling because of music
     if (layer_pulses(obj, layer)) {
@@ -1453,6 +1872,8 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
         }
         fade_scale *= obj->ampl_scaling;
     }
+
+    fade_scale *= default_scale;
 
     float rotation = adjust_angle(obj->rotation, 0, state.mirror_mult < 0);
 
@@ -1468,13 +1889,15 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
             }
     }
 
-    // Handle special fade types
-    if (obj->transition_applied == FADE_DOWN_STATIONARY || obj->transition_applied == FADE_UP_STATIONARY) {
-        if (unmodified_opacity < 255) {
-            if (x > screenWidth / 2) {
-                x = screenWidth - FADE_WIDTH;
-            } else {
-                x = FADE_WIDTH;
+    if (!obj->object.dont_enter) {
+        // Handle special fade types
+        if (obj->transition_applied == FADE_DOWN_STATIONARY || obj->transition_applied == FADE_UP_STATIONARY) {
+            if (unmodified_opacity < 255) {
+                if (x > screenWidth / 2) {
+                    x = screenWidth - FADE_WIDTH;
+                } else {
+                    x = FADE_WIDTH;
+                }
             }
         }
     }
@@ -1490,15 +1913,29 @@ static inline void put_object_layer(GameObject *obj, float x, float y, GDObjectL
         prev_blending = blending;
     }
 
-    custom_drawImg(
-        /* X        */ get_mirror_x(x, state.mirror_factor) + 6 - (width/2) + x_off_rot + fade_x,
-        /* Y        */ y + 6 - (height/2) + y_off_rot + fade_y,
-        /* Texture  */ tex, 
-        /* Rotation */ rotation, 
-        /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult, 
-        /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale, 
-        /* Color    */ color
-    );
+
+    if (*soa_id(obj) == TEXT_OBJ) {
+        draw_rotated_text(
+            /* Font     */ *font_charsets[level_info.font_used], level_font, 
+            /* X        */ get_mirror_x(x, state.mirror_factor),
+            /* Y        */ y,
+            /* Rotation */ rotation,
+            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->scale_x,
+            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->scale_y, 
+            /* Color    */ color,
+            /* Text     */ obj->object.text
+        );
+    } else {
+        custom_drawImg(
+            /* X        */ get_mirror_x(x, state.mirror_factor) + 6 - (width/2) + x_off_rot + fade_x,
+            /* Y        */ y + 6 - (height/2) + y_off_rot + fade_y,
+            /* Texture  */ tex, 
+            /* Rotation */ rotation, 
+            /* Scale X  */ BASE_SCALE * x_flip_mult * fade_scale * state.mirror_mult * obj->scale_x, 
+            /* Scale Y  */ BASE_SCALE * y_flip_mult * fade_scale * obj->scale_y, 
+            /* Color    */ color
+        );
+    }
 }
 
 
@@ -1641,6 +2078,15 @@ void draw_ground(f32 y, bool is_ceiling) {
             0, 1.375, 1.375 * mult,
             RGBA(channels[GROUND].color.r, channels[GROUND].color.g, channels[GROUND].color.b, 255) 
         );
+        if (ground_l2) {
+            GRRLIB_DrawImg(
+                calc_x + i + 6, 
+                calc_y + 6,    
+                ground_l2,
+                0, 1.375, 1.375 * mult,
+                RGBA(channels[G2].color.r, channels[G2].color.g, channels[G2].color.b, 255) 
+            );
+        }
     }
 
     // Then draw the line
@@ -1730,6 +2176,96 @@ int compare_by_layer_index(const void *a, const void *b) {
     return la->originalIndex - lb->originalIndex;
 }
 
+void play_object_animation(GameObject *obj) {
+    switch (*soa_id(obj)) {
+        case MONSTER_1:
+            playObjAnimation(obj, monster_1_anim, obj->object.animation_timer);
+            break;
+        case MONSTER_2:
+            playObjAnimation(obj, monster_2_anim, obj->object.animation_timer);
+            break;
+        case MONSTER_3:
+            playObjAnimation(obj, monster_3_anim, obj->object.animation_timer);
+            break;
+        case BLACK_SLUDGE:
+            playObjAnimation(obj, black_sludge_anim, obj->object.animation_timer);
+            break;
+    }
+    obj->object.animation_timer += dt;
+}
+
+static inline uint32_t make_sort_key(int zlayer, int sheet, int zorder, int index) {
+    // Normalize ranges
+    uint32_t zl  = (uint32_t)(zlayer + 4);              // -4..11 -> 0..5
+    uint32_t sh  = (uint32_t)(0x7 - sheet);             // invert for descending
+    uint32_t zo  = (uint32_t)(zorder + 100);            // -100..100 -> 0..200
+    uint32_t idx = (uint32_t)(index & 0x1FFFF);         // fit into 17 bits
+
+    return (zl  << 28) |   // top 4 bits
+           (sh  << 25) |   // next 3 bits
+           (zo  << 17) |   // next 8 bits
+           (idx);          // bottom 17 bits
+}
+
+#define RADIX 256
+#define MASK (RADIX-1)
+
+void radix_sort(SortEntry *arr, int n) {
+    if (n <= 1) return;
+
+    SortEntry *tmp = (SortEntry *)malloc(n * sizeof(SortEntry));
+    if (!tmp) {
+        printf("Failed to allocate memory for layer sorting\n");
+        return;
+    }
+
+    for (int shift = 0; shift < 32; shift += 8) {
+        int count[RADIX] = {0};
+
+        // Count
+        for (int i = 0; i < n; i++) {
+            int digit = (arr[i].key >> shift) & MASK;
+            count[digit]++;
+        }
+
+        // Prefix sum
+        int sum = 0;
+        for (int i = 0; i < RADIX; i++) {
+            int tmpc = count[i];
+            count[i] = sum;
+            sum += tmpc;
+        }
+
+        // Place into tmp
+        for (int i = 0; i < n; i++) {
+            int digit = (arr[i].key >> shift) & MASK;
+            tmp[count[digit]++] = arr[i];
+        }
+
+        // Copy back
+        memcpy(arr, tmp, n * sizeof(SortEntry));
+    }
+
+    free(tmp);
+}
+
+static inline void insertion_sort_by_layer(GDLayerSortable **arr, int n) {
+    for (int i = 1; i < n; i++) {
+        GDLayerSortable *key = arr[i];
+        int j = i - 1;
+
+        // Sort by layer index ascending
+        while (j >= 0 && arr[j]->originalIndex > key->originalIndex) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+#undef RADIX
+#undef MASK
+
 void draw_all_object_layers() {
     u64 t0 = gettime();
     if (GRRLIB_Settings.antialias == false) {
@@ -1737,9 +2273,6 @@ void draw_all_object_layers() {
     } else {
         GX_SetCopyFilter(rmode->aa, rmode->sample_pattern, GX_TRUE, rmode->vfilter);
     }
-    
-    float screen_x_max = screenWidth + 90.0f;
-    float screen_y_max = screenHeight + 90.0f;
 
     int cam_sx = (int)((state.camera_x + SCREEN_WIDTH_AREA / 2) / GFX_SECTION_SIZE);
     int cam_sy = (int)((state.camera_y + SCREEN_HEIGHT_AREA / 2) / GFX_SECTION_SIZE);
@@ -1759,10 +2292,23 @@ void draw_all_object_layers() {
             for (int i = 0; i < sec->layer_count; i++) {
                 GameObject *obj = sec->layers[i]->layer->obj;
                 
-                float calc_x = ((obj->x - state.camera_x) * SCALE) - widthAdjust;
-                float calc_y = screenHeight - ((obj->y - state.camera_y) * SCALE);  
-                if (calc_x > -90 && calc_x < screen_x_max) {        
-                    if (calc_y > -90 && calc_y < screen_y_max) {    
+                float calc_x = ((*soa_x(obj) - state.camera_x) * SCALE) - widthAdjust;
+                float calc_y = screenHeight - ((*soa_y(obj) - state.camera_y) * SCALE);  
+                
+                int offscreen_area = 90;
+
+                // Those are way bigger
+                switch (*soa_id(obj)) {
+                    case RAINBOW_ARC_SMALL:
+                        offscreen_area = 120;
+                        break;
+                    case RAINBOW_ARC_BIG:
+                        offscreen_area = 240;
+                        break;
+                }
+
+                if (!obj->toggled && calc_x > -offscreen_area && calc_x < screenWidth + offscreen_area) {        
+                    if (calc_y > -offscreen_area && calc_y < screenHeight + offscreen_area) {    
                         if (visible_count < MAX_VISIBLE_LAYERS) {
                             // Add to visible layers, as it can be seen
                             visible_layers[visible_count++] = sec->layers[i];
@@ -1774,28 +2320,63 @@ void draw_all_object_layers() {
     }
 
     // Sort layers
-    qsort(visible_layers, visible_count, sizeof(GDLayerSortable*), compare_sortable_layers);
+    SortEntry *entries = malloc(visible_count * sizeof(SortEntry));
+
+    for (int i = 0; i < visible_count; i++) {
+        GDLayerSortable *ls = visible_layers[i];
+
+        GDObjectLayer *GDlayer = ls->layer;
+
+        struct ObjectLayer *layer = GDlayer->layer;
+
+        GameObject *obj = GDlayer->obj;
+        
+        int zlayer = ls->zlayer + layer->zlayer_offset;
+            
+        // Player is always index 0
+        if (i > 0 && objects[*soa_id(obj)].spritesheet_layer == SHEET_BLOCKS) {
+            int col_channel = GDlayer->col_channel;
+            bool blending = channels[col_channel].blending || GDlayer->blending;
+
+            // Two color objects must have both channels be blending
+            if (obj->has_two_channels) {
+                blending = GDlayer->blending || obj->both_channels_blending;
+            }
+
+            zlayer -= (blending ^ ((zlayer & 1) == 0));
+        }
+
+        int sheet  = objects[*soa_id(obj)].spritesheet_layer;
+        int zorder = obj->object.zorder;
+        int index  = ls->originalIndex;
+
+        entries[i].key = make_sort_key(zlayer, sheet, zorder, index);
+        entries[i].ptr = ls;
+    }
+
+    radix_sort(entries, visible_count);
 
 
     // Sort same ID objects so instead of layer 0 layer 1 layer 0 layer 1, its layer 0, layer 0, layer 1, layer 1
     int i = 0;
     while (i < visible_count) {
-        int obj_id = visible_layers[i]->layer->obj->id;
-        int j = i + 1;
+        GDLayerSortable *first = visible_layers[i];
+        int obj_id = *soa_id(first->layer->obj);
 
-        // Find run of same object
+        int j = i + 1;
         while (j < visible_count &&
-            visible_layers[j]->layer->obj->id == obj_id) {
+            *soa_id(visible_layers[j]->layer->obj) == obj_id) {
             j++;
         }
 
-        // Reorder [i, j) to group layers by increasing layer index
-        if (j - i > 1) {
-            qsort(&visible_layers[i], j - i, sizeof(GDLayerSortable*), compare_by_layer_index);
+        int run_length = j - i;
+        if (run_length > 1) {
+            insertion_sort_by_layer(&visible_layers[i], run_length);
         }
 
         i = j;
     }
+
     
     u64 t1 = gettime();
     layer_sorting = ticks_to_microsecs(t1 - t0) / 1000.f;
@@ -1807,10 +2388,10 @@ void draw_all_object_layers() {
 
     // Draw in sorted order
     for (int i = 0; i < visible_count; i++) {
-        GDObjectLayer *layer = visible_layers[i]->layer;
+        GDObjectLayer *layer = entries[i].ptr->layer;
         GameObject *obj = layer->obj;
 
-        int obj_id = obj->id;
+        int obj_id = *soa_id(obj);
 
         if (obj_id == PLAYER_OBJECT) {
             // Draw player related stuff
@@ -1822,6 +2403,7 @@ void draw_all_object_layers() {
             draw_particles(HOLDING_SHIP_TRAIL);
             draw_particles(UFO_JUMP);
             draw_particles(UFO_TRAIL);
+            draw_particles(ROBOT_JUMP_PARTICLES);
             draw_particles(DUAL_BALL_HITBOX_EFFECT);
             draw_particles(P1_TRAIL);
             
@@ -1858,27 +2440,43 @@ void draw_all_object_layers() {
             GRRLIB_SetBlend(prev_blending);
         } else if (obj_id < OBJECT_COUNT) {
             u64 t0 = gettime();
-            float calc_x = ((obj->x - state.camera_x) * SCALE) - widthAdjust;
-            float calc_y = screenHeight - ((obj->y - state.camera_y) * SCALE);  
+            float calc_x = ((*soa_x(obj) - state.camera_x) * SCALE) - widthAdjust;
+            float calc_y = screenHeight - ((*soa_y(obj) - state.camera_y) * SCALE);  
 
             int fade_val = get_fade_value(calc_x, screenWidth);
             bool fade_edge = (fade_val == 255 || fade_val == 0);
             bool is_layer0 = (layer->layerNum == 0);
 
-            // Fade objects
-            if (is_layer0 && fade_edge) handle_special_fading(obj, calc_x, calc_y);
-            
-            // If saw, rotate
-            if (is_layer0 && objects[obj_id].is_saw && !state.paused) {
-                obj->rotation += ((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj)) * dt;
-            }
+            if (is_layer0) {
+                // Fade objects
+                if (fade_edge) handle_special_fading(obj, calc_x, calc_y);
+                // If saw, rotate
+                if ((objects[obj_id].is_saw || *soa_id(obj) == GREEN_ORB) && !state.paused) {
+                    obj->rotation += (((obj->random & 1) ? -get_rotation_speed(obj) : get_rotation_speed(obj))) * dt ;
+                }
+
+                if (objects[obj_id].frame_animation) {
+                    obj->object.animation_timer += dt;
+                }
+
+                if (obj->has_two_channels && channels[obj->object.main_col_channel].blending && channels[obj->object.detail_col_channel].blending) {
+                    obj->both_channels_blending = TRUE;
+                } else {
+                    obj->both_channels_blending = FALSE;
+                }
+            } 
 
             handle_pre_draw_object_particles(obj, layer); 
             u64 t1 = gettime();
             obj_particles_time += t1 - t0;
 
             t0 = gettime();
-            if (!obj->toggled) put_object_layer(obj, calc_x, calc_y, layer);
+            if (is_layer0 && objects[*soa_id(obj)].has_movement) {
+                play_object_animation(obj);
+                set_texture(prev_tex);
+                GRRLIB_SetBlend(prev_blending);
+            }
+            else if (!obj->hide_sprite) put_object_layer(obj, calc_x, calc_y, layer);
             t1 = gettime();
             draw_time += t1 - t0;
             
@@ -1895,21 +2493,24 @@ void draw_all_object_layers() {
     prev_blending = GRRLIB_BLEND_ALPHA;
     GRRLIB_SetBlend(GRRLIB_BLEND_ALPHA);
 
+    float screen_x_max = screenWidth + 90.0f;
+    float screen_y_max = screenHeight + 90.0f;
+
     if (state.hitbox_display) { 
         GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
         GX_SetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
         GX_SetVtxDesc(GX_VA_TEX0,   GX_NONE);
         for (int dx = -width; dx <= width; dx++) {
             for (int dy = -height; dy <= height; dy++) {
-                GFXSection *sec = get_or_create_gfx_section(cam_sx + dx, cam_sy + dy);
-                for (int i = 0; i < sec->layer_count; i++) {
-                    GameObject *obj = sec->layers[i]->layer->obj;
+                Section *sec = get_or_create_section(cam_sx + dx, cam_sy + dy);
+                for (int i = 0; i < sec->object_count; i++) {
+                    GameObject *obj = sec->objects[i];
                     
-                    float calc_x = ((obj->x - state.camera_x) * SCALE) - widthAdjust;
-                    float calc_y = screenHeight - ((obj->y - state.camera_y) * SCALE);  
+                    float calc_x = ((*soa_x(obj) - state.camera_x) * SCALE) - widthAdjust;
+                    float calc_y = screenHeight - ((*soa_y(obj) - state.camera_y) * SCALE);  
                     if (calc_x > -90 && calc_x < screen_x_max) {        
                         if (calc_y > -90 && calc_y < screen_y_max) {    
-                            if (sec->layers[i]->layerNum == 0) draw_hitbox(obj);
+                            draw_hitbox(obj);
                         }
                     }
                 }
@@ -1931,200 +2532,9 @@ void draw_all_object_layers() {
     draw_time = ticks_to_microsecs(draw_time) / 1000.f;
     obj_particles_time = ticks_to_microsecs(obj_particles_time) / 1000.f;
     
+    free(entries);
     
     GX_LoadPosMtxImm(GXmodelView2D, GX_PNMTX0);
-}
-
-void handle_col_triggers() {
-    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
-        struct TriggerBuffer *buffer = &trigger_buffer[chan];
-
-        if (buffer->active) {
-            Color lerped_color;
-            Color color_to_lerp = buffer->new_color;
-
-            if (buffer->copy_channel_id) {
-                color_to_lerp = channels[buffer->copy_channel_id].color;
-            }
-
-            if (buffer->seconds > 0) {
-                float multiplier = buffer->time_run / buffer->seconds;
-                lerped_color = color_lerp(buffer->old_color, color_to_lerp, multiplier);
-            } else {
-                lerped_color = color_to_lerp;
-            }
-
-            channels[chan].color = lerped_color;
-
-            buffer->time_run += STEPS_DT;
-
-            if (buffer->time_run > buffer->seconds) {
-                buffer->active = FALSE;
-                if (buffer->copy_channel_id) {
-                    channels[chan].copy_color_id = buffer->copy_channel_id;
-                }
-                channels[chan].color = color_to_lerp;
-            }
-        }
-    }
-}
-
-void handle_copy_channels() {
-    for (int chan = 0; chan < COL_CHANNEL_COUNT; chan++) {
-        int copy_color_id = channels[chan].copy_color_id;
-        if (copy_color_id > 0) {
-            channels[chan].color = channels[copy_color_id].color;
-        }
-    }
-}
-
-void upload_to_buffer(GameObject *obj, int channel) {
-    if (channel == 0) channel = 1;
-    struct TriggerBuffer *buffer = &trigger_buffer[channel];
-    buffer->active = TRUE;
-    buffer->old_color = channels[channel].color;
-    if (obj->trigger.col_trigger.p1_color) {
-        buffer->new_color.r = p1.r;
-        buffer->new_color.g = p1.g;
-        buffer->new_color.b = p1.b;
-    } else if (obj->trigger.col_trigger.p2_color) {
-        buffer->new_color.r = p2.r;
-        buffer->new_color.g = p2.g;
-        buffer->new_color.b = p2.b;
-    } else {
-        buffer->new_color.r = obj->trigger.col_trigger.trig_colorR;
-        buffer->new_color.g = obj->trigger.col_trigger.trig_colorG;
-        buffer->new_color.b = obj->trigger.col_trigger.trig_colorB;
-    }
-
-    int copy_color_id = obj->trigger.col_trigger.copied_color_id;
-    if (copy_color_id > 0) {
-       buffer->copy_channel_id = copy_color_id;
-    }
-
-    if (channel < BG) {
-        channels[channel].blending = obj->trigger.col_trigger.blending;
-    }
-    buffer->seconds = obj->trigger.col_trigger.trig_duration;
-    buffer->time_run = 0;
-}
-
-void run_trigger(GameObject *obj) {
-    switch (obj->id) {
-        case TRIGGER_FADE_NONE:
-            current_fading_effect = FADE_NONE;
-            break;
-            
-        case TRIGGER_FADE_UP:
-            current_fading_effect = FADE_UP;
-            break;
-            
-        case TRIGGER_FADE_DOWN:
-            current_fading_effect = FADE_DOWN;
-            break;
-            
-        case TRIGGER_FADE_RIGHT:
-            current_fading_effect = FADE_RIGHT;
-            break;
-            
-        case TRIGGER_FADE_LEFT:
-            current_fading_effect = FADE_LEFT;
-            break;
-            
-        case TRIGGER_FADE_SCALE_IN:
-            current_fading_effect = FADE_SCALE_IN;
-            break;
-            
-        case TRIGGER_FADE_SCALE_OUT:
-            current_fading_effect = FADE_SCALE_OUT;
-            break;
-        
-        case TRIGGER_FADE_INWARDS:
-            current_fading_effect = FADE_INWARDS;
-            break;
-
-        case TRIGGER_FADE_OUTWARDS:
-            current_fading_effect = FADE_OUTWARDS;
-            break;
-        
-        case TRIGGER_FADE_LEFT_SEMICIRCLE:
-            current_fading_effect = FADE_CIRCLE_LEFT;
-            break;
-
-        case TRIGGER_FADE_RIGHT_SEMICIRCLE:
-            current_fading_effect = FADE_CIRCLE_RIGHT;
-            break;
-
-        case BG_TRIGGER:
-            upload_to_buffer(obj, BG);
-            if (!obj->trigger.col_trigger.tintGround) break;
-        
-        case GROUND_TRIGGER:
-            upload_to_buffer(obj, GROUND);
-            break;
-                    
-        case LINE_TRIGGER:
-        case 915: // gd converts 1.4 line trigger to 2.0 one for some reason
-            upload_to_buffer(obj, LINE);
-            break;
-        
-        case OBJ_TRIGGER:
-            upload_to_buffer(obj, OBJ);
-            break;
-        
-        case OBJ_2_TRIGGER:
-            upload_to_buffer(obj, 1);
-            break;
-        
-        case COL2_TRIGGER: // col 2
-            upload_to_buffer(obj, 2);
-            break;
-
-        case COL3_TRIGGER: // col 3
-            upload_to_buffer(obj, 3);
-            break;
-            
-        case COL4_TRIGGER: // col 4
-            upload_to_buffer(obj, 4);
-            break;
-            
-        case THREEDL_TRIGGER: // 3DL
-            upload_to_buffer(obj, THREEDL);
-            break;
-
-        case ENABLE_TRAIL:
-            p1_trail = TRUE;
-            break;
-        
-        case DISABLE_TRAIL:
-            p1_trail = FALSE;
-            break;
-
-        case 899: // 2.0 color trigger
-            upload_to_buffer(obj, obj->trigger.col_trigger.target_color_id);
-            break;
-    }
-    obj->activated[0] = TRUE;
-}
-
-void handle_triggers(GameObject *obj) {
-    int obj_id = obj->id;
-    Player *player = &state.player;
-    
-    if ((objects[obj_id].is_trigger || obj->id > OBJECT_COUNT) && !obj->activated[0]) {
-        if (obj->trigger.touchTriggered) {
-            if (intersect(
-                player->x, player->y, player->width, player->height, 0, 
-                obj->x, obj->y, 30, 30, obj->rotation
-            )) {
-                run_trigger(obj);
-            }
-        } else {
-            if (obj->x < state.player.x) {
-                run_trigger(obj);
-            }
-        }
-    }
 }
 
 u64 last_beat_time = 0;
@@ -2160,7 +2570,7 @@ void update_beat() {
 void handle_objects() {
     int sx = (int)(state.player.x / SECTION_SIZE);
     for (int dx = -1; dx <= 1; dx++) {
-        for (int sy = 0; sy <= MAX_LEVEL_HEIGHT / SECTION_SIZE; sy++) {
+        for (int sy = -(400 / SECTION_SIZE); sy <= MAX_LEVEL_HEIGHT / SECTION_SIZE; sy++) {
             Section *sec = get_or_create_section(sx + dx, sy);
             for (int i = 0; i < sec->object_count; i++) {
                 GameObject *obj = sec->objects[i];
@@ -2169,6 +2579,17 @@ void handle_objects() {
         }
     }
     calculate_lbg();
-    handle_col_triggers();
-    handle_copy_channels();
+    update_triggers();
+}
+
+bool is_object_unimplemented(int id) {
+    if (id >= OBJECT_COUNT) return TRUE;
+
+    const unsigned char *p = (const unsigned char*) &objects[id];
+    for (size_t i = 0; i < sizeof(ObjectDefinition); i++) {
+        if (p[i] != 0) {
+            return FALSE;
+        }
+    }
+    return TRUE;
 }

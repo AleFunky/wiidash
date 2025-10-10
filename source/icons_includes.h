@@ -15,3 +15,13 @@
 #include "dart_01_2_001_png.h"
 
 #include "trail_png.h"
+
+#include "robot_01_01_001_png.h"
+#include "robot_01_02_001_png.h"
+#include "robot_01_03_001_png.h"
+#include "robot_01_04_001_png.h"
+
+#include "robot_01_01_2_001_png.h"
+#include "robot_01_02_2_001_png.h"
+#include "robot_01_03_2_001_png.h"
+#include "robot_01_04_2_001_png.h"

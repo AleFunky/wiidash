@@ -76,6 +76,11 @@ static float getDistanceSq(const Vec2* a, const Vec2* b) {
     return dx*dx + dy*dy;
 }
 
+void MotionTrail_Clear(MotionTrail *trail) {
+    trail->nuPoints = 0;
+    trail->previousNuPoints = 0;
+}
+
 void MotionTrail_Init(MotionTrail* trail, float fade, float minSeg, float stroke, bool waveTrail, Color color, GRRLIB_texImg *tex) {
     memset(trail, 0, sizeof(MotionTrail));
     trail->texture = tex;  
@@ -290,7 +295,7 @@ void MotionTrail_AddWavePoint(MotionTrail* trail) {
 
     trail->nuPoints++;
 
-    //printf("Added 1 - %d / %d\n", trail->nuPoints, trail->maxPoints);
+    //output_log("Added 1 - %d / %d\n", trail->nuPoints, trail->maxPoints);
 
     if (trail->nuPoints > 1) {
         ccVertexLineToPolygonWave(trail->pointVertexes, trail->stroke, trail->vertices, 0, trail->actualNuPoints);

@@ -31,7 +31,6 @@ GRRLIB_texImg *menu_arrow;
 GRRLIB_texImg *gradient_texture;
 // add ground
 GRRLIB_texImg *menu_ground;
-GRRLIB_texImg *font_bold;
 GRRLIB_texImg *ground_line_texture;
 
 int main_levels();
@@ -91,7 +90,7 @@ void create_main_menu_buttons();
 bool exit_menu = false;
 int error_code = 0;
 
-#define NUM_LVL_COLORS 18
+#define NUM_LVL_COLORS 20
 const int default_lvl_colors[NUM_LVL_COLORS] = {
   RGBA(0, 0, 232, 255), // Stereo Madness
   RGBA(227, 0, 229, 255), // Back on Track
@@ -111,10 +110,11 @@ const int default_lvl_colors[NUM_LVL_COLORS] = {
   RGBA(0, 231, 0, 255), // HF
   RGBA(0, 228, 228, 255), // BP
   RGBA(0, 112, 231, 255), // ToE2
+  RGBA(0, 0, 0xE9, 255), // Geometrical Dominator
+  RGBA(0xE6, 0, 0xE8, 255), // Deadlocked
 };
 
-#define NUM_LVL_DIFFICULTY 23
-const int default_level_difficulty[NUM_LVL_DIFFICULTY] = {
+const int default_level_difficulty[LEVEL_NUM] = {
   0, // Stereo Madness | easy
   0, // Back on Track | easy
   1, // Polargeist | normal
@@ -133,6 +133,8 @@ const int default_level_difficulty[NUM_LVL_DIFFICULTY] = {
   4, // HF
   3, // BP
   5, // ToE2
+  3, // Geometrical Dominator
+  5, // Deadlocked
   0,
   5,
   5,
@@ -227,7 +229,8 @@ void print_custom_song(int song_id) {
 void check_custom_song(char *level_data) {
     char *gmd_custom_song_id = extract_gmd_key((const char *) level_data, "k45", "i");
     if (gmd_custom_song_id) {
-        custom_song_id = atoi(gmd_custom_song_id);        
+        custom_song_id = atoi(gmd_custom_song_id);   
+        free(gmd_custom_song_id);     
     } else {
         custom_song_id = -1;
     }
@@ -251,7 +254,7 @@ void load_folder(char *dir) {
 
     DIR *level_dir = opendir(directory);
 
-    printf("Loaded folder: %s\n", directory);
+    output_log("Loaded folder: %s\n", directory);
 
     while ((pent=readdir(level_dir))!=NULL) {
         stat(pent->d_name,&statbuf);
@@ -269,7 +272,7 @@ void load_folder(char *dir) {
 
                 if (sd_level_count >= MAX_SD_LEVELS) break;
 
-                printf("Found GMD file: %s %llu\n", pent->d_name, pent->d_stat.st_size);
+                output_log("Found GMD file: %s %llu\n", pent->d_name, pent->d_stat.st_size);
             }
         } else { { // Folder
             snprintf(sd_level_paths[sd_level_count].name, MAX_PATH_LEN, "%s/%s", directory, pent->d_name);
@@ -278,7 +281,7 @@ void load_folder(char *dir) {
 
             if (sd_level_count >= MAX_SD_LEVELS) break;
 
-            printf("Found folder: %s %llu\n", pent->d_name, pent->d_stat.st_size);
+            output_log("Found folder: %s %llu\n", pent->d_name, pent->d_stat.st_size);
         } }
     }
     closedir(level_dir);
@@ -309,12 +312,11 @@ void draw_menu() {
     }
 }
 
+#include "animation.h"
+
 int menu_loop() {
     exit_menu = false;
-    if (!fatInitDefault()) {
-		printf("fatInitDefault failure\n");
-	}
-    
+
     DIR *pdir = opendir(launch_dir);
 
 	if (!pdir){
@@ -329,15 +331,19 @@ int menu_loop() {
     // Read first gmd
     char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
     if (level_data) {
-        snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+        char *level_name = get_level_name(level_data);
+        char *author_name = get_author_name(level_data);
+        snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+        free(level_name);
+        free(author_name);
+
         free(level_data);
     }
 
     size_t size;
     char *menuLoop = load_song("menuLoop.mp3", &size);
 
-    font_bold = GRRLIB_LoadTexturePNG(font_bold_png);
-    GRRLIB_InitTileSet(font_bold, 24, 36, 32);
+    button_count = 0;
 
     menu_top_bar = GRRLIB_LoadTexturePNG(top_bar_png);
     menu_corner_squares = GRRLIB_LoadTexturePNG(corner_squares_png);
@@ -387,7 +393,11 @@ int menu_loop() {
                 // Read first gmd
                 char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
                 if (level_data) {
-                    snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+                    char *level_name = get_level_name(level_data);
+                    char *author_name = get_author_name(level_data);
+                    snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+                    free(level_name);
+                    free(author_name);
                     
                     check_custom_song(level_data);
                     
@@ -423,7 +433,8 @@ int menu_loop() {
     GRRLIB_FreeTexture(menu_corner_squares);
     GRRLIB_FreeTexture(menu_top_bar);
     GRRLIB_FreeTexture(gradient_texture);
-    GRRLIB_FreeTexture(font_bold);
+    GRRLIB_FreeTexture(ground_line_texture);
+    GRRLIB_FreeTexture(menu_ground);
     for (int i = 0; i < FACES_COUNT; i++){
         GRRLIB_FreeTexture(difficulty_faces[i]);
     }
@@ -436,8 +447,6 @@ int menu_loop() {
     }
 
     GRRLIB_Render();
-    GRRLIB_Render();;
-
     return exit_code;
 }
 
@@ -451,7 +460,11 @@ void refresh_sdcard_levels() {
 
     char *level_data = read_file(sd_level_paths[level_id].name, &outsize);
     if (level_data) {
-        snprintf(current_level_name, 255, "%s - by %s", get_level_name(level_data), get_author_name(level_data));
+        char *level_name = get_level_name(level_data);
+        char *author_name = get_author_name(level_data);
+        snprintf(current_level_name, 255, "%s - by %s", level_name, author_name);
+        free(level_name);
+        free(author_name);
         
         check_custom_song(level_data);
 
@@ -616,6 +629,12 @@ int main_levels() {
 
     update_ir_cursor();
     draw_ir_cursor();
+
+    if (enable_info) {
+        char cpu_usage[64];
+        snprintf(cpu_usage, sizeof(cpu_usage), "Free MEM1: %d Free MEM2: %d", SYS_GetArena1Hi() - SYS_GetArena1Lo(), SYS_GetArena2Hi() - SYS_GetArena2Lo());
+        draw_text(big_font, big_font_text, 20, 400, 0.25, cpu_usage);
+    }
 
     if (state.input.pressedDir & INPUT_LEFT) {
         menu_go_left();

@@ -17,7 +17,7 @@ endif
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source libraries
-DATA		:=	data data/objects data/portals data/glow data/icons data/levels data/sfx data/back_grounds data/perspective data/menu
+DATA		:=	data data/fonts data/animated data/objects data/glow data/portals data/icons data/levels data/sfx data/back_grounds data/perspective data/menu
 INCLUDES	:=  libraries
 
 include $(patsubst %/$(BUILD),%,$(CURDIR))/wii_rules
@@ -26,7 +26,9 @@ include $(patsubst %/$(BUILD),%,$(CURDIR))/wii_rules
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -MMD -MP -I$(DEVKITPRO)/libogc/include/ogc
+
+WII_FLAGS = -fomit-frame-pointer -ffast-math -fno-math-errno -ffinite-math-only -fno-strict-aliasing -fno-align-functions -fno-align-labels -fno-align-loops -fno-align-jumps
+CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -MMD -MP -I$(DEVKITPRO)/libogc/include/ogc $(WII_FLAGS)
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
@@ -34,7 +36,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lgrrlib -lpngu -lwiiuse -lfat -lbte -lvorbisidec -lmad -logg -lasnd -logc -lm -lz `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` 
+LIBS	:=	-lgrrlib -lpngu -lwiiuse -lfat -lbte -lvorbisidec -lmad -logg -lasnd -logc -lm -lz -lmxml `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` 
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -104,7 +106,15 @@ $(BUILD):
 	@echo
 	@echo "Please install libvorbisidec using (dkp-)pacman -S ppc-libvorbisidec"
 	@echo
-	@echo "See https://devkitpro.org/viewtopic.php?f=13&t=8702 for details"
+	@echo "*------------------------------------------------------------------------------------------*"
+	@echo
+else ifeq (,$(wildcard $(DEVKITPRO)/portlibs/ppc/include/mxml.h))
+
+$(BUILD):
+	@echo
+	@echo "*------------------------------------------------------------------------------------------*"
+	@echo
+	@echo "Please install mxml using (dkp-)pacman -S ppc-mxml"
 	@echo
 	@echo "*------------------------------------------------------------------------------------------*"
 	@echo
