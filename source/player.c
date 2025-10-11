@@ -483,12 +483,12 @@ void ship_gamemode(Player *player) {
         // Make both dual players symetric
         if (state.input.holdJump) {
             player->buffering_state = BUFFER_END;
-            if (player->vel_y <= 101.541492f)
+            if (player->vel_y <= -101.541492f)
                 player->gravity = player->mini ? 1643.5872f : 1397.0491f;
             else
                 player->gravity = player->mini ? 1314.86976f : 1117.64328f;
         } else {
-            if (player->vel_y >= 101.541492f)
+            if (player->vel_y >= -101.541492f)
                 player->gravity = player->mini ? -1577.85408f : -1341.1719f;
             else
                 player->gravity = player->mini ? -1051.8984f : -894.11464f;
@@ -616,10 +616,18 @@ void ufo_gamemode(Player *player) {
         player->buffering_state = BUFFER_END;
         player->ufo_last_y = player->y;
     } else {
-        if (player->vel_y > (player->mini ? 103.485494 : 0)) {
-            player->gravity = player->mini ? -1969.92 : -1676.84;
-        } else {
-            player->gravity = player->mini ? -1308.96 : -1117.56;
+        if (!state.dual) {
+            if (player->vel_y > grav(player, 103.485494)) {
+                player->gravity = player->mini ? -1969.92 : -1676.84;
+            } else {
+                player->gravity = player->mini ? -1308.96 : -1117.56;
+            }
+        } else {   
+            if (player->vel_y > -103.485494) {
+                player->gravity = player->mini ? -1969.92 : -1676.84;
+            } else {
+                player->gravity = player->mini ? -1308.96 : -1117.56;
+            }
         }
     }
 
