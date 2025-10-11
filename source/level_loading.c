@@ -2201,6 +2201,12 @@ void reload_level() {
         obj->dirty = FALSE;
         update_object_section(obj, origPositionsList[i].x, origPositionsList[i].y);
     }
+
+    for (int i = 1; i < MAX_GROUPS; i++) {
+        Node *p = get_group(i);
+        if (p) p->opacity = 1;
+    }
+
     reset_color_channels();
     set_color_channels();
 
