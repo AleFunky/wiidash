@@ -4,6 +4,8 @@
 
 #define MAX_GROUPS_PER_OBJECT 20
 
+#define MAX_PULSES_PER_GROUP 5
+
 #define MAX_OBJECT_LAYERS 4
 
 typedef struct Section Section;
@@ -130,14 +132,17 @@ typedef struct {
     Color main_color;
     Color detail_color;
 
-    unsigned char num_pulses;
+    Color main_non_pulse_color;
+    Color detail_non_pulse_color;
 
     unsigned char touching_side;
     // Slope
     unsigned char orientation;
 
-    Color main_col_pulse;
-    Color detail_col_pulse;
+    char num_main_pulses;
+    char num_detail_pulses;
+    Color main_pulses[MAX_PULSES_PER_GROUP];
+    Color detail_pulses[MAX_PULSES_PER_GROUP];
 
     float orange_tp_portal_y_offset; // key 54
     GameObject *child_object;

@@ -43,6 +43,9 @@ struct PulseTriggerBuffer {
 
     int pulse_index;
 
+    int *main_pulse_index;
+    int *detail_pulse_index;
+
     float seconds;
     float time_run;
 };

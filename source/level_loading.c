@@ -2177,6 +2177,16 @@ char *get_author_name(char *data_ptr) {
 }
 
 void reload_level() {
+    for (int i = 0; i < MAX_PULSE_CHANNELS; i++) {
+        struct PulseTriggerBuffer *buffer = &pulse_trigger_buffer[i];
+
+        if (buffer->main_pulse_index) free(buffer->main_pulse_index);
+        if (buffer->detail_pulse_index) free(buffer->detail_pulse_index);
+
+        buffer->main_pulse_index = NULL;
+        buffer->detail_pulse_index = NULL;
+    }
+
     memset(col_trigger_buffer, 0, sizeof(col_trigger_buffer));
     memset(move_trigger_buffer, 0, sizeof(move_trigger_buffer));
     memset(alpha_trigger_buffer, 0, sizeof(alpha_trigger_buffer));
@@ -2197,6 +2207,14 @@ void reload_level() {
         if (*soa_type(obj) == TYPE_NORMAL_OBJECT) {
             obj->object.main_being_pulsed = FALSE;
             obj->object.detail_being_pulsed = FALSE;
+            obj->object.num_main_pulses = 0;
+            obj->object.num_detail_pulses = 0;
+            memset(obj->object.main_pulses, 0, sizeof(obj->object.main_pulses));
+            memset(obj->object.detail_pulses, 0, sizeof(obj->object.detail_pulses));
+            memset(&obj->object.main_color, 0, sizeof(Color));
+            memset(&obj->object.detail_color, 0, sizeof(Color));
+            memset(&obj->object.main_non_pulse_color, 0, sizeof(Color));
+            memset(&obj->object.detail_non_pulse_color, 0, sizeof(Color));
         }
         obj->dirty = FALSE;
         update_object_section(obj, origPositionsList[i].x, origPositionsList[i].y);

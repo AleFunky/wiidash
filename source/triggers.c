@@ -137,36 +137,53 @@ void handle_pulse_triggers() {
                     if (buffer->fade_in > 0) {
                         fade_time = buffer->time_run / buffer->fade_in;                
                     }
+                    int index = 0;
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
 
                         if (both || buffer->main_only) {
-                            Color channel_color = obj->object.main_color;
+                            int main_pulse_index = buffer->main_pulse_index[index];
+
+                            Color channel_color = obj->object.main_non_pulse_color;
+                            if (main_pulse_index > 0) {
+                                channel_color = obj->object.main_pulses[main_pulse_index - 1];
+                            }
                             
                             float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (1.f - fade_time));
                             float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (1.f - fade_time));
                             float b = (buffer->color.b - (buffer->color.b - channel_color.b) * (1.f - fade_time));
 
-                            obj->object.main_col_pulse.r = r;
-                            obj->object.main_col_pulse.g = g;
-                            obj->object.main_col_pulse.b = b;
+                            obj->object.main_pulses[main_pulse_index].r = r;
+                            obj->object.main_pulses[main_pulse_index].g = g;
+                            obj->object.main_pulses[main_pulse_index].b = b;
 
+                            obj->object.main_color = obj->object.main_pulses[main_pulse_index];
+                            
                             obj->object.main_being_pulsed = TRUE;
                         }
 
                         if (both || buffer->detail_only) {
-                            Color channel_color = obj->object.detail_color;
-                            
+                            int detail_pulse_index = buffer->detail_pulse_index[index];
+
+                            Color channel_color = obj->object.detail_non_pulse_color;
+                            if (detail_pulse_index > 0) {
+                                channel_color = obj->object.detail_pulses[detail_pulse_index - 1];
+                            }
+
                             float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (1.f - fade_time));
                             float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (1.f - fade_time));
                             float b = (buffer->color.b - (buffer->color.b - channel_color.b) * (1.f - fade_time));
 
-                            obj->object.detail_col_pulse.r = r;
-                            obj->object.detail_col_pulse.g = g;
-                            obj->object.detail_col_pulse.b = b;
+                            obj->object.detail_pulses[detail_pulse_index].r = r;
+                            obj->object.detail_pulses[detail_pulse_index].g = g;
+                            obj->object.detail_pulses[detail_pulse_index].b = b;
+                            
+                            obj->object.detail_color = obj->object.detail_pulses[detail_pulse_index];
 
                             obj->object.detail_being_pulsed = TRUE;
                         }
+
+                        index++;
                     }
                 } else if (buffer->time_run >= buffer->fade_in + buffer->hold) {
                     // Fade out
@@ -175,61 +192,78 @@ void handle_pulse_triggers() {
                     if (buffer->fade_out > 0) {
                         fade_time = (buffer->time_run - buffer->hold - buffer->fade_in) / buffer->fade_out;
                     }
+                    int index = 0;
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
 
-                        if (!buffer->started_fade_out) {
-                            if (obj->object.num_pulses > 1) {
-                                obj->object.main_color = obj->object.main_col_pulse;
-                                obj->object.detail_color = obj->object.detail_col_pulse;
-                            }
-                            buffer->started_fade_out = TRUE;
-                        }
-
                         if (both || buffer->main_only) {
-                            Color channel_color = obj->object.main_color;
+                            int main_pulse_index = buffer->main_pulse_index[index];
+                            
+                            Color channel_color = obj->object.main_non_pulse_color;
+                            if (main_pulse_index > 0) {
+                                channel_color = obj->object.main_pulses[main_pulse_index - 1];
+                            }
                             
                             float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (fade_time));
                             float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (fade_time));
                             float b = (buffer->color.b - (buffer->color.b - channel_color.b) * (fade_time));
 
-                            obj->object.main_col_pulse.r = r;
-                            obj->object.main_col_pulse.g = g;
-                            obj->object.main_col_pulse.b = b;
+                            obj->object.main_pulses[main_pulse_index].r = r;
+                            obj->object.main_pulses[main_pulse_index].g = g;
+                            obj->object.main_pulses[main_pulse_index].b = b;
+
+                            obj->object.main_color = obj->object.main_pulses[main_pulse_index];
 
                             obj->object.main_being_pulsed = TRUE;
                         }
 
                         if (both || buffer->detail_only) {
-                            Color channel_color = obj->object.detail_color;
+                            int detail_pulse_index = buffer->detail_pulse_index[index];
+                            
+                            Color channel_color = obj->object.detail_non_pulse_color;
+                            if (detail_pulse_index > 0) {
+                                channel_color = obj->object.detail_pulses[detail_pulse_index - 1];
+                            }
                             
                             float r = (buffer->color.r - (buffer->color.r - channel_color.r) * (fade_time));
                             float g = (buffer->color.g - (buffer->color.g - channel_color.g) * (fade_time));
                             float b = (buffer->color.b - (buffer->color.b - channel_color.b) * (fade_time));
 
-                            obj->object.detail_col_pulse.r = r;
-                            obj->object.detail_col_pulse.g = g;
-                            obj->object.detail_col_pulse.b = b;
-                            
+                            obj->object.detail_pulses[detail_pulse_index].r = r;
+                            obj->object.detail_pulses[detail_pulse_index].g = g;
+                            obj->object.detail_pulses[detail_pulse_index].b = b;
+
+                            obj->object.detail_color = obj->object.detail_pulses[detail_pulse_index];
+
                             obj->object.detail_being_pulsed = TRUE;
                         }
+
+                        index++;
                     }
                 } else {
                     // Hold
+                    int index = 0;
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
 
                         if (both || buffer->main_only) {
-                            obj->object.main_col_pulse = buffer->color;
+                            int main_pulse_index = buffer->main_pulse_index[index];
+
+                            obj->object.main_pulses[main_pulse_index] = buffer->color;
+                            obj->object.main_color = buffer->color;
 
                             obj->object.main_being_pulsed = TRUE;
                         }
 
                         if (both || buffer->detail_only) {
-                            obj->object.detail_col_pulse = buffer->color;
+                            int detail_pulse_index = buffer->detail_pulse_index[index];
+
+                            obj->object.detail_pulses[detail_pulse_index] = buffer->color;
+                            obj->object.detail_color = buffer->color;
 
                             obj->object.detail_being_pulsed = TRUE;
                         }
+                        index++;
                     }
                 }
             }
@@ -238,13 +272,27 @@ void handle_pulse_triggers() {
             if (buffer->time_run > buffer->seconds) {
                 if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
                     //printf("End of pulse at slot %d\n", i);
+                    bool both = !buffer->main_only && !buffer->detail_only;
+
                     for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                         GameObject *obj = p->obj;
-                        obj->object.main_being_pulsed = FALSE;
-                        obj->object.detail_being_pulsed = FALSE;
+                        if (both || buffer->main_only) {
+                            obj->object.num_main_pulses--;
 
-                        obj->object.num_pulses--;
+                            if (!obj->object.num_main_pulses) obj->object.main_being_pulsed = FALSE;
+                        }
+
+                        if (both || buffer->detail_only) {
+                            obj->object.num_detail_pulses--;
+
+                            if (!obj->object.num_detail_pulses) obj->object.detail_being_pulsed = FALSE;
+                        }
                     }
+                    free(buffer->main_pulse_index);
+                    free(buffer->detail_pulse_index);
+                    
+                    buffer->main_pulse_index = NULL;
+                    buffer->detail_pulse_index = NULL;
                 } else {
                     //printf("End of pulse for channel %d, %d at slot %d\n", buffer->target_color_id, buffer->pulse_index, i);
                     for (int j = MAX_PULSE_CHANNELS - 1; j > i; j--) {
@@ -338,13 +386,45 @@ void upload_to_pulse_buffer(GameObject *obj) {
         buffer->target_color_id = channel;
 
         if (buffer->pulse_target_type == PULSE_TARGET_TYPE_GROUP) {
+            int objects = 0;
+            for (Node *p = get_group(buffer->target_group); p; p = p->next) {
+                objects++;
+            }
+
+            buffer->main_pulse_index = malloc(sizeof(int) * objects);
+            buffer->detail_pulse_index = malloc(sizeof(int) * objects);
+
+            bool both = !buffer->main_only && !buffer->detail_only;
+            int index = 0;
             for (Node *p = get_group(buffer->target_group); p; p = p->next) {
                 GameObject *obj = p->obj;
-                if (obj->object.num_pulses > 0) {
-                    if (obj->object.main_being_pulsed) obj->object.main_color = obj->object.main_col_pulse;
-                    if (obj->object.detail_being_pulsed) obj->object.detail_color = obj->object.detail_col_pulse;
+
+                if (both || buffer->main_only) {
+                    if (obj->object.num_main_pulses >= MAX_PULSES_PER_GROUP) {
+                        free(buffer->main_pulse_index);
+                        free(buffer->detail_pulse_index);
+
+                        buffer->main_pulse_index = NULL;
+                        buffer->detail_pulse_index = NULL;
+                        return;
+                    }
+
+                    buffer->main_pulse_index[index] = obj->object.num_main_pulses++;
                 }
-                obj->object.num_pulses++;
+
+                if (both || buffer->detail_only) {
+                    if (obj->object.num_detail_pulses >= MAX_PULSES_PER_GROUP) {
+                        free(buffer->main_pulse_index);
+                        free(buffer->detail_pulse_index);
+                        
+                        buffer->main_pulse_index = NULL;
+                        buffer->detail_pulse_index = NULL;
+                        return;
+                    }
+                    
+                    buffer->detail_pulse_index[index] = obj->object.num_detail_pulses++;
+                }
+                index++;
             }
         } else {
             // If ran out of pulses for this channel, return

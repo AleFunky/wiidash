@@ -1737,23 +1737,29 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
         color = HSV_combine(color, obj->object.detail_col_HSV);
     }
 
-    if (obj->object.num_pulses < 2) {
-        // Proceed to reset color
-        if (color_type == COLOR_MAIN) {
+    
+    // Proceed to reset color
+    if (color_type == COLOR_MAIN) {
+        obj->object.main_non_pulse_color = color;
+        if (obj->object.num_main_pulses == 0) {
             obj->object.main_color = color;
-        } else if (color_type == COLOR_DETAIL) {
+        }
+    }
+    if (color_type == COLOR_DETAIL) {
+        obj->object.detail_non_pulse_color = color;
+        if (obj->object.num_detail_pulses == 0) {
             obj->object.detail_color = color;
         }
     }
-
+    
     if (obj->object.main_being_pulsed && color_type == COLOR_MAIN) {
-        color = obj->object.main_col_pulse;
+        color = obj->object.main_color;
     } else if (obj->object.detail_being_pulsed && color_type == COLOR_DETAIL) {
-        color = obj->object.detail_col_pulse;
+        color = obj->object.detail_color;
         
         // Reapply lighter
         if (col_channel == LIGHTER) {
-            color = HSV_combine(obj->object.main_col_pulse, lighter_hsv);
+            color = HSV_combine(obj->object.main_color, lighter_hsv);
 
             if (obj->object.main_col_HSV_enabled) {
                 color = HSV_combine(color, obj->object.main_col_HSV);
