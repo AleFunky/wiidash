@@ -1722,8 +1722,13 @@ u32 get_layer_color(GameObject *obj, int color_type, int col_channel, float opac
 
     // Handle lighter color channel
     if (col_channel == LIGHTER) {
-        color = HSV_combine(channels[obj->object.main_col_channel].color, lighter_hsv);
+        int main_col_channel = obj->object.main_col_channel;
 
+        if (main_col_channel == 0) {
+            main_col_channel = get_main_channel_id(*soa_id(obj));
+        }
+        
+        color = HSV_combine(channels[main_col_channel].color, lighter_hsv);
         if (obj->object.main_col_HSV_enabled) {
             color = HSV_combine(color, obj->object.main_col_HSV);
         }
