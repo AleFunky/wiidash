@@ -366,7 +366,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     
                     player->ceiling_inv_time = 0.1f;
                     player->snap_rotation = TRUE;
-                    player->gamemode = GAMEMODE_CUBE;
+                    set_gamemode(player, GAMEMODE_CUBE);
                     player->is_cube_or_robot = TRUE;
                     flip_other_player(state.current_player ^ 1);
 
@@ -397,7 +397,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     if (player->gamemode == GAMEMODE_WAVE) player->vel_y *= 0.9f;
                     player->vel_y /= (player->gamemode == GAMEMODE_UFO || player->gamemode == GAMEMODE_WAVE) ? 4 : 2;
                     
-                    player->gamemode = GAMEMODE_SHIP;
+                    set_gamemode(player, GAMEMODE_SHIP);
                     player->inverse_rotation = FALSE;
                     player->snap_rotation = TRUE;
                     flip_other_player(state.current_player ^ 1);
@@ -547,7 +547,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                             break;
                     }
                     
-                    player->gamemode = GAMEMODE_BALL;
+                    set_gamemode(player, player->gamemode = GAMEMODE_BALL);
                     player->inverse_rotation = FALSE;
                     player->snap_rotation = TRUE;
                     flip_other_player(state.current_player ^ 1);
@@ -571,7 +571,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
 
         case BIG_PORTAL:
             if (!obj->activated[state.current_player]) {
-                player->mini = FALSE;
+                set_mini(player, FALSE);
 
                 particle_templates[USE_EFFECT].start_scale = 80;
                 particle_templates[USE_EFFECT].end_scale = 0;
@@ -589,7 +589,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
 
         case MINI_PORTAL:
             if (!obj->activated[state.current_player]) {
-                player->mini = TRUE;
+                set_mini(player, TRUE);
 
                 particle_templates[USE_EFFECT].start_scale = 80;
                 particle_templates[USE_EFFECT].end_scale = 0;
@@ -613,7 +613,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 if (player->gamemode != GAMEMODE_UFO) {
                     if (player->gamemode == GAMEMODE_WAVE) player->vel_y *= 0.9f;
                     player->vel_y /= (player->gamemode == GAMEMODE_SHIP || player->gamemode == GAMEMODE_WAVE) ? 4 : 2;
-                    player->gamemode = GAMEMODE_UFO;
+                    set_gamemode(player, GAMEMODE_UFO);
                     player->ufo_last_y = player->y;
                     player->inverse_rotation = FALSE;
                     player->snap_rotation = TRUE;
@@ -805,7 +805,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                 set_intended_ceiling();
 
                 if (player->gamemode != GAMEMODE_WAVE) {
-                    player->gamemode = GAMEMODE_WAVE;
+                    set_gamemode(player, GAMEMODE_WAVE);
                     player->inverse_rotation = FALSE;
                     player->snap_rotation = TRUE;
                     flip_other_player(state.current_player ^ 1);
@@ -823,6 +823,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
 
                     spawn_particle(USE_EFFECT, *soa_x(obj), *soa_y(obj), obj);
                 }
+
                 if (state.dual) {
                     set_dual_bounds();
                 } 
@@ -876,7 +877,7 @@ void handle_special_hitbox(Player *player, GameObject *obj, ObjectHitbox *hitbox
                     
                     player->ceiling_inv_time = 0.1f;
                     player->snap_rotation = TRUE;
-                    player->gamemode = GAMEMODE_ROBOT;
+                    set_gamemode(player, GAMEMODE_ROBOT);
                     player->is_cube_or_robot = TRUE;
                     flip_other_player(state.current_player ^ 1);
 

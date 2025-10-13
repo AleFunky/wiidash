@@ -176,6 +176,8 @@ void snap_player_to_slope(GameObject *obj, Player *player);
 bool slope_touching(GameObject *obj, Player *player);
 void run_camera();
 float get_slope_angle(GameObject *obj);
+void set_gamemode(Player *player, int gamemode);
+void set_mini(Player *player, bool mini);
 
 inline float getTop(Player *player)  { return player->y + player->height / 2; }
 inline float getBottom(Player *player)  { return player->y - player->height / 2; }

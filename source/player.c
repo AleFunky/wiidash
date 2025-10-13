@@ -74,6 +74,33 @@ const float cube_jump_heights[SPEED_COUNT] = {
     606.42,
 };
 
+void set_hitbox_size(Player *player, int gamemode) {
+    float scale = (player->mini) ? 0.6f : 1.f;
+    if (gamemode != GAMEMODE_WAVE) {
+        player->height = 30 * scale;
+        player->width = 30 * scale;
+        
+        player->internal_hitbox.width = 9;
+        player->internal_hitbox.height = 9;
+    } else {
+        player->height = 10 * scale;
+        player->width = 10 * scale;
+
+        player->internal_hitbox.width = 3;
+        player->internal_hitbox.height = 3;
+    }
+}
+
+void set_gamemode(Player *player, int gamemode) {
+    player->gamemode = gamemode;
+    set_hitbox_size(player, gamemode);
+}
+
+void set_mini(Player *player, bool mini) {
+    player->mini = mini;
+    set_hitbox_size(player, player->gamemode);
+}
+
 void set_p_velocity(Player *player, float vel) {
     player->vel_y = vel * ((player->mini) ? 0.8 : 1);
 }
@@ -832,21 +859,6 @@ void spawn_glitter_particles() {
 
 void run_player(Player *player) {
     float scale = (player->mini) ? 0.6f : 1.f;
-
-    if (player->gamemode != GAMEMODE_WAVE) {
-        player->height = 30 * scale;
-        player->width = 30 * scale;
-        
-        player->internal_hitbox.width = 9;
-        player->internal_hitbox.height = 9;
-    } else {
-        player->height = 10 * scale;
-        player->width = 10 * scale;
-
-        player->internal_hitbox.width = 3;
-        player->internal_hitbox.height = 3;
-    }
-
     trail.stroke = 10.f * scale;
     
     if (!player->left_ground) {
@@ -1224,11 +1236,11 @@ void init_variables() {
     player->vel_y = 0;
     state.ground_y = 0;
     state.ceiling_y = 999999;
-    player->gamemode = level_info.initial_gamemode;
+    set_gamemode(player, level_info.initial_gamemode);
     player->on_ground = TRUE;
     player->on_ceiling = FALSE;
     player->inverse_rotation = FALSE;
-    player->mini = level_info.initial_mini;
+    set_mini(player, level_info.initial_mini);
     player->upside_down = level_info.initial_upsidedown;
     player->timeElapsed = 0.f;
 
