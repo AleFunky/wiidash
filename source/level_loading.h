@@ -109,7 +109,7 @@ typedef struct {
 typedef struct GameObject GameObject;
 
 typedef struct {
-    unsigned char u1p9_col_channel; // key 19
+    unsigned short u1p9_col_channel;   // key 19
     unsigned short main_col_channel;   // key 21
     unsigned short detail_col_channel; // key 22
 
