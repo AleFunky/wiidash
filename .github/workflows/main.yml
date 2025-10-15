@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Update libogc
         run: |
-          dkp-pacman -Sy
-          dkp-pacman -Syu
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -Syu --noconfirm
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
