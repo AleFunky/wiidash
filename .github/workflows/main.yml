@@ -10,6 +10,10 @@ jobs:
     container: devkitpro/devkitppc
     name: Compile ROM
     steps:
+      - name: Update libogc
+        run: |
+          dkp-pacman -Sy
+          dkp-pacman -Syu
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
