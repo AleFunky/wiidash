@@ -20,6 +20,12 @@ jobs:
       - name: Build GRRLIB
         run: |
           cd GRRLIB/
+          sudo bash -c 'cat <<EOF >> /opt/devkitpro/pacman/etc/pacman.conf
+          [dkp-libs]
+          Server = https://pkg.devkitpro.org/packages
+          [dkp-linux]
+          Server = https://pkg.devkitpro.org/packages/linux/$arch
+          EOF'
           dkp-pacman --sync --needed --noconfirm libfat-ogc ppc-libpng ppc-freetype ppc-libjpeg-turbo ppc-libvorbisidec ppc-mxml
           make -C GRRLIB clean all install
       - name: Make application
