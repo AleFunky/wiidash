@@ -26,6 +26,7 @@ jobs:
           [dkp-linux]
           Server = https://pkg.devkitpro.org/packages/linux/$arch
           EOF'
+          sudo dkp-pacman -Sy --noconfirm
           dkp-pacman --sync --needed --noconfirm libfat-ogc ppc-libpng ppc-freetype ppc-libjpeg-turbo ppc-libvorbisidec ppc-mxml
           make -C GRRLIB clean all install
       - name: Make application
