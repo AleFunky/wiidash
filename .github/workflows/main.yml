@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: webhdx/devkitppc-libogc2
+    container: ghcr.io/extremscorner/libogc2:latest
     name: Compile ROM
     steps:
       - name: Update libogc
