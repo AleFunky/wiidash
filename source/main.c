@@ -230,8 +230,8 @@ void update_external_input(KeyInput *input) {
     unsigned int const wpad_dir_mask = WPAD_BUTTON_UP | WPAD_BUTTON_DOWN | WPAD_BUTTON_RIGHT | WPAD_BUTTON_LEFT; 
     unsigned int const pad_dir_mask =  PAD_BUTTON_UP  | PAD_BUTTON_DOWN  | PAD_BUTTON_RIGHT  | PAD_BUTTON_LEFT; 
 
-    input->pressedDir = ((WPAD_ButtonsDown(WPAD_CHAN_0) & wpad_dir_mask) >> 8) | (PAD_ButtonsDown(PAD_CHAN0) & pad_dir_mask);
-    input->holdDir =    ((WPAD_ButtonsHeld(WPAD_CHAN_0) & wpad_dir_mask) >> 8) | (PAD_ButtonsHeld(PAD_CHAN0) & pad_dir_mask);
+    input->pressedDir = (WPAD_ButtonsDown(WPAD_CHAN_0) & wpad_dir_mask) | (PAD_ButtonsDown(PAD_CHAN0) & pad_dir_mask);
+    input->holdDir =    (WPAD_ButtonsHeld(WPAD_CHAN_0) & wpad_dir_mask) | (PAD_ButtonsHeld(PAD_CHAN0) & pad_dir_mask);
 
     input->pressedJump = input->pressedA || input->pressed2orY || input->pressedB;
     input->holdJump = input->holdA || input->hold2orY || input->holdB;
@@ -271,6 +271,74 @@ void draw_ir_cursor() {
     if (ir_is_valid) {
         GRRLIB_DrawImg(ir_x, ir_y, cursor, ir_angle,1,1,RGBA(255,255,255,255)); // draw cursor
     }
+}
+static ssize_t __uart_write(const char *buffer,size_t len)
+{
+	u32 cmd,ret;
+
+	if(EXI_Lock(EXI_CHANNEL_0,EXI_DEVICE_1,NULL)==0) return 0;
+	if(EXI_Select(EXI_CHANNEL_0,EXI_DEVICE_1,EXI_SPEED8MHZ)==0) {
+		EXI_Unlock(EXI_CHANNEL_0);
+		return len;
+	}
+
+	ret = 0;
+	cmd = 0xa0010000;
+	if(EXI_Imm(EXI_CHANNEL_0,&cmd,4,EXI_WRITE,NULL)==0) ret |= 0x01;
+	if(EXI_Sync(EXI_CHANNEL_0)==0) ret |= 0x02;
+	if(EXI_ImmEx(EXI_CHANNEL_0,(void *)buffer,len,EXI_WRITE)==0) ret |= 0x04;
+	if(EXI_Deselect(EXI_CHANNEL_0)==0) ret |= 0x08;
+	if(EXI_Unlock(EXI_CHANNEL_0)==0) ret |= 0x10;
+
+	return len;
+}
+
+#define __outsz 256
+
+static ssize_t __uart_stdio_write(struct _reent *r, void *fd, const char *ptr, size_t len)
+{
+	// translate \n and \r\n to \r for Dolphin handling
+	char *p = (char*)ptr;
+	char *buf = (char*)ptr;
+	size_t send_len = len;
+
+	for(size_t i = 0; i <= send_len; i++)
+	{
+		char ch = *p++;
+		//skip the one of the 2 win newline bytes
+		if(ch=='\r' && *p == '\n')
+		{
+			send_len--;
+			continue;
+		}
+
+		//newline should be converted to carriage return
+		if (ch=='\n') 
+			ch = '\r';
+
+		*buf++ = ch;
+	}
+	
+	__uart_write(ptr, send_len);
+
+	return len;
+}
+static const devoptab_t dotab_uart = {
+	.name    = "uart",
+	.write_r = __uart_stdio_write,
+};
+
+void SYS_STDIO_Report(bool use_stdout)
+{
+	fflush(stderr);
+	devoptab_list[STD_ERR] = &dotab_uart;
+	setvbuf(stderr, NULL, _IONBF, 0);
+	if(use_stdout)
+	{
+		fflush(stdout);
+		devoptab_list[STD_OUT] = &dotab_uart;
+		setvbuf(stdout, NULL, _IONBF, 0);
+	}
 }
 
 int main(int argc, char **argv) {

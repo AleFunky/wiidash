@@ -28,7 +28,7 @@ include $(patsubst %/$(BUILD),%,$(CURDIR))/wii_rules
 
 
 WII_FLAGS = -fomit-frame-pointer -ffast-math -fno-math-errno -ffinite-math-only -fno-strict-aliasing -fno-align-functions -fno-align-labels -fno-align-loops -fno-align-jumps
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -MMD -MP -I$(DEVKITPRO)/libogc/include/ogc $(WII_FLAGS)
+CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE) -MMD -MP -I$(DEVKITPRO)/libogc2/wii/include/ogc $(WII_FLAGS)
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map

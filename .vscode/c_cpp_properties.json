@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/build",
-                "${env:DEVKITPRO}/libogc/**",
+                "${env:DEVKITPRO}/libogc2/**",
                 "${env:DEVKITPRO}/portlibs/**"
             ],
             "defines": [

@@ -640,7 +640,8 @@
         "bg_07_png.h": "c",
         "g_07_png.h": "c",
         "g_08_01_png.h": "c",
-        "g_08_02_png.h": "c"
+        "g_08_02_png.h": "c",
+        "gctypes.h": "c"
     },
     "cmake.ignoreCMakeListsMissing": true
 }

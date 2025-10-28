@@ -122,7 +122,7 @@ struct _rambuffer
 } rambuffer;
 
 void MP3Player_SetVoice(int voice) {
-    if (voice < 0 || voice >= MAX_SND_VOICES) return; // or clamp, or log error
+    if (voice < 0 || voice >= MAX_VOICES) return; // or clamp, or log error
     mp3_voice = voice;
 }
 
