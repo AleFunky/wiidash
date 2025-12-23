@@ -1,4 +1,4 @@
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 #include "objects.h"
 #include "level_loading.h"
 #include "stdio.h"

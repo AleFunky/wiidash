@@ -1,5 +1,5 @@
 
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 typedef struct {
     float x, y;
 } Vec2D;

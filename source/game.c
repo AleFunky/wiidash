@@ -1,4 +1,4 @@
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 #include <wiiuse/wpad.h>
 
 #include "game.h"

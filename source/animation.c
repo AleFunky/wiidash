@@ -2,7 +2,7 @@
 
 #include <string.h>
 #include <ctype.h>
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 #include "animation.h"
 #include "player.h"
 #include "main.h"

@@ -2,7 +2,7 @@
 #include "player.h"
 #include <stdbool.h>
 #include <math.h>
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 #include "math.h"
 
 void get_corners(float cx, float cy, float w, float h, float angle, Vec2D out[4]) {

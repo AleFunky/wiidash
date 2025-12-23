@@ -4,7 +4,7 @@
 #define MOTION_TRAIL_H
 
 #include <gccore.h>
-#include <grrlib.h>
+#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
 
 #include "objects.h"
 
