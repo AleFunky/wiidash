@@ -34,93 +34,9 @@ bool completion_shake = FALSE;
 
 char *current_song_pointer = NULL;
 
-static lwp_t input_thread;
-static volatile bool input_thread_active;
-static volatile bool complete_level_flag;
-static volatile bool exit_level_flag;
-
-typedef struct InputBuffer {
-    KeyInput inputs[INPUT_BUFFER_SIZE];
-    volatile u32 write_index;
-    volatile u32 read_index;
-    mutex_t mutex;
-} InputBuffer;
-
-static InputBuffer input_buffer;
-
-static volatile u32 frames_processed = 0;
-
 int frame_skipped = 0;
 
-// Initialize the input buffer in game_loop before creating thread:
-void init_input_buffer() {
-    LWP_MutexInit(&input_buffer.mutex, false);
-    input_buffer.write_index = 0;
-    input_buffer.read_index = 0;
-    memset(input_buffer.inputs, 0, sizeof(KeyInput) * INPUT_BUFFER_SIZE);
-}
-
-void *input_loop(void *arg) {
-    output_log("Starting input thread\n");
-    input_thread_active = TRUE;
-    exit_level_flag = FALSE;
-    while (1) {
-        u64 t0 = gettime();
-
-        // Get next write position
-        u32 write_pos = (input_buffer.write_index + 1) & INPUT_BUFFER_MASK;
-        
-        // Wait if buffer full
-        while (write_pos == input_buffer.read_index && !exit_level_flag) {
-            usleep(100);
-        }
-        
-        // Write input
-        LWP_MutexLock(input_buffer.mutex);
-        update_external_input(&input_buffer.inputs[input_buffer.write_index]);
-        input_buffer.write_index = write_pos;
-        LWP_MutexUnlock(input_buffer.mutex);
-
-        KeyInput input = input_buffer.inputs[input_buffer.write_index];
-
-        //if (input.pressedJump) output_log("INPUT THREAD - Step n %d jump is %d\n", input_buffer.write_index, input.pressedJump);
-        
-        if (level_info.completing) {
-            complete_level_flag = TRUE;
-            break;
-        }
-
-        if (input.pressed1orX) state.noclip ^= 1;
-        if (input.pressedDir & INPUT_LEFT) {
-            state.hitbox_display++;
-            if (state.hitbox_display > 2) state.hitbox_display = 0;
-        }
-
-        if (input.pressedDir & INPUT_RIGHT) {
-            enable_info ^= 1;
-        }
-
-        if (input.pressedPlusOrL) {
-            state.paused ^= 1;
-        }
-
-        if (exit_level_flag) {
-            break;
-        }
-
-        u64 t1 = gettime();
-
-        float calc_time = (STEPS_DT * 1000000) - ticks_to_microsecs(t1 - t0);
-
-        if (calc_time > 0) usleep(calc_time);
-    }
-    input_thread_active = FALSE;
-    output_log("Exiting input thread\n");
-    return NULL;
-}
-
 int paused_loop() {
-    LWP_SuspendThread(input_thread);
     MP3Player_Pause();
     while (1) {
         start_frame = gettime();
@@ -132,8 +48,6 @@ int paused_loop() {
             MP3Player_Volume(0);
             gameRoutine = ROUTINE_MENU;
             if (current_song_pointer) free(current_song_pointer);
-            LWP_ResumeThread(input_thread);
-            exit_level_flag = TRUE;
             state.paused = FALSE;
             return TRUE;
         }
@@ -152,7 +66,6 @@ int paused_loop() {
         GRRLIB_Render();
     }
     MP3Player_Unpause();
-    LWP_ResumeThread(input_thread);
     state.paused = FALSE;
     return FALSE;
 }
@@ -182,8 +95,6 @@ int game_loop() {
     }
     
     init_move_triggers();
-    init_input_buffer();
-    LWP_CreateThread(&input_thread, input_loop, NULL, NULL, 0, 100);
 
     double accumulator = 0.0f;
     u64 prevTicks = gettime();
@@ -194,89 +105,75 @@ int game_loop() {
 
         if (frameTime > 1) frameTime = 1; // Avoid spiral of death
         if (fixed_dt) {
-            frameTime = STEPS_DT;
+            frameTime = STEPS_DT_UNMOD;
             fixed_dt = FALSE;
         }
         prevTicks = start_frame;
         
         accumulator += frameTime;
 
+        update_input();
+        
         u64 t0 = gettime();
         while (accumulator >= STEPS_DT_UNMOD) {
-            if (complete_level_flag || input_buffer.read_index != input_buffer.write_index) {
-                
-                if (!complete_level_flag) {
-                    LWP_MutexLock(input_buffer.mutex);
-                    state.input = input_buffer.inputs[input_buffer.read_index];
-                    input_buffer.read_index = (input_buffer.read_index + 1) & INPUT_BUFFER_MASK;
-                    LWP_MutexUnlock(input_buffer.mutex);
-                }
-                u64 start_physics = gettime();
-                state.old_player = state.player;
-                if (level_info.custom_song_id >= 0) {
-                    amplitude = CLAMP(MP3Player_GetAmplitude(), 0.1f, 1.f);
-                } else {
-                    amplitude = (beat_pulse ? 1.f : 0.1f);
-                }
-
-                state.current_player = 0;
-                trail = trail_p1;
-                wave_trail = wave_trail_p1;
-                if (death_timer <= 0)  {
-                    // Run first player
-                    handle_player(&state.player);
-                    
-                    run_camera();
-                    handle_mirror_transition();
-
-                    trail_p1 = trail;
-                    wave_trail_p1 = wave_trail;
-
-                    if (state.dead) break;
-
-                    if (state.dual) {
-                        // Run second player
-                        state.old_player = state.player2;
-                        trail = trail_p2;
-                        wave_trail = wave_trail_p2;
-                        state.current_player = 1;
-                        handle_player(&state.player2);
-                        trail_p2 = trail;
-                        wave_trail_p2 = wave_trail;
-                    }
-                }
-                    
-                u64 t2 = gettime();
-                handle_objects();
-                u64 t3 = gettime();
-                triggers_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
-
-                update_beat();
-                
-                update_percentage();
-                frame_counter++;
-
-                frames_processed++;
-
-                u64 end_physics = gettime();
-
-                float physics_time = ticks_to_secs_float(end_physics - start_physics);
-
-                if (physics_time >= STEPS_DT_UNMOD) {
-                    frame_skipped = (int) (physics_time * STEPS_HZ);
-                }
-                else frame_skipped = 0;
-                
-                accumulator -= STEPS_DT;
-                
-                if (state.dead) break;
+            // Always have valid input
+            u64 start_physics = gettime();
+            state.old_player = state.player;
+            if (level_info.custom_song_id >= 0) {
+                amplitude = CLAMP(MP3Player_GetAmplitude(), 0.1f, 1.f);
             } else {
-                 // No input available, wait
-                usleep(100);
-                accumulator -= 100/1000000.f;
-
-                if (!input_thread_active) break;
+                amplitude = (beat_pulse ? 1.f : 0.1f);
             }
+
+            state.current_player = 0;
+            trail = trail_p1;
+            wave_trail = wave_trail_p1;
+            if (death_timer <= 0)  {
+                // Run first player
+                handle_player(&state.player);
+                
+                run_camera();
+                handle_mirror_transition();
+
+                trail_p1 = trail;
+                wave_trail_p1 = wave_trail;
+
+                if (state.dead) break;
+
+                if (state.dual) {
+                    // Run second player
+                    state.old_player = state.player2;
+                    trail = trail_p2;
+                    wave_trail = wave_trail_p2;
+                    state.current_player = 1;
+                    handle_player(&state.player2);
+                    trail_p2 = trail;
+                    wave_trail_p2 = wave_trail;
+                }
+            }
+                
+            u64 t2 = gettime();
+            handle_objects();
+            u64 t3 = gettime();
+            triggers_time = ticks_to_microsecs(t3 - t2) / 1000.f * 4;
+
+            update_beat();
+            
+            update_percentage();
+            frame_counter++;
+
+            u64 end_physics = gettime();
+
+            float physics_time = ticks_to_secs_float(end_physics - start_physics);
+
+            if (physics_time >= STEPS_DT_UNMOD) {
+                frame_skipped = (int) (physics_time * STEPS_HZ);
+            }
+            else frame_skipped = 0;
+            
+            accumulator -= STEPS_DT;
+            
+            if (state.dead) break;
         }
         
         u64 t2 = gettime();
@@ -286,6 +183,20 @@ int game_loop() {
 
         u64 t1 = gettime();
         physics_time = ticks_to_microsecs(t1 - t0) / 1000.f;
+
+        if (state.input.pressed1orX) state.noclip ^= 1;
+        if (state.input.pressedDir & INPUT_LEFT) {
+            state.hitbox_display++;
+            if (state.hitbox_display > 2) state.hitbox_display = 0;
+        }
+
+        if (state.input.pressedDir & INPUT_RIGHT) {
+            enable_info ^= 1;
+        }
+
+        if (state.input.pressedPlusOrL) {
+            state.paused ^= 1;
+        }
 
         if (state.dead && death_timer <= 0.f) {
             death_timer = 1.f;
@@ -310,7 +221,7 @@ int game_loop() {
             }
         }
 
-        if (complete_level_flag) {
+        if (level_info.completing) {
             if (handle_wall_cutscene()) break;
         }   
 
@@ -323,8 +234,6 @@ int game_loop() {
         GRRLIB_Render();
     }
     fade_out();
-    
-    LWP_JoinThread(input_thread, NULL);
 
     unload_level();
     cleanup_move_triggers();
@@ -575,7 +484,6 @@ int handle_wall_cutscene() {
         completion_timer = 0.0f;
         MP3Player_Stop();
         complete_text_elapsed = 0.f;
-        complete_level_flag = FALSE;
         if (current_song_pointer) free(current_song_pointer);
         gameRoutine = ROUTINE_MENU;
         erase_rays();
