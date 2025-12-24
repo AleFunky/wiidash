@@ -20,6 +20,9 @@ For instructions on how to setup the game, or how to add custom levels, you can 
 
 * Download build: [Click here](https://nightly.link/AleFunky/wiidash/workflows/main/main/wiidash.zip)
 
+# Discord
+You can come to our Discord server and get help (or talk if you want): [Discord](https://discord.gg/Yh6JrS7eSU)
+
 ## Decompilations and recreations that helped make this as accurate as possible
 [GDClone](https://github.com/opstic/gdclone) by opstic\
 [GDRender](https://github.com/maxnut/gdrender/) by maxnut\
