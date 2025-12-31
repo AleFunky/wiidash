@@ -36,7 +36,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lgrrlib -lpngu -lwiiuse -lfat -lbte -lvorbisidec -lmad -logg -lasnd -logc -lm -lz -lmxml `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` 
+LIBS	:= $(patsubst %/$(BUILD),%,$(CURDIR))/GRRLIB/GRRLIB/GRRLIB/libgrrlib.a -lpngu -lwiiuse -lfat -lbte -lvorbisidec -lmad -logg -lasnd -logc -lm -lz -lmxml `$(PREFIX)pkg-config freetype2 libpng libjpeg --libs` 
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
