@@ -13,6 +13,7 @@ jobs:
       - name: Update libogc
         run: |
           dkp-pacman -Syu --noconfirm
+          sudo rm -rf /opt/devkitpro/portlibs/wii/include/grrlib
       - name: Checkout repo
         uses: actions/checkout@v4
         with:

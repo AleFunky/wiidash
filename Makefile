@@ -41,8 +41,9 @@ LIBS	:= $(patsubst %/$(BUILD),%,$(CURDIR))/GRRLIB/GRRLIB/GRRLIB/libgrrlib.a -lpn
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
-#---------------------------------------------------------------------------------
-LIBDIRS	:= $(CURDIR)/$(GRRLIB) $(PORTLIBS)
+LIBDIRS := \
+	$(patsubst %/$(BUILD),%,$(CURDIR))/GRRLIB/GRRLIB/GRRLIB \
+	$(PORTLIBS)
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
