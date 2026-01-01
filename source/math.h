@@ -1,5 +1,5 @@
 #pragma once
-#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
+#include <grrlib.h>
 #include "structs.h"
 #include "level_loading.h"
 #include "font_stuff.h"

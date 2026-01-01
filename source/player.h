@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
+#include <grrlib.h>
 #include "level_loading.h"
 #include "math.h"
 

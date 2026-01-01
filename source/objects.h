@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../GRRLIB/GRRLIB/GRRLIB/grrlib.h"
+#include <grrlib.h>
 #include "player.h"
 #include "math.h"
 #include "level_loading.h"
