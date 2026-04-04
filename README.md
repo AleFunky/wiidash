@@ -18,7 +18,7 @@ Please keep in mind this game is in active development and stuff might change or
 
 For instructions on how to setup the game, or how to add custom levels, you can find instructions [here](https://github.com/AleFunky/wiidash/wiki).
 
-* Download build: [Click here](https://nightly.link/AleFunky/wiidash/workflows/main/main/wiidash.zip)
+* Download build: [Click here](https://github.com/AleFunky/wiidash/releases/tag/latest)
 
 # Discord
 You can come to our Discord server and get help (or talk if you want): [Discord](https://discord.gg/Yh6JrS7eSU)
