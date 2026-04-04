@@ -28,4 +28,3 @@ You can come to our Discord server and get help (or talk if you want): [Discord]
 [GDRender](https://github.com/maxnut/gdrender/) by maxnut\
 [pathfinder](https://github.com/camila314/pathfinder) by camila314\
 [OpenGD](https://github.com/Open-GD/OpenGD/) by Open-GD
-
